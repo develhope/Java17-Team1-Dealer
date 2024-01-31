@@ -1,4 +1,4 @@
-package com.develhope.spring.vehicles;
+package com.develhope.spring.Vehicles;
 
 import lombok.Data;
 
@@ -16,6 +16,6 @@ public class Vehicle {
     private Integer discount;
     private String accesories;
     private Boolean used;
-    private vehicleStatus status;
+    private VehicleStatusEnum status;
 }
 

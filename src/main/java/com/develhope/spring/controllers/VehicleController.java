@@ -14,27 +14,27 @@ public class VehicleController {
     @Autowired
     VehicleService vehicleService;
 
-    @PostMapping(path = "/create")
+    @PostMapping(path = "")
     public Vehicle createOne(@RequestBody Vehicle vehicle) {
         return vehicleService.createVehicle(vehicle);
     }
 
-    @GetMapping(path = "/getall")
+    @GetMapping(path = "/all")
     public List<Vehicle> getall() {
         return vehicleService.getAllVehicles();
     }
 
-    @GetMapping(path = "/getone/{id}")
+    @GetMapping(path = "/{id}")
     public Vehicle getone(@PathVariable Long id) {
         return vehicleService.getSingleVehicle(id);
     }
 
-    @PutMapping(path = "/update/{id}")
+    @PutMapping(path = "/{id}")
     public Vehicle updateOne(@PathVariable Long id, @RequestBody Vehicle vehicle) {
         return vehicleService.updateVehicle(id, vehicle);
     }
 
-    @DeleteMapping(path = "/delete/{id}")
+    @DeleteMapping(path = "/{id}")
     public void deleteOne(@PathVariable Long id) {
         vehicleService.deleteSingle(id);
     }

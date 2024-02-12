@@ -26,6 +26,7 @@ public class Vehicle {
     private Integer discount;
     private String accesories;
     private Boolean used;
+    @Enumerated
     private VehicleStatus status;
 }
 

@@ -16,7 +16,9 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private Float deposit;
+    @Enumerated
     private PaymentStatus paymentStatus;
+    @Enumerated
     private OrderStatus orderStatus;
     private Vehicle vehicle;
 }

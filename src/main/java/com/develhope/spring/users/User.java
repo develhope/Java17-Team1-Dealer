@@ -1,9 +1,9 @@
-package com.develhope.spring.Users;
+package com.develhope.spring.users;
 
 import lombok.Data;
 
 @Data
-public class Users {
+public class User {
     private String name;
     private String surname;
     private String telephoneNumber;

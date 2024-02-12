@@ -17,7 +17,7 @@ public class VehicleService {
         return vehicleRepository.saveAndFlush(vehicle);
     }
 
-    public Optional<Vehicle> getVehicle(Long id) {
+    public Optional<Vehicle> getSingleVehicle(Long id) {
         return vehicleRepository.findById(id);
     }
 

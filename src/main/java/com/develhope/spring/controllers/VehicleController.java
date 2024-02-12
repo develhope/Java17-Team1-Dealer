@@ -1,7 +1,6 @@
 package com.develhope.spring.controllers;
 
 import com.develhope.spring.entities.vehicle.Vehicle;
-import com.develhope.spring.repositories.VehicleRepository;
 import com.develhope.spring.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +26,7 @@ public class VehicleController {
 
     @GetMapping(path = "/getone/{id}")
     public Optional<Vehicle> getone(@PathVariable Long id) {
-        return vehicleService.getVehicle(id);
+        return vehicleService.getSingleVehicle(id);
     }
 
     @PutMapping(path = "/update/{id}")

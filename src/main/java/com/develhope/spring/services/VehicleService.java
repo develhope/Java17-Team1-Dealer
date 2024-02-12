@@ -18,7 +18,7 @@ public class VehicleService {
     }
 
     public Vehicle getSingleVehicle(Long id) {
-       Optional <Vehicle> vehicle = vehicleRepository.findById(id);
+        Optional<Vehicle> vehicle = vehicleRepository.findById(id);
         return vehicle.orElse(null);
     }
 

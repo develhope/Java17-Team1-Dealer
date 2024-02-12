@@ -14,7 +14,7 @@ public class VehicleController {
     @Autowired
     VehicleService vehicleService;
 
-    @PostMapping(path = "")
+    @PostMapping(path = "/")
     public Vehicle createOne(@RequestBody Vehicle vehicle) {
         return vehicleService.createVehicle(vehicle);
     }

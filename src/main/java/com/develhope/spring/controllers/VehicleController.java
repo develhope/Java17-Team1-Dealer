@@ -25,7 +25,7 @@ public class VehicleController {
     }
 
     @GetMapping(path = "/getone/{id}")
-    public Optional<Vehicle> getone(@PathVariable Long id) {
+    public Vehicle getone(@PathVariable Long id) {
         return vehicleService.getSingleVehicle(id);
     }
 

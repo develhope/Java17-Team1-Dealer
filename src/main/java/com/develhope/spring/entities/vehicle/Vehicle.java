@@ -1,9 +1,19 @@
-package com.develhope.spring.vehicle;
+package com.develhope.spring.entities.vehicle;
 
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Table
+@Entity
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Vehicle {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
     private String Model;
     private String brand;
     private Integer displacement;

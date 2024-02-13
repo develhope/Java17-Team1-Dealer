@@ -13,7 +13,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
     public static final String USER_PATH = "/user";
-    public static final String USER_PATH_ID = "/user/{id}";
+    public static final String USER_PATH_ID = USER_PATH + "/{userId}";
 
     private final UserService userService;
 
@@ -32,13 +32,13 @@ public class UserController {
     }
 
     @GetMapping(path = USER_PATH_ID)
-    public User getone(@PathVariable Long id) {
-        return userService.getSingleUser(id).orElseThrow(NotFoundException::new);
+    public User getone(@PathVariable Long userId) {
+        return userService.getSingleUser(userId).orElseThrow(NotFoundException::new);
     }
 
     @PutMapping(path = USER_PATH_ID)
-    public ResponseEntity<?> updateOne(@PathVariable Long id, @RequestBody User user) {
-        User updatedUser = userService.updateUser(id, user);
+    public ResponseEntity<?> updateOne(@PathVariable Long userId, @RequestBody User user) {
+        User updatedUser = userService.updateUser(userId, user);
         if(updatedUser == null) {
             throw new NotFoundException();
         }
@@ -46,8 +46,8 @@ public class UserController {
     }
 
     @DeleteMapping(path = USER_PATH_ID)
-    public ResponseEntity deleteOne(@PathVariable Long id) {
-        if (userService.deleteSingleUser(id)) {
+    public ResponseEntity deleteOne(@PathVariable Long userId) {
+        if (userService.deleteSingleUser(userId)) {
             throw new NotFoundException();
         }
         return new ResponseEntity(HttpStatus.OK);

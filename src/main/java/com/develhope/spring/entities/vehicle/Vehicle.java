@@ -13,7 +13,8 @@ import lombok.NoArgsConstructor;
 public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    @Column(name = "vehicle_id")
+    private Long id;
     private String Model;
     private String brand;
     private Integer displacement;

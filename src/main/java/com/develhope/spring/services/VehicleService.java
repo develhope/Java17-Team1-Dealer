@@ -29,7 +29,7 @@ public class VehicleService {
         return vehicleRepository.saveAndFlush(vehicle);
     }
 
-    public void deleteSingle(Long id) {
+    public void deleteSingleVehicle(Long id) {
         vehicleRepository.deleteById(id);
     }
 }

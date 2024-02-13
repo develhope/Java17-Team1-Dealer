@@ -17,8 +17,9 @@ public class VehicleService {
         return vehicleRepository.saveAndFlush(vehicle);
     }
 
-    public Optional<Vehicle> getSingleVehicle(Long id) {
-        return vehicleRepository.findById(id);
+    public Vehicle getSingleVehicle(Long id) {
+        Optional<Vehicle> vehicle = vehicleRepository.findById(id);
+        return vehicle.orElse(null);
     }
 
     public List<Vehicle> getAllVehicles() {
@@ -26,7 +27,20 @@ public class VehicleService {
     }
 
     public Vehicle updateVehicle(Long id, Vehicle vehicle) {
-        return vehicleRepository.saveAndFlush(vehicle);
+        Vehicle updatedVehicle = getSingleVehicle(id);
+        updatedVehicle.setModel(vehicle.getModel());
+        updatedVehicle.setBrand(vehicle.getBrand());
+        updatedVehicle.setDisplacement(vehicle.getDisplacement());
+        updatedVehicle.setColor(vehicle.getColor());
+        updatedVehicle.setPower(vehicle.getPower());
+        updatedVehicle.setShift(vehicle.getShift());
+        updatedVehicle.setYearOfmatriculation(vehicle.getYearOfmatriculation());
+        updatedVehicle.setFuelType(vehicle.getFuelType());
+        updatedVehicle.setPrice(vehicle.getPrice());
+        updatedVehicle.setDiscount(vehicle.getDiscount());
+        updatedVehicle.setAccesories(vehicle.getAccesories());
+        updatedVehicle.setStatus(vehicle.getStatus());
+        return vehicleRepository.saveAndFlush(updatedVehicle);
     }
 
     public void deleteSingle(Long id) {

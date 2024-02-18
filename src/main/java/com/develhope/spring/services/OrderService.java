@@ -1,10 +1,9 @@
-package com.develhope.spring.services.users;
+package com.develhope.spring.services;
 
 import com.develhope.spring.entities.operations.Order;
 import com.develhope.spring.entities.operations.OrderStatus;
 import com.develhope.spring.entities.vehicle.Vehicle;
 import com.develhope.spring.repositories.OrderRepository;
-import com.develhope.spring.repositories.UserRepository;
 import com.develhope.spring.repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,23 +11,13 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 @Service
-public class SellerService {
+public class OrderService {
     @Autowired
-    private UserRepository userRepository;
+    private OrderRepository orderRepository;
     @Autowired
     private VehicleRepository vehicleRepository;
-    @Autowired
-    OrderRepository orderRepository;
-
-    public Vehicle getDetailsOfVehicle(long id) {
-        if (orderRepository.existsById(id)) {
-            return vehicleRepository.findById(id).get();
-        } else {
-            return null;
-        }
-    }
-
     public Order createOrderFromVehicle(Order order, long id) {
         Vehicle vehicle = vehicleRepository.findById(id).get();
         order.setVehicle(vehicle);

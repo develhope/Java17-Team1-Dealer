@@ -31,22 +31,22 @@ public class SellerController {
     }
 
     @PutMapping("/order/update/{id}")
-    public Order updateOrder(@PathVariable Long id, @RequestBody Order order) {
+    public Order updateOrder(@PathVariable long id, @RequestBody Order order) {
         return sellerService.updateOrder(id, order);
     }
 
     @GetMapping("/order/status/get/{id}")
-    public OrderStatus getOrderStatusFromId(@PathVariable Long id) {
+    public OrderStatus getOrderStatusFromId(@PathVariable long id) {
         return sellerService.getOrderStatusFromId(id);
     }
 
     @PatchMapping("/order/status/update/{id}")
-    public Order updateOrderStatusFromId(@PathVariable Long id, @RequestParam String status) {
+    public Order updateOrderStatusFromId(@PathVariable long id, @RequestParam String status) {
         return sellerService.updateOrderStatusFromId(id, status);
     }
 
     @GetMapping("/order/get/by/status")
     public List<Order> getOrdersByStatus(String status) {
-        return sellerService.getOrdersByStatus(status);
+        return sellerService.findByStatus(status);
     }
 }

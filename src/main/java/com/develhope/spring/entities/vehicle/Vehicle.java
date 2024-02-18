@@ -12,7 +12,7 @@ public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
-    private String Model;
+    private String model;
     private String brand;
     private Integer displacement;
     private String color;
@@ -25,6 +25,6 @@ public class Vehicle {
     private String accesories;
     private Boolean used;
     @Enumerated
-    private VehicleStatus status;
+    private VehicleStatus vehicleStatus;
 }
 

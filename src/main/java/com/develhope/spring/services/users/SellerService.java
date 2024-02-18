@@ -29,18 +29,18 @@ public class SellerService {
         }
     }
 
-    public Order createOrderFromVehicle(Order order, Long id) {
+    public Order createOrderFromVehicle(Order order, long id) {
         Vehicle vehicle = vehicleRepository.findById(id).get();
         order.setVehicle(vehicle);
         return orderRepository.saveAndFlush(order);
     }
 
-    public Boolean deleteOrder(Long id) {
+    public Boolean deleteOrder(long id) {
         orderRepository.deleteById(id);
         return !orderRepository.existsById(id);
     }
 
-    public Order updateOrder(Long id, Order order) {
+    public Order updateOrder(long id, Order order) {
         if (orderRepository.existsById(id)) {
             order.setId(id);
             return orderRepository.saveAndFlush(order);
@@ -49,7 +49,7 @@ public class SellerService {
         }
     }
 
-    public OrderStatus getOrderStatusFromId(Long id) {
+    public OrderStatus getOrderStatusFromId(long id) {
         if (orderRepository.existsById(id)) {
             return orderRepository.findById(id).get().getOrderStatus();
         } else {
@@ -57,7 +57,7 @@ public class SellerService {
         }
     }
 
-    public Order updateOrderStatusFromId(Long id, String status) {
+    public Order updateOrderStatusFromId(long id, String status) {
         Optional<Order> order = orderRepository.findById(id);
         if (order.isPresent()) {
             String statusString = status.toUpperCase();
@@ -69,7 +69,7 @@ public class SellerService {
         }
     }
 
-    public List<Order> getOrdersByStatus(String status) {
+    public List<Order> findByStatus(String status) {
         String statusString = status.toUpperCase();
         OrderStatus s = OrderStatus.valueOf(statusString);
         return new ArrayList<>(orderRepository.findByOrderStatus(s));

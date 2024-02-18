@@ -39,7 +39,7 @@ public class VehicleService {
         updatedVehicle.setPrice(vehicle.getPrice());
         updatedVehicle.setDiscount(vehicle.getDiscount());
         updatedVehicle.setAccesories(vehicle.getAccesories());
-        updatedVehicle.setStatus(vehicle.getStatus());
+        updatedVehicle.setVehicleStatus(vehicle.getVehicleStatus());
         return vehicleRepository.saveAndFlush(updatedVehicle);
     }
 

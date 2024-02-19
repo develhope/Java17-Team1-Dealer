@@ -55,9 +55,4 @@ public class UserController {
         }
         return new ResponseEntity(HttpStatus.OK);
     }
-
-    @GetMapping(path = USER_PATH + "/vehicle/all")
-    public List<Vehicle> getAllVehicles() {
-        return vehicleService.getAllVehicles();
-    }
 }

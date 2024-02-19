@@ -30,9 +30,13 @@ public class UserService {
     public User updateUser(Long id, User user) {
         Optional<User> foundUser = userRepository.findById(id);
         if (foundUser.isPresent()) {
-
-            user.setId(foundUser.get().getId());
-            return userRepository.saveAndFlush(user);
+            foundUser.get().setPassword(user.getPassword());
+            foundUser.get().setName(user.getName());
+            foundUser.get().setSurname(user.getSurname());
+            foundUser.get().setEmail(user.getEmail());
+            foundUser.get().setTelephoneNumber(user.getTelephoneNumber());
+            foundUser.get().setUserType(user.getUserType());
+            return userRepository.saveAndFlush(foundUser.get());
         } else {
             return null;
         }

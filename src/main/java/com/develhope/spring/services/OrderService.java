@@ -18,6 +18,7 @@ public class OrderService {
     private OrderRepository orderRepository;
     @Autowired
     private VehicleRepository vehicleRepository;
+
     public Order createOrderFromVehicle(Order order, long id) {
         Vehicle vehicle = vehicleRepository.findById(id).get();
         order.setVehicle(vehicle);
@@ -30,17 +31,23 @@ public class OrderService {
     }
 
     public Order updateOrder(long id, Order order) {
-        if (orderRepository.existsById(id)) {
-            order.setId(id);
-            return orderRepository.saveAndFlush(order);
+        Optional<Order> foundOrder = orderRepository.findById(id);
+        if (foundOrder.isPresent()) {
+            foundOrder.get().setDeposit(order.getDeposit());
+            foundOrder.get().setPaymentStatus(order.getPaymentStatus());
+            foundOrder.get().setOrderStatus(order.getOrderStatus());
+            foundOrder.get().setUser(order.getUser());
+            foundOrder.get().setVehicle(order.getVehicle());
+            return orderRepository.saveAndFlush(foundOrder.get());
         } else {
             return null;
         }
     }
 
     public OrderStatus getOrderStatusFromId(long id) {
-        if (orderRepository.existsById(id)) {
-            return orderRepository.findById(id).get().getOrderStatus();
+        Optional<Order> order = orderRepository.findById(id);
+        if (order.isPresent()) {
+            return order.get().getOrderStatus();
         } else {
             return null;
         }

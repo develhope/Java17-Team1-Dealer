@@ -6,6 +6,7 @@ public enum OrderStatus {
     DELIVERING("Delivering"),
     DELIVERED("Delivered");
     private String status;
+
     private OrderStatus(String a) {
         this.status = a;
     }
@@ -18,6 +19,7 @@ public enum OrderStatus {
         }
         return true;
     }
+
     @Override
     public String toString() {
         return status;

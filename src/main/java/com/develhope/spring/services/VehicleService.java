@@ -20,9 +20,23 @@ public class VehicleService {
     }
 
     public Vehicle updateVehicle(long id, Vehicle vehicle) {
-        if (vehicleRepository.existsById(id)) {
-            vehicle.setId(id);
-            return vehicleRepository.saveAndFlush(vehicle);
+        Optional<Vehicle> foundVehicle = vehicleRepository.findById(id);
+        if (foundVehicle.isPresent()) {
+            foundVehicle.get().setModel(vehicle.getModel());
+            foundVehicle.get().setBrand(vehicle.getBrand());
+            foundVehicle.get().setDisplacement(vehicle.getDisplacement());
+            foundVehicle.get().setColor(vehicle.getColor());
+            foundVehicle.get().setPower(vehicle.getPower());
+            foundVehicle.get().setShift(vehicle.getShift());
+            foundVehicle.get().setYearOfMatriculation(vehicle.getYearOfMatriculation());
+            foundVehicle.get().setFuelType(vehicle.getFuelType());
+            foundVehicle.get().setPrice(vehicle.getPrice());
+            foundVehicle.get().setDiscount(vehicle.getDiscount());
+            foundVehicle.get().setAccessories(vehicle.getAccessories());
+            foundVehicle.get().setUsed(vehicle.getUsed());
+            foundVehicle.get().setVehicleStatus(vehicle.getVehicleStatus());
+            foundVehicle.get().setVehicleType(vehicle.getVehicleType());
+            return vehicleRepository.saveAndFlush(foundVehicle.get());
         } else {
             return null;
         }
@@ -34,11 +48,13 @@ public class VehicleService {
     }
 
     public Vehicle updateVehicleStatusFromId(long id, String status) {
+        if(!VehicleStatus.isValidVehicleStatus(status.toUpperCase())){
+            return null;
+        }
+
         Optional<Vehicle> vehicle = vehicleRepository.findById(id);
         if (vehicle.isPresent()) {
-            String statusString = status.toUpperCase();
-            VehicleStatus s = VehicleStatus.valueOf(statusString);
-            vehicle.get().setVehicleStatus(s);
+            vehicle.get().setVehicleStatus(VehicleStatus.valueOf(status.toUpperCase()));
             return vehicleRepository.saveAndFlush(vehicle.get());
         } else {
             return null;
@@ -52,8 +68,9 @@ public class VehicleService {
     }
 
     public Vehicle getDetailsOfVehicle(long id) {
-        if (vehicleRepository.existsById(id)) {
-            return vehicleRepository.findById(id).get();
+        Optional<Vehicle> vehicle = vehicleRepository.findById(id);
+        if (vehicle.isPresent()) {
+            return vehicle.get();
         } else {
             return null;
         }

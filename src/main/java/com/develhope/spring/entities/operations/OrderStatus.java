@@ -12,7 +12,7 @@ public enum OrderStatus {
 
     public static boolean isValidOrderStatus(String str) {
         try {
-            com.develhope.spring.entities.operations.OrderStatus.valueOf(str);
+            OrderStatus.valueOf(str);
         } catch (Exception e) {
             return false;
         }

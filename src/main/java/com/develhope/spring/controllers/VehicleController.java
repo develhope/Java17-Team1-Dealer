@@ -12,7 +12,7 @@ import java.util.Optional;
 @RequestMapping(path = "/vehicle")
 public class VehicleController {
     @Autowired
-    VehicleService vehicleService;
+    private VehicleService vehicleService;
 
     @PostMapping(path = "/")
     public Vehicle createOne(@RequestBody Vehicle vehicle) {
@@ -36,7 +36,7 @@ public class VehicleController {
 
     @DeleteMapping(path = "/{id}")
     public void deleteOne(@PathVariable Long id) {
-        vehicleService.deleteSingle(id);
+        vehicleService.deleteSingleVehicle(id);
     }
 
 }

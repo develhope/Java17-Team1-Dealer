@@ -16,11 +16,14 @@ import java.util.Date;
 public class Rental {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    private Data startOfRental;
-    private Data endOfRental;
+    private Long id;
+    private Date startOfRental;
+    private Date endOfRental;
     private Float dailyCostRental;
     private Float totalCostRental;
+    @Enumerated
     private PaymentStatus status;
+    @ManyToOne
+    @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
 }

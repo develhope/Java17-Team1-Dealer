@@ -52,8 +52,9 @@ public class SellerController {
     public List<Order> getOrdersByStatus(String status) {
         return orderService.findByStatus(status);
     }
+
     @GetMapping("/vehicles/get")
-    public List<Vehicle> getAllVehicles(){
+    public List<Vehicle> getAllVehicles() {
         return vehicleService.getAllVehicles();
     }
 }

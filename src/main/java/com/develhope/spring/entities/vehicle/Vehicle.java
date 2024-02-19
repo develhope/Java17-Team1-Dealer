@@ -27,5 +27,7 @@ public class Vehicle {
     private Boolean used;
     @Enumerated
     private VehicleStatus vehicleStatus;
+    @Enumerated
+    private VehicleType vehicleType;
 }
 

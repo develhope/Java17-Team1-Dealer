@@ -8,37 +8,38 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin")
-public class AdminController {
+@RequestMapping("/vehicle")
+public class VehicleController {
     @Autowired
     private VehicleService vehicleService;
 
-    @PostMapping("/vehicle/create")
+    @PostMapping("/create")
     public Vehicle createVehicle(@RequestBody Vehicle vehicle) {
         return vehicleService.createVehicle(vehicle);
     }
 
-    @PutMapping("/vehicle/update/{id}")
+    @PutMapping("/update/{id}")
     public Vehicle updateVehicle(@PathVariable long id, @RequestBody Vehicle vehicle) {
         return vehicleService.updateVehicle(id, vehicle);
     }
 
-    @DeleteMapping("/vehicle/delete/{id}")
+    @DeleteMapping("/{id}")
     public Boolean deleteVehicle(@PathVariable long id) {
         return vehicleService.deleteVehicle(id);
     }
 
-    @PatchMapping("/vehicle/status/update/{id}")
+    @PatchMapping("/status/{id}")
     public Vehicle updateVehicleStatusFromId(@PathVariable long id, @RequestParam String status) {
         return vehicleService.updateVehicleStatusFromId(id, status);
     }
 
-    @GetMapping("/vehicle/get/by/status/used")
+    @GetMapping("/bystatus/used")
     public List<Vehicle> findByStatusAndUsed(@RequestParam String status, @RequestParam Boolean used) {
         return vehicleService.findByStatusAndUsed(status, used);
     }
-    @GetMapping("/vehicles/get")
-    public List<Vehicle> getAllVehicles(){
+
+    @GetMapping("/all")
+    public List<Vehicle> getAllVehicles() {
         return vehicleService.getAllVehicles();
     }
 }

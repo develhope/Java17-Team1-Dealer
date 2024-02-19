@@ -30,6 +30,7 @@ public class UserService {
     public User updateUser(Long id, User user) {
         Optional<User> foundUser = userRepository.findById(id);
         if (foundUser.isPresent()) {
+
             user.setId(foundUser.get().getId());
             return userRepository.saveAndFlush(user);
         } else {

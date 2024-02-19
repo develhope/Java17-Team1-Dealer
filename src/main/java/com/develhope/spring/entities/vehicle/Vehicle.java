@@ -11,6 +11,7 @@ import lombok.*;
 public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "vehicle_id")
     private long id;
     private String model;
     private String brand;

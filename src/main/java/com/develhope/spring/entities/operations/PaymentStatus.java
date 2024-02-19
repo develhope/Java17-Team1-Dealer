@@ -11,7 +11,7 @@ public enum PaymentStatus {
 
     public static boolean isValidPaymentStatus(String str) {
         try {
-            com.develhope.spring.entities.operations.PaymentStatus.valueOf(str);
+            PaymentStatus.valueOf(str);
         } catch (Exception e) {
             return false;
         }

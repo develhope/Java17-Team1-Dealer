@@ -6,6 +6,7 @@ public enum VehicleStatus {
     CAN_BE_ORDERED("Available for order"),
     PROMPT_DELIVERY("Available for prompt delivery");
     private String status;
+
     private VehicleStatus(String a) {
         this.status = a;
     }
@@ -18,6 +19,7 @@ public enum VehicleStatus {
         }
         return true;
     }
+
     @Override
     public String toString() {
         return status;

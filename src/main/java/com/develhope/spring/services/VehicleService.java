@@ -56,4 +56,26 @@ public class VehicleService {
     public List<Vehicle> getAllVehicles(){
         return vehicleRepository.findAll();
     }
+
+    public Vehicle updateVehicle(Long id, Vehicle vehicle) {
+        Vehicle updatedVehicle = getSingleVehicle(id);
+        updatedVehicle.setModel(vehicle.getModel());
+        updatedVehicle.setBrand(vehicle.getBrand());
+        updatedVehicle.setDisplacement(vehicle.getDisplacement());
+        updatedVehicle.setColor(vehicle.getColor());
+        updatedVehicle.setPower(vehicle.getPower());
+        updatedVehicle.setShift(vehicle.getShift());
+        updatedVehicle.setYearOfmatriculation(vehicle.getYearOfmatriculation());
+        updatedVehicle.setFuelType(vehicle.getFuelType());
+        updatedVehicle.setPrice(vehicle.getPrice());
+        updatedVehicle.setDiscount(vehicle.getDiscount());
+        updatedVehicle.setAccesories(vehicle.getAccesories());
+        updatedVehicle.setStatus(vehicle.getStatus());
+        return vehicleRepository.saveAndFlush(updatedVehicle);
+    }
+
+    public void deleteSingleVehicle(Long id) {
+        vehicleRepository.deleteById(id);
+    }
+
 }

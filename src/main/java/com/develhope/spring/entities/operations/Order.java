@@ -1,5 +1,6 @@
 package com.develhope.spring.entities.operations;
 
+import com.develhope.spring.entities.users.User;
 import com.develhope.spring.entities.vehicle.Vehicle;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +15,7 @@ import org.hibernate.type.SqlTypes;
 public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     private Float deposit;
     @Enumerated
     private PaymentStatus paymentStatus;
@@ -22,4 +23,7 @@ public class Order {
     private OrderStatus orderStatus;
     @OneToOne
     private Vehicle vehicle;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 }

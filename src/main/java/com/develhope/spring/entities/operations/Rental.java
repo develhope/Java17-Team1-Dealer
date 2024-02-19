@@ -22,7 +22,9 @@ public class Rental {
     private OffsetDateTime endOfRental;
     private Float dailyCostRental;
     private Float totalCostRental;
+    @Enumerated
     private PaymentStatus status;
     @OneToOne
+    @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
 }

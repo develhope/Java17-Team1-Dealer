@@ -1,9 +1,7 @@
 package com.develhope.spring.entities.vehicle;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Table
 @Entity
@@ -14,8 +12,8 @@ public class Vehicle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "vehicle_id")
-    private Long id;
-    private String Model;
+    private long id;
+    private String model;
     private String brand;
     private Integer displacement;
     private String color;
@@ -28,6 +26,6 @@ public class Vehicle {
     private String accesories;
     private Boolean used;
     @Enumerated
-    private VehicleStatus status;
+    private VehicleStatus vehicleStatus;
 }
 

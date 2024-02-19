@@ -2,10 +2,11 @@ package com.develhope.spring.entities.operations;
 
 import com.develhope.spring.entities.vehicle.Vehicle;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
+import java.time.OffsetDateTime;
 import java.util.Date;
 
 @Table
@@ -16,14 +17,14 @@ import java.util.Date;
 public class Rental {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private Date startOfRental;
-    private Date endOfRental;
+    private long id;
+    private OffsetDateTime startOfRental;
+    private OffsetDateTime endOfRental;
     private Float dailyCostRental;
     private Float totalCostRental;
     @Enumerated
     private PaymentStatus status;
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "vehicle_id")
     private Vehicle vehicle;
 }

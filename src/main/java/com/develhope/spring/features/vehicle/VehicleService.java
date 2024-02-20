@@ -1,8 +1,5 @@
-package com.develhope.spring.services;
+package com.develhope.spring.features.vehicle;
 
-import com.develhope.spring.entities.vehicle.Vehicle;
-import com.develhope.spring.entities.vehicle.VehicleStatus;
-import com.develhope.spring.repositories.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +15,30 @@ public class VehicleService {
     public Vehicle createVehicle(Vehicle vehicle) {
         return vehicleRepository.saveAndFlush(vehicle);
     }
+    public Vehicle getSingleVehicle(Long id) {
+        Optional<Vehicle> user = vehicleRepository.findById(id);
+        return user.orElse(null);
+    }
+
 
     public Vehicle updateVehicle(long id, Vehicle vehicle) {
-        if (vehicleRepository.existsById(id)) {
-            vehicle.setId(id);
-            return vehicleRepository.saveAndFlush(vehicle);
-        } else {
-            return null;
-        }
+      Vehicle vehicleToUpdate = getSingleVehicle(id);
+      vehicleToUpdate.setModel(vehicle.getModel());
+      vehicleToUpdate.setBrand(vehicle.getBrand());
+      vehicleToUpdate.setDisplacement(vehicle.getDisplacement());
+      vehicleToUpdate.setColor(vehicle.getColor());
+      vehicleToUpdate.setPower(vehicle.getPower());
+      vehicleToUpdate.setShift(vehicle.getShift());
+      vehicleToUpdate.setYearOfmatriculation(vehicle.getYearOfmatriculation());
+      vehicleToUpdate.setFuelType(vehicle.getFuelType());
+      vehicleToUpdate.setPrice(vehicle.getPrice());
+      vehicleToUpdate.setDiscount(vehicle.getDiscount());
+      vehicleToUpdate.setAccesories(vehicle.getAccesories());
+      vehicleToUpdate.setUsed(vehicle.getUsed());
+      vehicleToUpdate.setVehicleStatus(vehicle.getVehicleStatus());
+      vehicleToUpdate.setVehicleType(vehicle.getVehicleType());
+      vehicleRepository.saveAndFlush(vehicleToUpdate);
+      return vehicleToUpdate;
     }
 
     public Boolean deleteVehicle(long id) {

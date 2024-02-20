@@ -1,4 +1,4 @@
-package com.develhope.spring.entities.operations;
+package com.develhope.spring.features.orders;
 
 public enum OrderStatus {
     TO_SEND("To send"),

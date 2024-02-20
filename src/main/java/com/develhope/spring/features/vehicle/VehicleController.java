@@ -1,7 +1,5 @@
-package com.develhope.spring.controllers;
+package com.develhope.spring.features.vehicle;
 
-import com.develhope.spring.entities.vehicle.Vehicle;
-import com.develhope.spring.services.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

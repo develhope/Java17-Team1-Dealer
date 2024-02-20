@@ -1,10 +1,10 @@
-package com.develhope.spring.controllers;
+package com.develhope.spring.features.users;
 
-import com.develhope.spring.entities.operations.Order;
-import com.develhope.spring.entities.operations.OrderStatus;
-import com.develhope.spring.entities.vehicle.Vehicle;
-import com.develhope.spring.services.OrderService;
-import com.develhope.spring.services.VehicleService;
+import com.develhope.spring.features.orders.Order;
+import com.develhope.spring.features.orders.OrderStatus;
+import com.develhope.spring.features.vehicle.Vehicle;
+import com.develhope.spring.features.orders.OrderService;
+import com.develhope.spring.features.vehicle.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

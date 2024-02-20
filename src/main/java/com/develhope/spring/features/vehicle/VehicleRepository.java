@@ -1,7 +1,5 @@
-package com.develhope.spring.repositories;
+package com.develhope.spring.features.vehicle;
 
-import com.develhope.spring.entities.vehicle.Vehicle;
-import com.develhope.spring.entities.vehicle.VehicleStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

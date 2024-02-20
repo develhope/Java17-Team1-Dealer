@@ -1,9 +1,6 @@
-package com.develhope.spring.services;
+package com.develhope.spring.features.users;
 
-import com.develhope.spring.entities.users.User;
-import com.develhope.spring.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

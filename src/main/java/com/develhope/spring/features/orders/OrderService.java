@@ -1,10 +1,10 @@
-package com.develhope.spring.services;
+package com.develhope.spring.features.orders;
 
-import com.develhope.spring.entities.operations.Order;
-import com.develhope.spring.entities.operations.OrderStatus;
-import com.develhope.spring.entities.vehicle.Vehicle;
-import com.develhope.spring.repositories.OrderRepository;
-import com.develhope.spring.repositories.VehicleRepository;
+import com.develhope.spring.features.orders.Order;
+import com.develhope.spring.features.orders.OrderStatus;
+import com.develhope.spring.features.vehicle.Vehicle;
+import com.develhope.spring.features.orders.OrderRepository;
+import com.develhope.spring.features.vehicle.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

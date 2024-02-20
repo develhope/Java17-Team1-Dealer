@@ -1,11 +1,9 @@
-package com.develhope.spring.entities.operations;
+package com.develhope.spring.features.orders;
 
-import com.develhope.spring.entities.users.User;
-import com.develhope.spring.entities.vehicle.Vehicle;
+import com.develhope.spring.features.users.User;
+import com.develhope.spring.features.vehicle.Vehicle;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 @Table
 @Entity

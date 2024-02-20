@@ -1,4 +1,4 @@
-package com.develhope.spring.entities.users;
+package com.develhope.spring.features.users;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

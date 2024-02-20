@@ -1,6 +1,6 @@
 package com.develhope.spring.features.users;
 
-import com.develhope.spring.controllers.NotFoundException;
+import com.develhope.spring.exception.NotFoundException;
 import com.develhope.spring.features.vehicle.Vehicle;
 import com.develhope.spring.features.vehicle.VehicleService;
 import lombok.RequiredArgsConstructor;

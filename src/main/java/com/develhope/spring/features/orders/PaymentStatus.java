@@ -5,6 +5,7 @@ public enum PaymentStatus {
     NOT_PAID("Not paid"),
     DEPOSIT("Deposit");
     private String status;
+
     private PaymentStatus(String a) {
         this.status = a;
     }
@@ -17,6 +18,7 @@ public enum PaymentStatus {
         }
         return true;
     }
+
     @Override
     public String toString() {
         return status;

@@ -15,6 +15,7 @@ public class VehicleService {
     public Vehicle createVehicle(Vehicle vehicle) {
         return vehicleRepository.saveAndFlush(vehicle);
     }
+
     public Vehicle getSingleVehicle(Long id) {
         Optional<Vehicle> user = vehicleRepository.findById(id);
         return user.orElse(null);
@@ -22,23 +23,23 @@ public class VehicleService {
 
 
     public Vehicle updateVehicle(long id, Vehicle vehicle) {
-      Vehicle vehicleToUpdate = getSingleVehicle(id);
-      vehicleToUpdate.setModel(vehicle.getModel());
-      vehicleToUpdate.setBrand(vehicle.getBrand());
-      vehicleToUpdate.setDisplacement(vehicle.getDisplacement());
-      vehicleToUpdate.setColor(vehicle.getColor());
-      vehicleToUpdate.setPower(vehicle.getPower());
-      vehicleToUpdate.setShift(vehicle.getShift());
-      vehicleToUpdate.setYearOfmatriculation(vehicle.getYearOfmatriculation());
-      vehicleToUpdate.setFuelType(vehicle.getFuelType());
-      vehicleToUpdate.setPrice(vehicle.getPrice());
-      vehicleToUpdate.setDiscount(vehicle.getDiscount());
-      vehicleToUpdate.setAccesories(vehicle.getAccesories());
-      vehicleToUpdate.setUsed(vehicle.getUsed());
-      vehicleToUpdate.setVehicleStatus(vehicle.getVehicleStatus());
-      vehicleToUpdate.setVehicleType(vehicle.getVehicleType());
-      vehicleRepository.saveAndFlush(vehicleToUpdate);
-      return vehicleToUpdate;
+        Vehicle vehicleToUpdate = getSingleVehicle(id);
+        vehicleToUpdate.setModel(vehicle.getModel());
+        vehicleToUpdate.setBrand(vehicle.getBrand());
+        vehicleToUpdate.setDisplacement(vehicle.getDisplacement());
+        vehicleToUpdate.setColor(vehicle.getColor());
+        vehicleToUpdate.setPower(vehicle.getPower());
+        vehicleToUpdate.setShift(vehicle.getShift());
+        vehicleToUpdate.setYearOfmatriculation(vehicle.getYearOfmatriculation());
+        vehicleToUpdate.setFuelType(vehicle.getFuelType());
+        vehicleToUpdate.setPrice(vehicle.getPrice());
+        vehicleToUpdate.setDiscount(vehicle.getDiscount());
+        vehicleToUpdate.setAccesories(vehicle.getAccesories());
+        vehicleToUpdate.setUsed(vehicle.getUsed());
+        vehicleToUpdate.setVehicleStatus(vehicle.getVehicleStatus());
+        vehicleToUpdate.setVehicleType(vehicle.getVehicleType());
+        vehicleRepository.saveAndFlush(vehicleToUpdate);
+        return vehicleToUpdate;
     }
 
     public Boolean deleteVehicle(long id) {

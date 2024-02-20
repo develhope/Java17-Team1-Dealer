@@ -12,6 +12,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByOrderStatus(OrderStatus status);
 
     @Repository
-    interface RentalRepository extends JpaRepository<Rental,Long> {
+    interface RentalRepository extends JpaRepository<Rental, Long> {
     }
 }

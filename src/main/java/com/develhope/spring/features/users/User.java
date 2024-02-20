@@ -22,13 +22,13 @@ public class User {
     @Column(nullable = false)
     @NotBlank
     private String surname;
-    @Column(unique = true,nullable = false)
+    @Column(unique = true, nullable = false)
     @NotBlank
     private String telephoneNumber;
-    @Column(unique = true,nullable = false)
+    @Column(unique = true, nullable = false)
     @NotBlank
     private String email;
-    @Column( nullable = false)
+    @Column(nullable = false)
     @NotBlank
     private String password;
 }

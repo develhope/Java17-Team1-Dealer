@@ -18,6 +18,7 @@ public class OrderService {
     private OrderRepository orderRepository;
     @Autowired
     private VehicleRepository vehicleRepository;
+
     public Order createOrderFromVehicle(Order order, long id) {
         Vehicle vehicle = vehicleRepository.findById(id).get();
         order.setVehicle(vehicle);

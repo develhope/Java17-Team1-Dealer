@@ -1,7 +1,7 @@
 package com.develhope.spring.features.users;
 
 import com.develhope.spring.exception.NotFoundException;
-import com.develhope.spring.features.vehicle.Vehicle;
+import com.develhope.spring.features.vehicle.VehicleEntity;
 import com.develhope.spring.features.vehicle.VehicleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,31 +20,31 @@ public class UserController {
     private final VehicleService vehicleService;
 
     @PostMapping(path = USER_PATH)
-    public ResponseEntity<?> createOne(@RequestBody User user) {
-        User savedUser = userService.createUser(user);
-        if (savedUser.getId() == null) {
-            return new ResponseEntity<>(savedUser, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<?> createOne(@RequestBody UserEntity userEntity) {
+        UserEntity savedUserEntity = userService.createUser(userEntity);
+        if (savedUserEntity.getId() == null) {
+            return new ResponseEntity<>(savedUserEntity, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(savedUser, HttpStatus.OK);
+        return new ResponseEntity<>(savedUserEntity, HttpStatus.OK);
     }
 
     @GetMapping(path = USER_PATH)
-    public List<User> getall() {
+    public List<UserEntity> getall() {
         return userService.getAllUsers();
     }
 
     @GetMapping(path = USER_PATH_ID)
-    public User getone(@PathVariable Long userId) {
+    public UserEntity getone(@PathVariable Long userId) {
         return userService.getSingleUser(userId).orElseThrow(NotFoundException::new);
     }
 
     @PutMapping(path = USER_PATH_ID)
-    public ResponseEntity<?> updateOne(@PathVariable Long userId, @RequestBody User user) {
-        User updatedUser = userService.updateUser(userId, user);
-        if (updatedUser == null) {
+    public ResponseEntity<?> updateOne(@PathVariable Long userId, @RequestBody UserEntity userEntity) {
+        UserEntity updatedUserEntity = userService.updateUser(userId, userEntity);
+        if (updatedUserEntity == null) {
             throw new NotFoundException();
         }
-        return new ResponseEntity<>(updatedUser, HttpStatus.OK);
+        return new ResponseEntity<>(updatedUserEntity, HttpStatus.OK);
     }
 
     @DeleteMapping(path = USER_PATH_ID)
@@ -56,7 +56,7 @@ public class UserController {
     }
 
     @GetMapping(path = USER_PATH + "/vehicle/all")
-    public List<Vehicle> getAllVehicles() {
+    public List<VehicleEntity> getAllVehicles() {
         return vehicleService.getAllVehicles();
     }
 }

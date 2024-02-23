@@ -12,24 +12,24 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public User createUser(User user) {
-        return userRepository.saveAndFlush(user);
+    public UserEntity createUser(UserEntity userEntity) {
+        return userRepository.saveAndFlush(userEntity);
     }
 
-    public Optional<User> getSingleUser(Long id) {
+    public Optional<UserEntity> getSingleUser(Long id) {
         return userRepository.findById(id);
     }
 
-    public List<User> getAllUsers() {
+    public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public User updateUser(Long id, User user) {
-        Optional<User> foundUser = userRepository.findById(id);
+    public UserEntity updateUser(Long id, UserEntity userEntity) {
+        Optional<UserEntity> foundUser = userRepository.findById(id);
         if (foundUser.isPresent()) {
 
-            user.setId(foundUser.get().getId());
-            return userRepository.saveAndFlush(user);
+            userEntity.setId(foundUser.get().getId());
+            return userRepository.saveAndFlush(userEntity);
         } else {
             return null;
         }

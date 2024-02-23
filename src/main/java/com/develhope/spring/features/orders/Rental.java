@@ -1,7 +1,6 @@
 package com.develhope.spring.features.orders;
 
-import com.develhope.spring.features.orders.PaymentStatus;
-import com.develhope.spring.features.vehicle.Vehicle;
+import com.develhope.spring.features.vehicle.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,5 +23,5 @@ public class Rental {
     private PaymentStatus status;
     @OneToOne
     @JoinColumn(name = "vehicle_id")
-    private Vehicle vehicle;
+    private VehicleEntity vehicleEntity;
 }

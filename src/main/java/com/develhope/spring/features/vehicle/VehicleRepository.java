@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
+public interface VehicleRepository extends JpaRepository<VehicleEntity, Long> {
     @Query
-    List<Vehicle> findByVehicleStatusAndUsed(VehicleStatus status, Boolean used);
+    List<VehicleEntity> findByVehicleStatusAndUsed(VehicleStatus status, Boolean used);
 }

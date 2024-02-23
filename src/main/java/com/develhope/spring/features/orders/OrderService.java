@@ -1,9 +1,6 @@
 package com.develhope.spring.features.orders;
 
-import com.develhope.spring.features.orders.Order;
-import com.develhope.spring.features.orders.OrderStatus;
-import com.develhope.spring.features.vehicle.Vehicle;
-import com.develhope.spring.features.orders.OrderRepository;
+import com.develhope.spring.features.vehicle.VehicleEntity;
 import com.develhope.spring.features.vehicle.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,10 +16,10 @@ public class OrderService {
     @Autowired
     private VehicleRepository vehicleRepository;
 
-    public Order createOrderFromVehicle(Order order, long id) {
-        Vehicle vehicle = vehicleRepository.findById(id).get();
-        order.setVehicle(vehicle);
-        return orderRepository.saveAndFlush(order);
+    public OrderEntity createOrderFromVehicle(OrderEntity orderEntity, long id) {
+        VehicleEntity vehicleEntity = vehicleRepository.findById(id).get();
+        orderEntity.setVehicleEntity(vehicleEntity);
+        return orderRepository.saveAndFlush(orderEntity);
     }
 
     public Boolean deleteOrder(long id) {
@@ -30,10 +27,10 @@ public class OrderService {
         return !orderRepository.existsById(id);
     }
 
-    public Order updateOrder(long id, Order order) {
+    public OrderEntity updateOrder(long id, OrderEntity orderEntity) {
         if (orderRepository.existsById(id)) {
-            order.setId(id);
-            return orderRepository.saveAndFlush(order);
+            orderEntity.setId(id);
+            return orderRepository.saveAndFlush(orderEntity);
         } else {
             return null;
         }
@@ -47,8 +44,8 @@ public class OrderService {
         }
     }
 
-    public Order updateOrderStatusFromId(long id, String status) {
-        Optional<Order> order = orderRepository.findById(id);
+    public OrderEntity updateOrderStatusFromId(long id, String status) {
+        Optional<OrderEntity> order = orderRepository.findById(id);
         if (order.isPresent()) {
             String statusString = status.toUpperCase();
             OrderStatus s = OrderStatus.valueOf(statusString);
@@ -59,7 +56,7 @@ public class OrderService {
         }
     }
 
-    public List<Order> findByStatus(String status) {
+    public List<OrderEntity> findByStatus(String status) {
         String statusString = status.toUpperCase();
         OrderStatus s = OrderStatus.valueOf(statusString);
         return new ArrayList<>(orderRepository.findByOrderStatus(s));

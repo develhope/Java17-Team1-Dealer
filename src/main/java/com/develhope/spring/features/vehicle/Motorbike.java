@@ -1,4 +1,4 @@
 package com.develhope.spring.features.vehicle;
 
-public class Motorbike extends Vehicle {
+public class Motorbike extends VehicleEntity {
 }

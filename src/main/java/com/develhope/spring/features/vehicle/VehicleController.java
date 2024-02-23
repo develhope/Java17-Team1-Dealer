@@ -12,13 +12,13 @@ public class VehicleController {
     private VehicleService vehicleService;
 
     @PostMapping("/create")
-    public Vehicle createVehicle(@RequestBody Vehicle vehicle) {
-        return vehicleService.createVehicle(vehicle);
+    public VehicleEntity createVehicle(@RequestBody VehicleEntity vehicleEntity) {
+        return vehicleService.createVehicle(vehicleEntity);
     }
 
     @PutMapping("/update/{id}")
-    public Vehicle updateVehicle(@PathVariable long id, @RequestBody Vehicle vehicle) {
-        return vehicleService.updateVehicle(id, vehicle);
+    public VehicleEntity updateVehicle(@PathVariable long id, @RequestBody VehicleEntity vehicleEntity) {
+        return vehicleService.updateVehicle(id, vehicleEntity);
     }
 
     @DeleteMapping("/{id}")
@@ -27,17 +27,17 @@ public class VehicleController {
     }
 
     @PatchMapping("/status/{id}")
-    public Vehicle updateVehicleStatusFromId(@PathVariable long id, @RequestParam String status) {
+    public VehicleEntity updateVehicleStatusFromId(@PathVariable long id, @RequestParam String status) {
         return vehicleService.updateVehicleStatusFromId(id, status);
     }
 
     @GetMapping("/bystatus/used")
-    public List<Vehicle> findByStatusAndUsed(@RequestParam String status, @RequestParam Boolean used) {
+    public List<VehicleEntity> findByStatusAndUsed(@RequestParam String status, @RequestParam Boolean used) {
         return vehicleService.findByStatusAndUsed(status, used);
     }
 
     @GetMapping("/all")
-    public List<Vehicle> getAllVehicles() {
+    public List<VehicleEntity> getAllVehicles() {
         return vehicleService.getAllVehicles();
     }
 }

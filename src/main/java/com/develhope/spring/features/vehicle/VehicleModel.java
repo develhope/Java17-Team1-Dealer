@@ -1,17 +1,14 @@
 package com.develhope.spring.features.vehicle;
 
-import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Table
-@Entity
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Vehicle {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "vehicle_id")
+public class VehicleModel {
     private long id;
     private String model;
     private String brand;
@@ -25,9 +22,8 @@ public class Vehicle {
     private Integer discount;
     private String accesories;
     private Boolean used;
-    @Enumerated
+
     private VehicleStatus vehicleStatus;
-    @Enumerated
+
     private VehicleType vehicleType;
 }
-

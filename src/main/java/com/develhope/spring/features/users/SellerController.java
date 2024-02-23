@@ -1,8 +1,8 @@
 package com.develhope.spring.features.users;
 
-import com.develhope.spring.features.orders.Order;
+import com.develhope.spring.features.orders.OrderEntity;
 import com.develhope.spring.features.orders.OrderStatus;
-import com.develhope.spring.features.vehicle.Vehicle;
+import com.develhope.spring.features.vehicle.VehicleEntity;
 import com.develhope.spring.features.orders.OrderService;
 import com.develhope.spring.features.vehicle.VehicleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,13 +19,13 @@ public class SellerController {
     private OrderService orderService;
 
     @GetMapping("/vehicle/get/{id}")
-    public Vehicle getDetailsOfVehicle(@PathVariable long id) {
+    public VehicleEntity getDetailsOfVehicle(@PathVariable long id) {
         return vehicleService.getDetailsOfVehicle(id);
     }
 
     @PostMapping("/order/create/{id}")
-    public Order createOrderFromVehicle(@PathVariable long id, @RequestBody Order order) {
-        return orderService.createOrderFromVehicle(order, id);
+    public OrderEntity createOrderFromVehicle(@PathVariable long id, @RequestBody OrderEntity orderEntity) {
+        return orderService.createOrderFromVehicle(orderEntity, id);
     }
 
     @DeleteMapping("/order/delete/{id}")
@@ -34,8 +34,8 @@ public class SellerController {
     }
 
     @PutMapping("/order/update/{id}")
-    public Order updateOrder(@PathVariable long id, @RequestBody Order order) {
-        return orderService.updateOrder(id, order);
+    public OrderEntity updateOrder(@PathVariable long id, @RequestBody OrderEntity orderEntity) {
+        return orderService.updateOrder(id, orderEntity);
     }
 
     @GetMapping("/order/status/get/{id}")
@@ -44,17 +44,17 @@ public class SellerController {
     }
 
     @PatchMapping("/order/status/update/{id}")
-    public Order updateOrderStatusFromId(@PathVariable long id, @RequestParam String status) {
+    public OrderEntity updateOrderStatusFromId(@PathVariable long id, @RequestParam String status) {
         return orderService.updateOrderStatusFromId(id, status);
     }
 
     @GetMapping("/order/get/by/status")
-    public List<Order> getOrdersByStatus(String status) {
+    public List<OrderEntity> getOrdersByStatus(String status) {
         return orderService.findByStatus(status);
     }
 
     @GetMapping("/vehicles/get")
-    public List<Vehicle> getAllVehicles() {
+    public List<VehicleEntity> getAllVehicles() {
         return vehicleService.getAllVehicles();
     }
 }

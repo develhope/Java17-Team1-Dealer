@@ -1,7 +1,7 @@
 package com.develhope.spring.features.orders;
 
-import com.develhope.spring.features.users.User;
-import com.develhope.spring.features.vehicle.Vehicle;
+import com.develhope.spring.features.users.UserEntity;
+import com.develhope.spring.features.vehicle.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -10,7 +10,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Order {
+public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,8 +20,8 @@ public class Order {
     @Enumerated
     private OrderStatus orderStatus;
     @OneToOne
-    private Vehicle vehicle;
+    private VehicleEntity vehicleEntity;
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserEntity userEntity;
 }

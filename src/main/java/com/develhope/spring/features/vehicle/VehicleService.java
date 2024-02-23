@@ -12,34 +12,34 @@ public class VehicleService {
     @Autowired
     VehicleRepository vehicleRepository;
 
-    public Vehicle createVehicle(Vehicle vehicle) {
-        return vehicleRepository.saveAndFlush(vehicle);
+    public VehicleEntity createVehicle(VehicleEntity vehicleEntity) {
+        return vehicleRepository.saveAndFlush(vehicleEntity);
     }
 
-    public Vehicle getSingleVehicle(Long id) {
-        Optional<Vehicle> user = vehicleRepository.findById(id);
+    public VehicleEntity getSingleVehicle(Long id) {
+        Optional<VehicleEntity> user = vehicleRepository.findById(id);
         return user.orElse(null);
     }
 
 
-    public Vehicle updateVehicle(long id, Vehicle vehicle) {
-        Vehicle vehicleToUpdate = getSingleVehicle(id);
-        vehicleToUpdate.setModel(vehicle.getModel());
-        vehicleToUpdate.setBrand(vehicle.getBrand());
-        vehicleToUpdate.setDisplacement(vehicle.getDisplacement());
-        vehicleToUpdate.setColor(vehicle.getColor());
-        vehicleToUpdate.setPower(vehicle.getPower());
-        vehicleToUpdate.setShift(vehicle.getShift());
-        vehicleToUpdate.setYearOfmatriculation(vehicle.getYearOfmatriculation());
-        vehicleToUpdate.setFuelType(vehicle.getFuelType());
-        vehicleToUpdate.setPrice(vehicle.getPrice());
-        vehicleToUpdate.setDiscount(vehicle.getDiscount());
-        vehicleToUpdate.setAccesories(vehicle.getAccesories());
-        vehicleToUpdate.setUsed(vehicle.getUsed());
-        vehicleToUpdate.setVehicleStatus(vehicle.getVehicleStatus());
-        vehicleToUpdate.setVehicleType(vehicle.getVehicleType());
-        vehicleRepository.saveAndFlush(vehicleToUpdate);
-        return vehicleToUpdate;
+    public VehicleEntity updateVehicle(long id, VehicleEntity vehicleEntity) {
+        VehicleEntity vehicleEntityToUpdate = getSingleVehicle(id);
+        vehicleEntityToUpdate.setModel(vehicleEntity.getModel());
+        vehicleEntityToUpdate.setBrand(vehicleEntity.getBrand());
+        vehicleEntityToUpdate.setDisplacement(vehicleEntity.getDisplacement());
+        vehicleEntityToUpdate.setColor(vehicleEntity.getColor());
+        vehicleEntityToUpdate.setPower(vehicleEntity.getPower());
+        vehicleEntityToUpdate.setShift(vehicleEntity.getShift());
+        vehicleEntityToUpdate.setYearOfmatriculation(vehicleEntity.getYearOfmatriculation());
+        vehicleEntityToUpdate.setFuelType(vehicleEntity.getFuelType());
+        vehicleEntityToUpdate.setPrice(vehicleEntity.getPrice());
+        vehicleEntityToUpdate.setDiscount(vehicleEntity.getDiscount());
+        vehicleEntityToUpdate.setAccesories(vehicleEntity.getAccesories());
+        vehicleEntityToUpdate.setUsed(vehicleEntity.getUsed());
+        vehicleEntityToUpdate.setVehicleStatus(vehicleEntity.getVehicleStatus());
+        vehicleEntityToUpdate.setVehicleType(vehicleEntity.getVehicleType());
+        vehicleRepository.saveAndFlush(vehicleEntityToUpdate);
+        return vehicleEntityToUpdate;
     }
 
     public Boolean deleteVehicle(long id) {
@@ -47,8 +47,8 @@ public class VehicleService {
         return !vehicleRepository.existsById(id);
     }
 
-    public Vehicle updateVehicleStatusFromId(long id, String status) {
-        Optional<Vehicle> vehicle = vehicleRepository.findById(id);
+    public VehicleEntity updateVehicleStatusFromId(long id, String status) {
+        Optional<VehicleEntity> vehicle = vehicleRepository.findById(id);
         if (vehicle.isPresent()) {
             String statusString = status.toUpperCase();
             VehicleStatus s = VehicleStatus.valueOf(statusString);
@@ -59,13 +59,13 @@ public class VehicleService {
         }
     }
 
-    public List<Vehicle> findByStatusAndUsed(String status, Boolean used) {
+    public List<VehicleEntity> findByStatusAndUsed(String status, Boolean used) {
         String statusString = status.toUpperCase();
         VehicleStatus s = VehicleStatus.valueOf(statusString);
         return new ArrayList<>(vehicleRepository.findByVehicleStatusAndUsed(s, used));
     }
 
-    public Vehicle getDetailsOfVehicle(long id) {
+    public VehicleEntity getDetailsOfVehicle(long id) {
         if (vehicleRepository.existsById(id)) {
             return vehicleRepository.findById(id).get();
         } else {
@@ -73,7 +73,7 @@ public class VehicleService {
         }
     }
 
-    public List<Vehicle> getAllVehicles() {
+    public List<VehicleEntity> getAllVehicles() {
         return vehicleRepository.findAll();
     }
 

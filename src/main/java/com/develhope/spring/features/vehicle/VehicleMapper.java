@@ -1,6 +1,6 @@
 package com.develhope.spring.features.vehicle;
 
-import com.develhope.spring.features.vehicle.dto.CreateUserRequest;
+import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.VehicleResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +9,7 @@ public class VehicleMapper {
     @Autowired
     ModelMapper modelMapper;
 
-    public VehicleModel convertVehicleRequestToModel (CreateUserRequest createVehicleRequest){
+    public VehicleModel convertVehicleRequestToModel (CreateVehicleRequest createVehicleRequest){
         return  modelMapper.map(createVehicleRequest,VehicleModel.class);
     }
     public VehicleEntity convertVehicleModelToEntity (VehicleModel vehicleModel){

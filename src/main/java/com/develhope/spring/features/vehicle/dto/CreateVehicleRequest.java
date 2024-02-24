@@ -8,7 +8,7 @@ import lombok.Value;
 
 @Value
 @AllArgsConstructor
-public class CreateUserRequest {
+public class CreateVehicleRequest {
     String model;
     String brand;
     Integer displacement;

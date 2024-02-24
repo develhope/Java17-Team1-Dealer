@@ -1,5 +1,7 @@
 package com.develhope.spring.features.vehicle;
 
+import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
+import com.develhope.spring.features.vehicle.dto.VehicleResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,13 +14,13 @@ public class VehicleController {
     private VehicleService vehicleService;
 
     @PostMapping("/create")
-    public VehicleEntity createVehicle(@RequestBody VehicleEntity vehicleEntity) {
-        return vehicleService.createVehicle(vehicleEntity);
+    public VehicleResponse createVehicle(@RequestBody CreateVehicleRequest createVehicleRequest) {
+        return vehicleService.createVehicle(createVehicleRequest);
     }
 
     @PutMapping("/update/{id}")
-    public VehicleEntity updateVehicle(@PathVariable long id, @RequestBody VehicleEntity vehicleEntity) {
-        return vehicleService.updateVehicle(id, vehicleEntity);
+    public VehicleResponse updateVehicle(@PathVariable long id, @RequestBody CreateVehicleRequest createVehicleRequest) {
+        return vehicleService.updateVehicle(id, createVehicleRequest);
     }
 
     @DeleteMapping("/{id}")

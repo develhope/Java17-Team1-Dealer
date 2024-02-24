@@ -1,5 +1,7 @@
 package com.develhope.spring.features.vehicle;
 
+import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
+import com.develhope.spring.features.vehicle.dto.VehicleResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,13 +12,17 @@ import java.util.Optional;
 @Service
 public class VehicleService {
     @Autowired
-    private  VehicleRepository vehicleRepository;
+    private VehicleRepository vehicleRepository;
     @Autowired
-    private  VehicleMapper vehicleMapper;
+    private VehicleMapper vehicleMapper;
 
 
-    public VehicleEntity createVehicle(VehicleEntity vehicleEntity) {
-        return vehicleRepository.saveAndFlush(vehicleEntity);
+    public VehicleResponse createVehicle(CreateVehicleRequest createVehicleRequest) {
+        VehicleModel vehicleRequestModel = vehicleMapper.convertVehicleRequestToModel(createVehicleRequest);
+        VehicleEntity vehicleRequestEntity = vehicleMapper.convertVehicleModelToEntity(vehicleRequestModel);
+        VehicleEntity savedVehicleEntity = vehicleRepository.saveAndFlush(vehicleRequestEntity);
+        VehicleModel vehicleResponseModel = vehicleMapper.convertVehicleEntityToModel(savedVehicleEntity);
+        return vehicleMapper.convertVehicleModelToResponse(vehicleResponseModel);
     }
 
     public VehicleEntity getSingleVehicle(Long id) {
@@ -25,24 +31,27 @@ public class VehicleService {
     }
 
 
-    public VehicleEntity updateVehicle(long id, VehicleEntity vehicleEntity) {
-        VehicleEntity vehicleEntityToUpdate = getSingleVehicle(id);
-        vehicleEntityToUpdate.setModel(vehicleEntity.getModel());
-        vehicleEntityToUpdate.setBrand(vehicleEntity.getBrand());
-        vehicleEntityToUpdate.setDisplacement(vehicleEntity.getDisplacement());
-        vehicleEntityToUpdate.setColor(vehicleEntity.getColor());
-        vehicleEntityToUpdate.setPower(vehicleEntity.getPower());
-        vehicleEntityToUpdate.setShift(vehicleEntity.getShift());
-        vehicleEntityToUpdate.setYearOfmatriculation(vehicleEntity.getYearOfmatriculation());
-        vehicleEntityToUpdate.setFuelType(vehicleEntity.getFuelType());
-        vehicleEntityToUpdate.setPrice(vehicleEntity.getPrice());
-        vehicleEntityToUpdate.setDiscount(vehicleEntity.getDiscount());
-        vehicleEntityToUpdate.setAccesories(vehicleEntity.getAccesories());
-        vehicleEntityToUpdate.setUsed(vehicleEntity.getUsed());
-        vehicleEntityToUpdate.setVehicleStatus(vehicleEntity.getVehicleStatus());
-        vehicleEntityToUpdate.setVehicleType(vehicleEntity.getVehicleType());
-        vehicleRepository.saveAndFlush(vehicleEntityToUpdate);
-        return vehicleEntityToUpdate;
+    public VehicleResponse updateVehicle(long id, CreateVehicleRequest createVehicleRequest) {
+        VehicleModel vehicleRequestModel = vehicleMapper.convertVehicleRequestToModel(createVehicleRequest);
+        VehicleEntity vehicleRequestEntity = vehicleMapper.convertVehicleModelToEntity(vehicleRequestModel);
+        VehicleEntity vehicleToUpdate = getSingleVehicle(id);
+        vehicleToUpdate.setModel(vehicleRequestEntity.getModel());
+        vehicleToUpdate.setBrand(vehicleRequestEntity.getBrand());
+        vehicleToUpdate.setDisplacement(vehicleRequestEntity.getDisplacement());
+        vehicleToUpdate.setColor(vehicleRequestEntity.getColor());
+        vehicleToUpdate.setPower(vehicleRequestEntity.getPower());
+        vehicleToUpdate.setShift(vehicleRequestEntity.getShift());
+        vehicleToUpdate.setYearOfmatriculation(vehicleRequestEntity.getYearOfmatriculation());
+        vehicleToUpdate.setFuelType(vehicleRequestEntity.getFuelType());
+        vehicleToUpdate.setPrice(vehicleRequestEntity.getPrice());
+        vehicleToUpdate.setDiscount(vehicleRequestEntity.getDiscount());
+        vehicleToUpdate.setAccesories(vehicleRequestEntity.getAccesories());
+        vehicleToUpdate.setUsed(vehicleRequestEntity.getUsed());
+        vehicleToUpdate.setVehicleStatus(vehicleRequestModel.getVehicleStatus());
+        vehicleToUpdate.setVehicleType(vehicleRequestModel.getVehicleType());
+        VehicleEntity updatedVehicle = vehicleRepository.saveAndFlush(vehicleToUpdate);
+        VehicleModel vehicleResponseModel = vehicleMapper.convertVehicleEntityToModel(updatedVehicle);
+        return vehicleMapper.convertVehicleModelToResponse(vehicleResponseModel);
     }
 
     public Boolean deleteVehicle(long id) {

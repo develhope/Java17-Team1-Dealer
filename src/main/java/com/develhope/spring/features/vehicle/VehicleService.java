@@ -24,21 +24,23 @@ public class VehicleService {
 
     public VehicleEntity updateVehicle(long id, VehicleEntity vehicleEntity) {
         VehicleEntity vehicleEntityToUpdate = getSingleVehicle(id);
-        vehicleEntityToUpdate.setModel(vehicleEntity.getModel());
-        vehicleEntityToUpdate.setBrand(vehicleEntity.getBrand());
-        vehicleEntityToUpdate.setDisplacement(vehicleEntity.getDisplacement());
-        vehicleEntityToUpdate.setColor(vehicleEntity.getColor());
-        vehicleEntityToUpdate.setPower(vehicleEntity.getPower());
-        vehicleEntityToUpdate.setShift(vehicleEntity.getShift());
-        vehicleEntityToUpdate.setYearOfmatriculation(vehicleEntity.getYearOfmatriculation());
-        vehicleEntityToUpdate.setFuelType(vehicleEntity.getFuelType());
-        vehicleEntityToUpdate.setPrice(vehicleEntity.getPrice());
-        vehicleEntityToUpdate.setDiscount(vehicleEntity.getDiscount());
-        vehicleEntityToUpdate.setAccesories(vehicleEntity.getAccesories());
-        vehicleEntityToUpdate.setUsed(vehicleEntity.getUsed());
-        vehicleEntityToUpdate.setVehicleStatus(vehicleEntity.getVehicleStatus());
-        vehicleEntityToUpdate.setVehicleType(vehicleEntity.getVehicleType());
-        vehicleRepository.saveAndFlush(vehicleEntityToUpdate);
+        if(vehicleEntityToUpdate != null) {
+            vehicleEntityToUpdate.setModel(vehicleEntity.getModel());
+            vehicleEntityToUpdate.setBrand(vehicleEntity.getBrand());
+            vehicleEntityToUpdate.setDisplacement(vehicleEntity.getDisplacement());
+            vehicleEntityToUpdate.setColor(vehicleEntity.getColor());
+            vehicleEntityToUpdate.setPower(vehicleEntity.getPower());
+            vehicleEntityToUpdate.setShift(vehicleEntity.getShift());
+            vehicleEntityToUpdate.setYearOfmatriculation(vehicleEntity.getYearOfmatriculation());
+            vehicleEntityToUpdate.setFuelType(vehicleEntity.getFuelType());
+            vehicleEntityToUpdate.setPrice(vehicleEntity.getPrice());
+            vehicleEntityToUpdate.setDiscount(vehicleEntity.getDiscount());
+            vehicleEntityToUpdate.setAccesories(vehicleEntity.getAccesories());
+            vehicleEntityToUpdate.setUsed(vehicleEntity.getUsed());
+            vehicleEntityToUpdate.setVehicleStatus(vehicleEntity.getVehicleStatus());
+            vehicleEntityToUpdate.setVehicleType(vehicleEntity.getVehicleType());
+            vehicleRepository.saveAndFlush(vehicleEntityToUpdate);
+        }
         return vehicleEntityToUpdate;
     }
 
@@ -66,11 +68,7 @@ public class VehicleService {
     }
 
     public VehicleEntity getDetailsOfVehicle(long id) {
-        if (vehicleRepository.existsById(id)) {
-            return vehicleRepository.findById(id).get();
-        } else {
-            return null;
-        }
+        return getSingleVehicle(id);
     }
 
     public List<VehicleEntity> getAllVehicles() {

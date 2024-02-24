@@ -32,29 +32,27 @@ public class VehicleService {
 
 
     public VehicleResponse updateVehicle(long id, CreateVehicleRequest createVehicleRequest) {
-        VehicleModel vehicleRequestModel = vehicleMapper.convertVehicleRequestToModel(createVehicleRequest);
-        VehicleEntity vehicleRequestEntity = vehicleMapper.convertVehicleModelToEntity(vehicleRequestModel);
         VehicleEntity vehicleEntityToUpdate = getSingleVehicle(id);
+        VehicleModel vehicleRequestModel = vehicleMapper.convertVehicleRequestToModel(createVehicleRequest);
         if (vehicleEntityToUpdate != null) {
-            vehicleEntityToUpdate.setModel(vehicleRequestEntity.getModel());
-            vehicleEntityToUpdate.setBrand(vehicleRequestEntity.getBrand());
-            vehicleEntityToUpdate.setDisplacement(vehicleRequestEntity.getDisplacement());
-            vehicleEntityToUpdate.setColor(vehicleRequestEntity.getColor());
-            vehicleEntityToUpdate.setPower(vehicleRequestEntity.getPower());
-            vehicleEntityToUpdate.setShift(vehicleRequestEntity.getShift());
-            vehicleEntityToUpdate.setYearOfmatriculation(vehicleRequestEntity.getYearOfmatriculation());
-            vehicleEntityToUpdate.setFuelType(vehicleRequestEntity.getFuelType());
-            vehicleEntityToUpdate.setPrice(vehicleRequestEntity.getPrice());
-            vehicleEntityToUpdate.setDiscount(vehicleRequestEntity.getDiscount());
-            vehicleEntityToUpdate.setAccesories(vehicleRequestEntity.getAccesories());
-            vehicleEntityToUpdate.setUsed(vehicleRequestEntity.getUsed());
+            vehicleEntityToUpdate.setModel(vehicleRequestModel.getModel());
+            vehicleEntityToUpdate.setBrand(vehicleRequestModel.getBrand());
+            vehicleEntityToUpdate.setDisplacement(vehicleRequestModel.getDisplacement());
+            vehicleEntityToUpdate.setColor(vehicleRequestModel.getColor());
+            vehicleEntityToUpdate.setPower(vehicleRequestModel.getPower());
+            vehicleEntityToUpdate.setShift(vehicleRequestModel.getShift());
+            vehicleEntityToUpdate.setYearOfmatriculation(vehicleRequestModel.getYearOfmatriculation());
+            vehicleEntityToUpdate.setFuelType(vehicleRequestModel.getFuelType());
+            vehicleEntityToUpdate.setPrice(vehicleRequestModel.getPrice());
+            vehicleEntityToUpdate.setDiscount(vehicleRequestModel.getDiscount());
+            vehicleEntityToUpdate.setAccesories(vehicleRequestModel.getAccesories());
+            vehicleEntityToUpdate.setUsed(vehicleRequestModel.getUsed());
             vehicleEntityToUpdate.setVehicleStatus(vehicleRequestModel.getVehicleStatus());
             vehicleEntityToUpdate.setVehicleType(vehicleRequestModel.getVehicleType());
             VehicleEntity updatedVehicle = vehicleRepository.saveAndFlush(vehicleEntityToUpdate);
             VehicleModel vehicleResponseModel = vehicleMapper.convertVehicleEntityToModel(updatedVehicle);
             return vehicleMapper.convertVehicleModelToResponse(vehicleResponseModel);
-        }
-        else {
+        } else {
             return null;
         }
     }

@@ -10,7 +10,10 @@ import java.util.Optional;
 @Service
 public class VehicleService {
     @Autowired
-    VehicleRepository vehicleRepository;
+    private  VehicleRepository vehicleRepository;
+    @Autowired
+    private  VehicleMapper vehicleMapper;
+
 
     public VehicleEntity createVehicle(VehicleEntity vehicleEntity) {
         return vehicleRepository.saveAndFlush(vehicleEntity);

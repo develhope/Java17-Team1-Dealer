@@ -1,6 +1,8 @@
 package com.develhope.spring.features.users;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,7 +12,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
 
+    @Autowired
     private final UserRepository userRepository;
+    @Autowired
+    private final UserMapper userMapper;
 
     public UserEntity createUser(UserEntity userEntity) {
         return userRepository.saveAndFlush(userEntity);

@@ -2,15 +2,13 @@ package com.develhope.spring.features.vehicle.dto;
 
 import com.develhope.spring.features.vehicle.VehicleStatus;
 import com.develhope.spring.features.vehicle.VehicleType;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 
 import lombok.Value;
 
 @Value
 @AllArgsConstructor
-public class CreateVehicleRequest {
+public class CreateUserRequest {
     String model;
     String brand;
     Integer displacement;

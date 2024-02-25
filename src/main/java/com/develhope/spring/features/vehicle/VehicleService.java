@@ -89,8 +89,12 @@ public class VehicleService {
     }
 
 
-    public void deleteSingleVehicle(Long id) {
-        vehicleRepository.deleteById(id);
+    public Boolean deleteSingleVehicle(Long id) {
+        if (vehicleRepository.existsById(id)) {
+            vehicleRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
 }

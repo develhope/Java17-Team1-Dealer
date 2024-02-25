@@ -12,13 +12,8 @@ import lombok.Value;
 public class OrderResponse {
     Long id;
     Float deposit;
-
     PaymentStatus paymentStatus;
-
     OrderStatus orderStatus;
-
     VehicleEntity vehicleEntity;
-
-
     UserEntity userEntity;
 }

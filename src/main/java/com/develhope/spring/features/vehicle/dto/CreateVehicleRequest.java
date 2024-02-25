@@ -21,8 +21,6 @@ public class CreateVehicleRequest {
     Integer discount;
     String accesories;
     Boolean used;
-
     VehicleStatus vehicleStatus;
-
     VehicleType vehicleType;
 }

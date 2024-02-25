@@ -11,15 +11,9 @@ import lombok.Value;
 @Value
 @AllArgsConstructor
 public class CreateOrderRequest {
-
     Float deposit;
-
     PaymentStatus paymentStatus;
-
     OrderStatus orderStatus;
-
     VehicleEntity vehicleEntity;
-
-
     UserEntity userEntity;
 }

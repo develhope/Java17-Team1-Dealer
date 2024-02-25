@@ -11,16 +11,19 @@ import org.springframework.stereotype.Component;
 public class VehicleMapper {
     private final ModelMapper modelMapper;
 
-    public VehicleModel convertVehicleRequestToModel (CreateVehicleRequest createVehicleRequest){
-        return  modelMapper.map(createVehicleRequest,VehicleModel.class);
+    public VehicleModel convertVehicleRequestToModel(CreateVehicleRequest createVehicleRequest) {
+        return modelMapper.map(createVehicleRequest, VehicleModel.class);
     }
-    public VehicleEntity convertVehicleModelToEntity (VehicleModel vehicleModel){
-        return  modelMapper.map(vehicleModel,VehicleEntity.class);
+
+    public VehicleEntity convertVehicleModelToEntity(VehicleModel vehicleModel) {
+        return modelMapper.map(vehicleModel, VehicleEntity.class);
     }
-    public VehicleModel convertVehicleEntityToModel (VehicleEntity vehicleEntity){
+
+    public VehicleModel convertVehicleEntityToModel(VehicleEntity vehicleEntity) {
         return modelMapper.map(vehicleEntity, VehicleModel.class);
     }
-    public VehicleResponse convertVehicleModelToResponse (VehicleModel vehicleModel){
+
+    public VehicleResponse convertVehicleModelToResponse(VehicleModel vehicleModel) {
         return modelMapper.map(vehicleModel, VehicleResponse.class);
     }
 }

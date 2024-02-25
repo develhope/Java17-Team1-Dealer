@@ -12,16 +12,19 @@ import org.springframework.stereotype.Component;
 public class OrderMapper {
     private final ModelMapper modelMapper;
 
-    public OrderModel convertOrderRequestToModel (CreateOrderRequest createOrderRequest){
-        return  modelMapper.map(createOrderRequest,OrderModel.class);
+    public OrderModel convertOrderRequestToModel(CreateOrderRequest createOrderRequest) {
+        return modelMapper.map(createOrderRequest, OrderModel.class);
     }
-    public OrderEntity convertOrderModelToEntity (OrderModel orderModel){
-        return  modelMapper.map(orderModel,OrderEntity.class);
+
+    public OrderEntity convertOrderModelToEntity(OrderModel orderModel) {
+        return modelMapper.map(orderModel, OrderEntity.class);
     }
-    public OrderModel convertOrderntityToModel (OrderEntity orderEntity){
+
+    public OrderModel convertOrderntityToModel(OrderEntity orderEntity) {
         return modelMapper.map(orderEntity, OrderModel.class);
     }
-    public OrderResponse convertOrderModelToResponse (OrderModel orderModel){
+
+    public OrderResponse convertOrderModelToResponse(OrderModel orderModel) {
         return modelMapper.map(orderModel, OrderResponse.class);
     }
 }

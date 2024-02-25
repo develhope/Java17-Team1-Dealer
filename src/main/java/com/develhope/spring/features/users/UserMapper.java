@@ -11,16 +11,19 @@ import org.springframework.stereotype.Component;
 public class UserMapper {
     private final ModelMapper modelMapper;
 
-    public UserModel convertUserRequestToModel (CreateUserRequest createUserRequest){
-        return  modelMapper.map(createUserRequest,UserModel.class);
+    public UserModel convertUserRequestToModel(CreateUserRequest createUserRequest) {
+        return modelMapper.map(createUserRequest, UserModel.class);
     }
-    public UserEntity convertUserModelToEntity (UserModel userModel){
-        return  modelMapper.map(userModel,UserEntity.class);
+
+    public UserEntity convertUserModelToEntity(UserModel userModel) {
+        return modelMapper.map(userModel, UserEntity.class);
     }
-    public UserModel convertUserEntityToModel (UserEntity userEntity){
+
+    public UserModel convertUserEntityToModel(UserEntity userEntity) {
         return modelMapper.map(userEntity, UserModel.class);
     }
-    public UserResponse convertUserModelToResponse (UserModel userModel){
+
+    public UserResponse convertUserModelToResponse(UserModel userModel) {
         return modelMapper.map(userModel, UserResponse.class);
     }
 }

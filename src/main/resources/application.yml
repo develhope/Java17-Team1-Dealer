@@ -17,6 +17,6 @@ spring:
   jackson:
     serialization:
       fail-on-empty-beans: false
-springdoc:
+spring-doc:
   swagger-ui:
     path: /api-test/index.html

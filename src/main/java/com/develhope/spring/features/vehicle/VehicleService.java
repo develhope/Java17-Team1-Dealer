@@ -33,8 +33,8 @@ public class VehicleService {
 
     public VehicleResponse updateVehicle(long id, CreateVehicleRequest createVehicleRequest) {
         VehicleEntity vehicleEntityToUpdate = getSingleVehicle(id);
-        VehicleModel vehicleRequestModel = vehicleMapper.convertVehicleRequestToModel(createVehicleRequest);
         if (vehicleEntityToUpdate != null) {
+            VehicleModel vehicleRequestModel = vehicleMapper.convertVehicleRequestToModel(createVehicleRequest);
             vehicleEntityToUpdate.setModel(vehicleRequestModel.getModel());
             vehicleEntityToUpdate.setBrand(vehicleRequestModel.getBrand());
             vehicleEntityToUpdate.setDisplacement(vehicleRequestModel.getDisplacement());
@@ -81,11 +81,7 @@ public class VehicleService {
     }
 
     public VehicleEntity getDetailsOfVehicle(long id) {
-        if (vehicleRepository.existsById(id)) {
-            return vehicleRepository.findById(id).get();
-        } else {
-            return null;
-        }
+        return getSingleVehicle(id);
     }
 
     public List<VehicleEntity> getAllVehicles() {

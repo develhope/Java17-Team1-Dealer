@@ -2,8 +2,6 @@ package com.develhope.spring.features.vehicle.dto;
 
 import com.develhope.spring.features.vehicle.VehicleStatus;
 import com.develhope.spring.features.vehicle.VehicleType;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import lombok.AllArgsConstructor;
 
 import lombok.Value;

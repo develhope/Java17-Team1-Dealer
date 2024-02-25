@@ -1,15 +1,16 @@
 package com.develhope.spring.features.orders;
 
-
 import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.vehicle.VehicleEntity;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 
-class OrderModel {
+public class OrderModel {
 
     private Long id;
     private Float deposit;
@@ -18,3 +19,5 @@ class OrderModel {
     private VehicleEntity vehicleEntity;
     private UserEntity userEntity;
 }
+
+

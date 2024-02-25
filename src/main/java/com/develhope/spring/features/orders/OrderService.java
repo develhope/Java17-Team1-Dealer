@@ -1,5 +1,6 @@
 package com.develhope.spring.features.orders;
 
+import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.vehicle.VehicleEntity;
 import com.develhope.spring.features.vehicle.VehicleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +18,31 @@ public class OrderService {
     private VehicleRepository vehicleRepository;
 
     public OrderEntity createOrderFromVehicle(OrderEntity orderEntity, long id) {
-        VehicleEntity vehicleEntity = vehicleRepository.findById(id).get();
-        orderEntity.setVehicleEntity(vehicleEntity);
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(id);
+        if (vehicleEntity.isEmpty()) {
+            return null;
+        }
+        orderEntity.setVehicleEntity(vehicleEntity.get());
         return orderRepository.saveAndFlush(orderEntity);
     }
 
     public Boolean deleteOrder(long id) {
         orderRepository.deleteById(id);
         return !orderRepository.existsById(id);
+    }
+
+    public OrderEntity updateOrder(Long id, OrderEntity orderEntity) {
+        Optional<OrderEntity> foundOrderEntity = orderRepository.findById(id);
+        if (foundOrderEntity.isPresent()) {
+            foundOrderEntity.get().setOrderStatus(orderEntity.getOrderStatus());
+            foundOrderEntity.get().setDeposit(orderEntity.getDeposit());
+            foundOrderEntity.get().setPaymentStatus(orderEntity.getPaymentStatus());
+            foundOrderEntity.get().setVehicleEntity(orderEntity.getVehicleEntity());
+            foundOrderEntity.get().setUserEntity(orderEntity.getUserEntity()); //here should already be a hashed string
+            return orderRepository.saveAndFlush(foundOrderEntity.get());
+        } else {
+            return null;
+        }
     }
 
     public OrderEntity updateOrder(long id, OrderEntity orderEntity) {

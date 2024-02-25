@@ -20,7 +20,7 @@ public class OrderMapper {
         return modelMapper.map(orderModel, OrderEntity.class);
     }
 
-    public OrderModel convertOrderntityToModel(OrderEntity orderEntity) {
+    public OrderModel convertOrderEntityToModel(OrderEntity orderEntity) {
         return modelMapper.map(orderEntity, OrderModel.class);
     }
 

@@ -16,11 +16,11 @@ public class VehicleModel {
     private String color;
     private Integer power;
     private String shift;
-    private Integer yearOfmatriculation;
+    private Integer yearOfMatriculation;
     private String fuelType;
     private Integer price;
     private Integer discount;
-    private String accesories;
+    private String accessories;
     private Boolean used;
 
     private VehicleStatus vehicleStatus;

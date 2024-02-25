@@ -9,7 +9,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class VehicleEntity {
+public class VehicleEntity { //owner?
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "vehicle_id")
@@ -30,7 +30,7 @@ public class VehicleEntity {
     private String shift; //enum?
     @Column(nullable = false)
     @NotBlank
-    private Integer yearOfmatriculation;
+    private Integer yearOfMatriculation;
     @Column(nullable = false)
     @NotBlank
     private String fuelType;
@@ -39,7 +39,7 @@ public class VehicleEntity {
     private Integer price;
     @Column(nullable = false)
     private Integer discount = 0;
-    private String accesories;
+    private String accessories;
     @Column(nullable = false)
     @NotBlank
     private Boolean used = false;

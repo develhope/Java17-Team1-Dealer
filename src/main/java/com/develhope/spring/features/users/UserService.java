@@ -1,5 +1,6 @@
 package com.develhope.spring.features.users;
 
+import com.develhope.spring.features.users.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +15,11 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    public UserEntity createUser(UserEntity userEntity) {
-        return userRepository.saveAndFlush(userEntity);
+    public UserResponse createUser(UserModel userModel) {
+        UserEntity userEntity = userMapper.convertUserModelToEntity(userModel);
+        UserEntity userEntitySaved = userRepository.saveAndFlush(userEntity);
+        UserModel userModelResponse = userMapper.convertUserEntityToModel(userEntitySaved);
+        return userMapper.convertUserModelToResponse(userModelResponse);
     }
 
     public Optional<UserEntity> getSingleUser(Long id) {

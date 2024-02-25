@@ -3,6 +3,8 @@ package com.develhope.spring.features.vehicle;
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.VehicleResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,8 +35,8 @@ public class VehicleController {
         return vehicleService.updateVehicleStatusFromId(id, status);
     }
 
-    @GetMapping("/bystatus/used")
-    public List<VehicleEntity> findByStatusAndUsed(@RequestParam String status, @RequestParam Boolean used) {
+    @GetMapping("/bystatus")
+    public ResponseEntity<?> findByStatusAndUsed(@RequestParam String status, @RequestParam Boolean used) {
         return vehicleService.findByStatusAndUsed(status, used);
     }
 

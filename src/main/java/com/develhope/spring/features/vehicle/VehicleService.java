@@ -3,9 +3,10 @@ package com.develhope.spring.features.vehicle;
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.VehicleResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -41,11 +42,11 @@ public class VehicleService {
             vehicleEntityToUpdate.setColor(vehicleRequestModel.getColor());
             vehicleEntityToUpdate.setPower(vehicleRequestModel.getPower());
             vehicleEntityToUpdate.setShift(vehicleRequestModel.getShift());
-            vehicleEntityToUpdate.setYearOfmatriculation(vehicleRequestModel.getYearOfmatriculation());
+            vehicleEntityToUpdate.setYearOfMatriculation(vehicleRequestModel.getYearOfMatriculation());
             vehicleEntityToUpdate.setFuelType(vehicleRequestModel.getFuelType());
             vehicleEntityToUpdate.setPrice(vehicleRequestModel.getPrice());
             vehicleEntityToUpdate.setDiscount(vehicleRequestModel.getDiscount());
-            vehicleEntityToUpdate.setAccesories(vehicleRequestModel.getAccesories());
+            vehicleEntityToUpdate.setAccessories(vehicleRequestModel.getAccessories());
             vehicleEntityToUpdate.setUsed(vehicleRequestModel.getUsed());
             vehicleEntityToUpdate.setVehicleStatus(vehicleRequestModel.getVehicleStatus());
             vehicleEntityToUpdate.setVehicleType(vehicleRequestModel.getVehicleType());
@@ -74,10 +75,12 @@ public class VehicleService {
         }
     }
 
-    public List<VehicleEntity> findByStatusAndUsed(String status, Boolean used) {
-        String statusString = status.toUpperCase();
-        VehicleStatus s = VehicleStatus.valueOf(statusString);
-        return new ArrayList<>(vehicleRepository.findByVehicleStatusAndUsed(s, used));
+    public ResponseEntity<?> findByStatusAndUsed(String status, Boolean used) {
+        if(VehicleStatus.isValidVehicleStatus(status.toUpperCase())){
+            VehicleStatus vehicleStatus = VehicleStatus.valueOf(status.toUpperCase());
+            return new ResponseEntity<>(vehicleRepository.findByVehicleStatusAndUsed(vehicleStatus, used), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
     public VehicleEntity getDetailsOfVehicle(long id) {
@@ -89,8 +92,12 @@ public class VehicleService {
     }
 
 
-    public void deleteSingleVehicle(Long id) {
-        vehicleRepository.deleteById(id);
+    public Boolean deleteSingleVehicle(Long id) {
+        if (vehicleRepository.existsById(id)) {
+            vehicleRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 
 }

@@ -10,8 +10,4 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     @Query
     List<OrderEntity> findByOrderStatus(OrderStatus status);
-
-    @Repository
-    interface RentalRepository extends JpaRepository<Rental, Long> {
-    }
 }

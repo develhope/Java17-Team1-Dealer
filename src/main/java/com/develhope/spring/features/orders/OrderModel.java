@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class OrderModel {
-
     private Long id;
     private Float deposit;
     private PaymentStatus paymentStatus;

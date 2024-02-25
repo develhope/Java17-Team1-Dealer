@@ -1,6 +1,8 @@
 package com.develhope.spring.features.users;
 
 import com.develhope.spring.exception.NotFoundException;
+import com.develhope.spring.features.users.dto.CreateUserRequest;
+import com.develhope.spring.features.users.dto.UserResponse;
 import com.develhope.spring.features.vehicle.VehicleEntity;
 import com.develhope.spring.features.vehicle.VehicleService;
 import lombok.RequiredArgsConstructor;
@@ -18,14 +20,16 @@ public class UserController {
 
     private final UserService userService;
     private final VehicleService vehicleService;
+    private final UserMapper userMapper;
 
     @PostMapping(path = USER_PATH)
-    public ResponseEntity<?> createOne(@RequestBody UserEntity userEntity) {
-        UserEntity savedUserEntity = userService.createUser(userEntity);
-        if (savedUserEntity.getId() == null) {
-            return new ResponseEntity<>(savedUserEntity, HttpStatus.INTERNAL_SERVER_ERROR);
+    public ResponseEntity<?> createOne(@RequestBody CreateUserRequest userRequest) {
+        UserModel userModel = userMapper.convertUserRequestToModel(userRequest);
+        UserResponse userResponse = userService.createUser(userModel);
+        if(userResponse != null){
+            return new ResponseEntity<>(userResponse, HttpStatus.OK);
         }
-        return new ResponseEntity<>(savedUserEntity, HttpStatus.OK);
+        return new ResponseEntity<>(userResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @GetMapping(path = USER_PATH)

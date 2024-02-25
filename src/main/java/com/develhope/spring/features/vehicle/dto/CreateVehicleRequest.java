@@ -15,14 +15,12 @@ public class CreateVehicleRequest {
     String color;
     Integer power;
     String shift;
-    Integer yearOfmatriculation;
+    Integer yearOfMatriculation;
     String fuelType;
     Integer price;
     Integer discount;
-    String accesories;
+    String accessories;
     Boolean used;
-
     VehicleStatus vehicleStatus;
-
     VehicleType vehicleType;
 }

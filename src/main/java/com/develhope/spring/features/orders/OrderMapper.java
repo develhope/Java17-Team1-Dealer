@@ -2,16 +2,15 @@ package com.develhope.spring.features.orders;
 
 import com.develhope.spring.features.orders.dto.CreateOrderRequest;
 import com.develhope.spring.features.orders.dto.OrderResponse;
-import com.develhope.spring.features.vehicle.VehicleEntity;
-import com.develhope.spring.features.vehicle.VehicleModel;
-import com.develhope.spring.features.vehicle.dto.CreateUserRequest;
-import com.develhope.spring.features.vehicle.dto.VehicleResponse;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
+@RequiredArgsConstructor
 public class OrderMapper {
-    @Autowired
-    ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     public OrderModel convertOrderRequestToModel (CreateOrderRequest createOrderRequest){
         return  modelMapper.map(createOrderRequest,OrderModel.class);

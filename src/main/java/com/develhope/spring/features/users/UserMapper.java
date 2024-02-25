@@ -1,13 +1,15 @@
 package com.develhope.spring.features.users;
 
 import com.develhope.spring.features.users.dto.UserResponse;
-import com.develhope.spring.features.vehicle.dto.CreateUserRequest;
+import com.develhope.spring.features.users.dto.CreateUserRequest;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
+@RequiredArgsConstructor
 public class UserMapper {
-    @Autowired
-    ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     public UserModel convertUserRequestToModel (CreateUserRequest createUserRequest){
         return  modelMapper.map(createUserRequest,UserModel.class);

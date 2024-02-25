@@ -2,12 +2,14 @@ package com.develhope.spring.features.vehicle;
 
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.VehicleResponse;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
+@Component
+@RequiredArgsConstructor
 public class VehicleMapper {
-    @Autowired
-    ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
     public VehicleModel convertVehicleRequestToModel (CreateVehicleRequest createVehicleRequest){
         return  modelMapper.map(createVehicleRequest,VehicleModel.class);

@@ -12,9 +12,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
     private final UserRepository userRepository;
-    @Autowired
     private final UserMapper userMapper;
 
     public UserEntity createUser(UserEntity userEntity) {

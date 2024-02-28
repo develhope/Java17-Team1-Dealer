@@ -22,8 +22,7 @@ public class UserEntity {
     @Column(nullable = false)
     @NotBlank
     private String surname;
-    @Column(unique = true, nullable = false)
-    @NotBlank
+    @Column(unique = true)
     private String telephoneNumber;
     @Column(unique = true, nullable = false)
     @NotBlank
@@ -31,4 +30,6 @@ public class UserEntity {
     @Column(nullable = false)
     @NotBlank
     private String password;
+    @Enumerated
+    private UserType userType = UserType.CUSTOMER;
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.util.StringUtils;
 
 @Service
@@ -15,30 +16,52 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
-    public UserResponse createUser(UserModel userModel) {
-        UserEntity userEntity = userMapper.convertUserModelToEntity(userModel);
-        UserEntity userEntitySaved = userRepository.saveAndFlush(userEntity);
-        UserModel userModelResponse = userMapper.convertUserEntityToModel(userEntitySaved);
-        return userMapper.convertUserModelToResponse(userModelResponse);
+    private UserResponse generateUserResponseFromEntity(UserEntity userEntity) {
+        return userMapper.convertUserModelToResponse(userMapper.convertUserEntityToModel(userEntity));
     }
 
-    public Optional<UserEntity> getSingleUser(Long id) {
-        return userRepository.findById(id);
+    private Boolean isRequesterIDValid(Optional<UserEntity> requesterUser, Long id) {
+        if (requesterUser.isEmpty()) { //how?
+            return false;
+        }
+
+        if (requesterUser.get().getId() != id && requesterUser.get().getUserType() != UserType.ADMIN) {
+            return false;
+        }
+        return true;
+    }
+
+    private UserEntity saveUserEntityFromUserModel(UserModel userModel){
+        UserEntity userEntity = userMapper.convertUserModelToEntity(userModel);
+        UserEntity userEntitySaved = userRepository.saveAndFlush(userEntity);
+        return userEntitySaved;
+    }
+    public UserResponse createUser(UserModel userModel) {
+        return generateUserResponseFromEntity(saveUserEntityFromUserModel(userModel));
+    }
+
+    public UserResponse getSingleUser(Long id) {
+        var foundUser = userRepository.findById(id);
+        if (foundUser.isPresent()) {
+            return generateUserResponseFromEntity(foundUser.get());
+        }
+        return null;
     }
 
     public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public UserEntity updateUser(Long id, UserEntity userEntity) {
+    public UserResponse updateUser(Long id, UserModel userModel) {
         Optional<UserEntity> foundUser = userRepository.findById(id);
         if (foundUser.isPresent()) {
-            foundUser.get().setName(userEntity.getName());
-            foundUser.get().setSurname(userEntity.getSurname());
-            foundUser.get().setEmail(userEntity.getEmail());
-            foundUser.get().setTelephoneNumber(userEntity.getTelephoneNumber());
-            foundUser.get().setPassword(userEntity.getPassword()); //here should already be a hashed string
-            return userRepository.saveAndFlush(userEntity);
+            foundUser.get().setName(userModel.getName());
+            foundUser.get().setSurname(userModel.getSurname());
+            foundUser.get().setEmail(userModel.getEmail());
+            foundUser.get().setTelephoneNumber(userModel.getTelephoneNumber());
+            foundUser.get().setPassword(userModel.getPassword()); //here should already be a hashed string
+            var savedUser = userRepository.saveAndFlush(foundUser.get());
+            return generateUserResponseFromEntity(savedUser);
         } else {
             return null;
         }
@@ -46,37 +69,143 @@ public class UserService {
 
     //TO DO: general functions for better checks (like, userNameCheck(string) -> bool)
     //right now these are simple, just checking empty/null
-    public UserEntity patchUser(Long id, UserEntity userEntity) {
+    public UserResponse patchUser(Long id, UserModel userModel) {
         Optional<UserEntity> foundUser = userRepository.findById(id);
         if (foundUser.isPresent()) {
-            if(StringUtils.hasText(userEntity.getEmail())){
-                foundUser.get().setEmail(userEntity.getEmail());
+            if (StringUtils.hasText(userModel.getEmail())) {
+                foundUser.get().setEmail(userModel.getEmail());
             }
 
-            if(StringUtils.hasText(userEntity.getName())){
-                foundUser.get().setName(userEntity.getName());
+            if (StringUtils.hasText(userModel.getName())) {
+                foundUser.get().setName(userModel.getName());
             }
 
-            if(StringUtils.hasText(userEntity.getSurname())){
-                foundUser.get().setSurname(userEntity.getSurname());
+            if (StringUtils.hasText(userModel.getSurname())) {
+                foundUser.get().setSurname(userModel.getSurname());
             }
 
-            if(StringUtils.hasText(userEntity.getTelephoneNumber())){
-                foundUser.get().setTelephoneNumber(userEntity.getTelephoneNumber());
+            if (StringUtils.hasText(userModel.getTelephoneNumber())) {
+                foundUser.get().setTelephoneNumber(userModel.getTelephoneNumber());
             }
 
-            if(StringUtils.hasText(userEntity.getPassword())){
-                foundUser.get().setPassword(userEntity.getPassword());
+            if (StringUtils.hasText(userModel.getPassword())) {
+                foundUser.get().setPassword(userModel.getPassword());
             }
-            return userRepository.saveAndFlush(foundUser.get());
+            var savedUser = userRepository.saveAndFlush(foundUser.get());
+            return generateUserResponseFromEntity(savedUser);
         } else {
             return null;
         }
     }
 
-    public Boolean deleteSingleUser(Long id) {
-        if (userRepository.existsById(id)) {
-            userRepository.deleteById(id);
+    //TODO: proper returns for proper errors;
+    public UserResponse updatePassword(Long id, String password, Long requester_id) { //already hashed
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (!isRequesterIDValid(requesterUser, id)) {
+            return null;
+        }
+
+        Optional<UserEntity> foundUser = requester_id == id ? requesterUser : userRepository.findById(id);
+
+        if (foundUser.isPresent()) {
+            if (password.length() < 5) {
+                return null; //too short
+            }
+
+            if (password.length() > 20) {
+                return null; //too long
+            }
+
+            if (!StringUtils.hasText(password)) {
+                return null; //empty
+            }
+
+            foundUser.get().setPassword(password);
+            var savedUser = userRepository.saveAndFlush(foundUser.get());
+            return generateUserResponseFromEntity(savedUser);
+        } else {
+            return null;
+        }
+    }
+
+    public UserResponse updateUserName(Long id, String userName, Long requester_id) {
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (!isRequesterIDValid(requesterUser, id)) {
+            return null;
+        }
+
+        Optional<UserEntity> foundUser = requester_id == id ? requesterUser : userRepository.findById(id);
+        if (foundUser.isPresent()) {
+            if (userName.length() < 3) {
+                return null; //too short
+            }
+
+            if (userName.length() > 20) {
+                return null; //too long
+            }
+
+            if (!StringUtils.hasText(userName)) {
+                return null; //empty
+            }
+
+            foundUser.get().setName(userName);
+            var savedUser = userRepository.saveAndFlush(foundUser.get());
+            return generateUserResponseFromEntity(savedUser);
+        } else {
+            return null;
+        }
+    }
+
+    public UserResponse updateTelephoneNumber(Long id, String telephoneNumber, Long requester_id) { //phone checks? some lib maybe?
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (!isRequesterIDValid(requesterUser, id)) {
+            return null;
+        }
+
+        Optional<UserEntity> foundUser = requester_id == id ? requesterUser : userRepository.findById(id);
+        if (foundUser.isPresent()) {
+            if (!StringUtils.hasText(telephoneNumber)) {
+                return null; //empty
+            }
+
+            foundUser.get().setTelephoneNumber(telephoneNumber);
+            var savedUser = userRepository.saveAndFlush(foundUser.get());
+            return generateUserResponseFromEntity(savedUser);
+        } else {
+            return null;
+        }
+    }
+
+    public UserResponse updateEmail(Long id, String email, Long requester_id) { //TODO: mail checks
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (!isRequesterIDValid(requesterUser, id)) {
+            return null;
+        }
+
+        Optional<UserEntity> foundUser = requester_id == id ? requesterUser : userRepository.findById(id);
+        if (foundUser.isPresent()) {
+            if (!StringUtils.hasText(email)) {
+                return null; //empty
+            }
+
+            foundUser.get().setEmail(email);
+            var savedUser = userRepository.saveAndFlush(foundUser.get());
+            return generateUserResponseFromEntity(savedUser);
+        } else {
+            return null;
+        }
+    }
+
+    public Boolean deleteSingleUser(Long id_to_delete, Long requester_id) {
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (!isRequesterIDValid(requesterUser, id_to_delete)) {
+            return null;
+        }
+
+        Optional<UserEntity> foundUser = requester_id == id_to_delete ? requesterUser : userRepository.findById(id_to_delete);
+
+        if (userRepository.existsById(id_to_delete)) {
+            userRepository.deleteById(id_to_delete);
             return true;
         }
         return false;

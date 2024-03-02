@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 public class OrderModel {
     private Long id;
-    private Float deposit;
+    private Integer deposit;
     private PaymentStatus paymentStatus;
     private OrderStatus orderStatus;
     private VehicleEntity vehicleEntity;

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VehicleModel {
-    private long id;
+    private Long id;
     private String model;
     private String brand;
     private Integer displacement;
@@ -22,8 +22,6 @@ public class VehicleModel {
     private Integer discount;
     private String accessories;
     private Boolean used;
-
     private VehicleStatus vehicleStatus;
-
     private VehicleType vehicleType;
 }

@@ -18,12 +18,12 @@ import java.time.OffsetDateTime;
 public class RentalEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
     @CreationTimestamp
     private OffsetDateTime startOfRental;
     private OffsetDateTime endOfRental;
-    private Float dailyCostRental;
-    private Float totalCostRental;
+    private Integer dailyCostRental;
+    private Integer totalCostRental;
     @Enumerated
     @Column(nullable = false)
     @NotBlank

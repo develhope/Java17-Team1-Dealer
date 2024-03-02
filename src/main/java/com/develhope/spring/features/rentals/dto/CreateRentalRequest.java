@@ -11,7 +11,7 @@ import java.time.OffsetDateTime;
 public class CreateRentalRequest {
     private OffsetDateTime startOfRental;
     private OffsetDateTime endOfRental;
-    private Float dailyCostRental;
-    private Float totalCostRental;
+    private Integer dailyCostRental;
+    private Integer totalCostRental;
     private PaymentStatus status;
 }

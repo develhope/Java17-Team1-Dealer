@@ -32,7 +32,7 @@ public class VehicleService {
     }
 
 
-    public VehicleResponse updateVehicle(long id, CreateVehicleRequest createVehicleRequest) {
+    public VehicleResponse updateVehicle(Long id, CreateVehicleRequest createVehicleRequest) {
         VehicleEntity vehicleEntityToUpdate = getSingleVehicle(id);
         if (vehicleEntityToUpdate != null) {
             VehicleModel vehicleRequestModel = vehicleMapper.convertVehicleRequestToModel(createVehicleRequest);
@@ -58,12 +58,12 @@ public class VehicleService {
         }
     }
 
-    public Boolean deleteVehicle(long id) {
+    public Boolean deleteVehicle(Long id) {
         vehicleRepository.deleteById(id);
         return !vehicleRepository.existsById(id);
     }
 
-    public VehicleEntity updateVehicleStatusFromId(long id, String status) {
+    public VehicleEntity updateVehicleStatusFromId(Long id, String status) {
         Optional<VehicleEntity> vehicle = vehicleRepository.findById(id);
         if (vehicle.isPresent()) {
             String statusString = status.toUpperCase();
@@ -83,7 +83,7 @@ public class VehicleService {
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-    public VehicleEntity getDetailsOfVehicle(long id) {
+    public VehicleEntity getDetailsOfVehicle(Long id) {
         return getSingleVehicle(id);
     }
 

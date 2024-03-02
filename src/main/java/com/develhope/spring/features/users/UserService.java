@@ -1,6 +1,7 @@
 package com.develhope.spring.features.users;
 
 import com.develhope.spring.features.users.dto.UserResponse;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +16,14 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    
 
     private UserResponse generateUserResponseFromEntity(UserEntity userEntity) {
         return userMapper.convertUserModelToResponse(userMapper.convertUserEntityToModel(userEntity));
     }
 
     private Boolean isRequesterIDValid(Optional<UserEntity> requesterUser, Long id) {
-        if (requesterUser.isEmpty()) { //how?
+        if (requesterUser.isEmpty()) {
             return false;
         }
 
@@ -50,21 +52,6 @@ public class UserService {
 
     public List<UserEntity> getAllUsers() {
         return userRepository.findAll();
-    }
-
-    public UserResponse updateUser(Long id, UserModel userModel) {
-        Optional<UserEntity> foundUser = userRepository.findById(id);
-        if (foundUser.isPresent()) {
-            foundUser.get().setName(userModel.getName());
-            foundUser.get().setSurname(userModel.getSurname());
-            foundUser.get().setEmail(userModel.getEmail());
-            foundUser.get().setTelephoneNumber(userModel.getTelephoneNumber());
-            foundUser.get().setPassword(userModel.getPassword()); //here should already be a hashed string
-            var savedUser = userRepository.saveAndFlush(foundUser.get());
-            return generateUserResponseFromEntity(savedUser);
-        } else {
-            return null;
-        }
     }
 
     //TO DO: general functions for better checks (like, userNameCheck(string) -> bool)
@@ -98,14 +85,17 @@ public class UserService {
         }
     }
 
-    //TODO: proper returns for proper errors;
-    public UserResponse updatePassword(Long id, String password, Long requester_id) { //already hashed
+    private Optional<UserEntity> getUser(Long searched_id, Long requester_id){ //TODO: put this check before
         Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (!isRequesterIDValid(requesterUser, id)) {
-            return null;
+        if (!isRequesterIDValid(requesterUser, searched_id)) {
+            return Optional.empty();
         }
 
-        Optional<UserEntity> foundUser = requester_id == id ? requesterUser : userRepository.findById(id);
+        return requester_id == searched_id ? requesterUser : userRepository.findById(searched_id);
+    }
+    //TODO: proper returns for proper errors;
+    public UserResponse updatePassword(Long id, String password, Long requester_id) { //already hashed
+        Optional<UserEntity> foundUser = getUser(id, requester_id);
 
         if (foundUser.isPresent()) {
             if (password.length() < 5) {
@@ -129,12 +119,8 @@ public class UserService {
     }
 
     public UserResponse updateUserName(Long id, String userName, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (!isRequesterIDValid(requesterUser, id)) {
-            return null;
-        }
+        Optional<UserEntity> foundUser = getUser(id, requester_id);
 
-        Optional<UserEntity> foundUser = requester_id == id ? requesterUser : userRepository.findById(id);
         if (foundUser.isPresent()) {
             if (userName.length() < 3) {
                 return null; //too short
@@ -157,12 +143,8 @@ public class UserService {
     }
 
     public UserResponse updateTelephoneNumber(Long id, String telephoneNumber, Long requester_id) { //phone checks? some lib maybe?
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (!isRequesterIDValid(requesterUser, id)) {
-            return null;
-        }
-
-        Optional<UserEntity> foundUser = requester_id == id ? requesterUser : userRepository.findById(id);
+        Optional<UserEntity> foundUser = getUser(id, requester_id);
+        
         if (foundUser.isPresent()) {
             if (!StringUtils.hasText(telephoneNumber)) {
                 return null; //empty
@@ -177,12 +159,8 @@ public class UserService {
     }
 
     public UserResponse updateEmail(Long id, String email, Long requester_id) { //TODO: mail checks
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (!isRequesterIDValid(requesterUser, id)) {
-            return null;
-        }
+        Optional<UserEntity> foundUser = getUser(id, requester_id);
 
-        Optional<UserEntity> foundUser = requester_id == id ? requesterUser : userRepository.findById(id);
         if (foundUser.isPresent()) {
             if (!StringUtils.hasText(email)) {
                 return null; //empty
@@ -199,15 +177,16 @@ public class UserService {
     public Boolean deleteSingleUser(Long id_to_delete, Long requester_id) {
         Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
         if (!isRequesterIDValid(requesterUser, id_to_delete)) {
-            return null;
+            return false;
         }
 
-        Optional<UserEntity> foundUser = requester_id == id_to_delete ? requesterUser : userRepository.findById(id_to_delete);
-
-        if (userRepository.existsById(id_to_delete)) {
+        if (userRepository.existsById(id_to_delete))
+        {
             userRepository.deleteById(id_to_delete);
             return true;
         }
         return false;
     }
+
+
 }

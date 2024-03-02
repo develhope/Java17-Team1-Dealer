@@ -13,7 +13,7 @@ public class VehicleEntity { //owner?
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "vehicle_id")
-    private long id;
+    private Long id;
     @Column(nullable = false)
     @NotBlank
     private String model;

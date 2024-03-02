@@ -15,7 +15,7 @@ public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Float deposit;
+    private Integer deposit;
     @Enumerated
     @Column(nullable = false)
     @NotBlank

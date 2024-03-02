@@ -21,17 +21,17 @@ public class VehicleController {
     }
 
     @PutMapping("/update/{id}")
-    public VehicleResponse updateVehicle(@PathVariable long id, @RequestBody CreateVehicleRequest createVehicleRequest) {
+    public VehicleResponse updateVehicle(@PathVariable Long id, @RequestBody CreateVehicleRequest createVehicleRequest) {
         return vehicleService.updateVehicle(id, createVehicleRequest);
     }
 
     @DeleteMapping("/{id}")
-    public Boolean deleteVehicle(@PathVariable long id) {
+    public Boolean deleteVehicle(@PathVariable Long id) {
         return vehicleService.deleteVehicle(id);
     }
 
     @PatchMapping("/status/{id}")
-    public VehicleEntity updateVehicleStatusFromId(@PathVariable long id, @RequestParam String status) {
+    public VehicleEntity updateVehicleStatusFromId(@PathVariable Long id, @RequestParam String status) {
         return vehicleService.updateVehicleStatusFromId(id, status);
     }
 

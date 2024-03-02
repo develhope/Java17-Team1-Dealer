@@ -8,7 +8,7 @@ import lombok.Value;
 @Value
 @AllArgsConstructor
 public class VehicleResponse {
-    long id;
+    Long id;
     String model;
     String brand;
     Integer displacement;

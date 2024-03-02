@@ -15,10 +15,12 @@ import java.time.OffsetDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class RentalEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
     @CreationTimestamp
     private OffsetDateTime startOfRental;
     private OffsetDateTime endOfRental;

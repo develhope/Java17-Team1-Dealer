@@ -1,17 +1,17 @@
 package com.develhope.spring.features.rentals.dto;
 
-import com.develhope.spring.features.orders.PaymentStatus;
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
 
-@Value
+@NoArgsConstructor
 @AllArgsConstructor
+@Data
 public class CreateRentalRequest {
     private OffsetDateTime startOfRental;
     private OffsetDateTime endOfRental;
-    private Float dailyCostRental;
-    private Float totalCostRental;
-    private PaymentStatus status;
+    private Integer dailyCostRental;
+    private Integer totalCostRental;
 }

@@ -1,29 +1,94 @@
 package com.develhope.spring.features.vehicle;
 
+import com.develhope.spring.features.users.UserEntity;
+import com.develhope.spring.features.users.UserRepository;
+import com.develhope.spring.features.users.UserType;
+import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
+import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
+import com.develhope.spring.features.vehicle.dto.PatchVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.VehicleResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
+import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class VehicleService {
-    @Autowired
-    private VehicleRepository vehicleRepository;
-    @Autowired
-    private VehicleMapper vehicleMapper;
+    private final VehicleRepository vehicleRepository;
+    private final VehicleMapper vehicleMapper;
+    private final UserRepository userRepository;
 
 
-    public VehicleResponse createVehicle(CreateVehicleRequest createVehicleRequest) {
-        VehicleModel vehicleRequestModel = vehicleMapper.convertVehicleRequestToModel(createVehicleRequest);
-        VehicleEntity vehicleRequestEntity = vehicleMapper.convertVehicleModelToEntity(vehicleRequestModel);
-        VehicleEntity savedVehicleEntity = vehicleRepository.saveAndFlush(vehicleRequestEntity);
-        VehicleModel vehicleResponseModel = vehicleMapper.convertVehicleEntityToModel(savedVehicleEntity);
-        return vehicleMapper.convertVehicleModelToResponse(vehicleResponseModel);
+    public VehicleResponse createVehicle(CreateVehicleRequest createVehicleRequest, Long requester_id) {
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (requesterUser.isEmpty()) {
+            return null;
+        }
+
+        final var userType = requesterUser.get().getUserType();
+        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+            return null; //unhaoutrized
+        }
+
+        /*if (!StringUtils.hasText(createVehicleRequest.getBrand())) {
+            return null; //brand is required
+        }
+
+        if (!StringUtils.hasText(createVehicleRequest.getModel())) {
+            return null; //model is required
+        }
+
+        if (createVehicleRequest.getDisplacement() == null || createVehicleRequest.getDisplacement() <= 0) {
+            return null; //displacement is required
+        }
+
+        if (!StringUtils.hasText(createVehicleRequest.getColor())) {
+            return null; //color is required
+        }
+
+        if (createVehicleRequest.getPower() == null || createVehicleRequest.getPower() <= 0) {
+            return null; //power is required
+        }
+
+        if (createVehicleRequest.getShiftType() == null || !ShiftType.isValidShiftType(createVehicleRequest.getShiftType()) {
+            return null; //shiftType is required
+        }
+
+        if (createVehicleRequest.getYearOfMatriculation() == null || createVehicleRequest.getYearOfMatriculation() <= 1950) {
+            return null; //yearOfMatriculation is required
+        }
+
+        if (!StringUtils.hasText(createVehicleRequest.getFuelType()) || !FuelType.isValidFuelType(createVehicleRequest.getFuelType()) {
+            return null; //fuelType is required
+        }
+
+        if (createVehicleRequest.getPrice() == null || createVehicleRequest.getPrice() < 0) {
+            return null; //price is required
+        }
+
+        if (createVehicleRequest.getDiscount() == null || createVehicleRequest.getDiscount() < 0) {
+            return null; //discount is required
+        }
+
+        if (createVehicleRequest.getUsed() == null) {
+            return null; //used is required
+        }
+
+        if (createVehicleRequest.getVehicleStatus() == null || !VehicleStatus.isValidVehicleStatus(createVehicleRequest.getVehicleStatus()) {
+            return null; //vehicleStatus is required
+        }
+
+        if (createVehicleRequest.getVehicleType() == null || !VehicleType.isValidVehicleType(createVehicleRequest.getVehicleType() {
+            return null; //vehicleType is required
+        }*/
+
+        VehicleEntity vehicleEntity = vehicleMapper.convertCreateVehicleRequestToEntity(createVehicleRequest);
+        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity));
     }
 
     public VehicleEntity getSingleVehicle(Long id) {
@@ -32,72 +97,152 @@ public class VehicleService {
     }
 
 
-    public VehicleResponse updateVehicle(long id, CreateVehicleRequest createVehicleRequest) {
-        VehicleEntity vehicleEntityToUpdate = getSingleVehicle(id);
-        if (vehicleEntityToUpdate != null) {
-            VehicleModel vehicleRequestModel = vehicleMapper.convertVehicleRequestToModel(createVehicleRequest);
-            vehicleEntityToUpdate.setModel(vehicleRequestModel.getModel());
-            vehicleEntityToUpdate.setBrand(vehicleRequestModel.getBrand());
-            vehicleEntityToUpdate.setDisplacement(vehicleRequestModel.getDisplacement());
-            vehicleEntityToUpdate.setColor(vehicleRequestModel.getColor());
-            vehicleEntityToUpdate.setPower(vehicleRequestModel.getPower());
-            vehicleEntityToUpdate.setShift(vehicleRequestModel.getShift());
-            vehicleEntityToUpdate.setYearOfMatriculation(vehicleRequestModel.getYearOfMatriculation());
-            vehicleEntityToUpdate.setFuelType(vehicleRequestModel.getFuelType());
-            vehicleEntityToUpdate.setPrice(vehicleRequestModel.getPrice());
-            vehicleEntityToUpdate.setDiscount(vehicleRequestModel.getDiscount());
-            vehicleEntityToUpdate.setAccessories(vehicleRequestModel.getAccessories());
-            vehicleEntityToUpdate.setUsed(vehicleRequestModel.getUsed());
-            vehicleEntityToUpdate.setVehicleStatus(vehicleRequestModel.getVehicleStatus());
-            vehicleEntityToUpdate.setVehicleType(vehicleRequestModel.getVehicleType());
-            VehicleEntity updatedVehicle = vehicleRepository.saveAndFlush(vehicleEntityToUpdate);
-            VehicleModel vehicleResponseModel = vehicleMapper.convertVehicleEntityToModel(updatedVehicle);
-            return vehicleMapper.convertVehicleModelToResponse(vehicleResponseModel);
-        } else {
+    public VehicleResponse patchVehicle(Long id, PatchVehicleRequest patchVehicleRequest, Long requester_id) {
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (requesterUser.isEmpty()) {
             return null;
         }
+
+        final var userType = requesterUser.get().getUserType();
+        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+            return null; //unhaoutrized
+        }
+
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(id);
+
+        if (vehicleEntity.isEmpty()) {
+            return null;
+        }
+
+        if (patchVehicleRequest.getBrand() != null) {
+            vehicleEntity.get().setBrand(patchVehicleRequest.getBrand());
+        }
+        if (patchVehicleRequest.getModel() != null) {
+            vehicleEntity.get().setModel(patchVehicleRequest.getModel());
+        }
+
+        if (patchVehicleRequest.getDisplacement() != null) {
+            vehicleEntity.get().setDisplacement(patchVehicleRequest.getDisplacement());
+        }
+
+        if (patchVehicleRequest.getColor() != null && StringUtils.hasText(patchVehicleRequest.getColor())) {
+            vehicleEntity.get().setColor(patchVehicleRequest.getColor());
+        }
+
+        if (patchVehicleRequest.getPower() != null && patchVehicleRequest.getPower() > 0) {
+            vehicleEntity.get().setPower(patchVehicleRequest.getPower());
+        }
+
+        if (patchVehicleRequest.getShiftType() != null) {
+            if (ShiftType.isValidShiftType(patchVehicleRequest.getShiftType())) {
+                vehicleEntity.get().setShiftType(ShiftType.valueOf(patchVehicleRequest.getShiftType()));
+            }
+        }
+
+        if (patchVehicleRequest.getYearOfMatriculation() != null) {
+            vehicleEntity.get().setYearOfMatriculation(patchVehicleRequest.getYearOfMatriculation());
+        }
+
+
+        if (patchVehicleRequest.getFuelType() != null && StringUtils.hasText(patchVehicleRequest.getFuelType())) {
+            if (FuelType.isValidFuelType(patchVehicleRequest.getFuelType())) {
+                vehicleEntity.get().setFuelType(FuelType.valueOf(patchVehicleRequest.getFuelType()));
+            }
+        }
+
+
+        if (patchVehicleRequest.getPrice() != null && patchVehicleRequest.getPrice() > 0) {
+            vehicleEntity.get().setPrice(patchVehicleRequest.getPrice());
+        }
+
+        if (patchVehicleRequest.getDiscount() != null && patchVehicleRequest.getDiscount() >= 0) {
+            vehicleEntity.get().setDiscount(patchVehicleRequest.getDiscount());
+        }
+
+        if (patchVehicleRequest.getAccessories() != null && StringUtils.hasText(patchVehicleRequest.getAccessories())) {
+            vehicleEntity.get().setAccessories(patchVehicleRequest.getAccessories());
+        }
+
+        if (patchVehicleRequest.getUsed() != null) {
+            vehicleEntity.get().setUsed(patchVehicleRequest.getUsed());
+        }
+
+        if (patchVehicleRequest.getVehicleStatus() != null) {
+            if (VehicleStatus.isValidVehicleStatus(patchVehicleRequest.getVehicleStatus())) {
+                vehicleEntity.get().setVehicleStatus(VehicleStatus.valueOf(patchVehicleRequest.getVehicleStatus()));
+            }
+        }
+        if (patchVehicleRequest.getVehicleType() != null) {
+            if (VehicleType.isValidVehicleType(patchVehicleRequest.getVehicleType())) {
+                vehicleEntity.get().setVehicleType(VehicleType.valueOf(patchVehicleRequest.getVehicleType()));
+            }
+        }
+
+        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity.get()));
     }
 
-    public Boolean deleteVehicle(long id) {
+    public Boolean deleteVehicle(Long id, Long requester_id) {
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (requesterUser.isEmpty()) {
+            return false;
+        }
+
+        final var userType = requesterUser.get().getUserType();
+        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+            return false; //unhaoutrized
+        }
+
         vehicleRepository.deleteById(id);
-        return !vehicleRepository.existsById(id);
+        return true;
     }
 
-    public VehicleEntity updateVehicleStatusFromId(long id, String status) {
-        Optional<VehicleEntity> vehicle = vehicleRepository.findById(id);
-        if (vehicle.isPresent()) {
-            String statusString = status.toUpperCase();
-            VehicleStatus s = VehicleStatus.valueOf(statusString);
-            vehicle.get().setVehicleStatus(s);
-            return vehicleRepository.saveAndFlush(vehicle.get());
-        } else {
+    public VehicleResponse patchStatus(Long id, String status, Long requester_id) {
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (requesterUser.isEmpty()) {
             return null;
         }
+
+        final var userType = requesterUser.get().getUserType();
+        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+            return null; //unhaoutrized
+        }
+
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(id);
+        if (vehicleEntity.isPresent()) {
+
+            if (VehicleStatus.isValidVehicleStatus(status)) {
+                vehicleEntity.get().setVehicleStatus(VehicleStatus.valueOf(status));
+                return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity.get()));
+            }
+        }
+        return null;
     }
 
-    public ResponseEntity<?> findByStatusAndUsed(String status, Boolean used) {
-        if(VehicleStatus.isValidVehicleStatus(status.toUpperCase())){
-            VehicleStatus vehicleStatus = VehicleStatus.valueOf(status.toUpperCase());
-            return new ResponseEntity<>(vehicleRepository.findByVehicleStatusAndUsed(vehicleStatus, used), HttpStatus.OK);
+
+    public ResponseEntity<?> findByStatus(String status, Long requester_id) {
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (requesterUser.isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+
+        final var userType = requesterUser.get().getUserType();
+        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+        }
+
+        String statusString = status.toUpperCase();
+        if (VehicleStatus.isValidVehicleStatus(statusString)) {
+            return new ResponseEntity<>(vehicleRepository.findByVehicleStatus(VehicleStatus.valueOf(statusString)), HttpStatus.OK);
         }
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-    public VehicleEntity getDetailsOfVehicle(long id) {
+    public VehicleEntity getDetailsOfVehicle(Long id) {
         return getSingleVehicle(id);
     }
 
     public List<VehicleEntity> getAllVehicles() {
         return vehicleRepository.findAll();
-    }
-
-
-    public Boolean deleteSingleVehicle(Long id) {
-        if (vehicleRepository.existsById(id)) {
-            vehicleRepository.deleteById(id);
-            return true;
-        }
-        return false;
     }
 
 }

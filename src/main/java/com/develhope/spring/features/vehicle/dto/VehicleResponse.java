@@ -2,27 +2,31 @@ package com.develhope.spring.features.vehicle.dto;
 
 import com.develhope.spring.features.vehicle.VehicleStatus;
 import com.develhope.spring.features.vehicle.VehicleType;
-import lombok.AllArgsConstructor;
-import lombok.Value;
+import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
+import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
 
-@Value
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class VehicleResponse {
-    long id;
+    Long id;
     String model;
     String brand;
     Integer displacement;
     String color;
     Integer power;
-    String shift;
+    ShiftType shift;
     Integer yearOfMatriculation;
-    String fuelType;
+    FuelType fuelType;
     Integer price;
     Integer discount;
     String accessories;
     Boolean used;
-
     VehicleStatus vehicleStatus;
-
     VehicleType vehicleType;
 }

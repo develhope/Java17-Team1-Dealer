@@ -1,5 +1,6 @@
 package com.develhope.spring.features.orders.dto;
 
+import com.develhope.spring.features.vehicle.VehicleEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateOrderRequest {
+public class PatchOrderRequest {
     Integer deposit;
+    String paymentStatus;
+    String orderStatus;
+    VehicleEntity vehicleEntity;
 }

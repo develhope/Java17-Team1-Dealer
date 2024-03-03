@@ -1,8 +1,9 @@
 package com.develhope.spring.features.vehicle;
 
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
+import com.develhope.spring.features.vehicle.dto.PatchVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.VehicleResponse;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -10,35 +11,42 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/vehicle")
+@RequiredArgsConstructor
 public class VehicleController {
-    @Autowired
-    private VehicleService vehicleService;
+    public static final String VEHICLE_PATH = "/vehicle";
+    public static final String VEHICLE_PATH_ID = VEHICLE_PATH + "/{vehicleId}";
 
-    @PostMapping("/create")
-    public VehicleResponse createVehicle(@RequestBody CreateVehicleRequest createVehicleRequest) {
-        return vehicleService.createVehicle(createVehicleRequest);
+    private final VehicleService vehicleService;
+
+    @PostMapping(path = VEHICLE_PATH)
+    public ResponseEntity<?> createVehicle(@RequestBody CreateVehicleRequest createVehicleRequest, @RequestParam(required = true) Long requester_id) {
+        VehicleResponse vehicleResponse = vehicleService.createVehicle(createVehicleRequest, requester_id);
+        if (vehicleResponse == null) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(vehicleResponse, HttpStatus.OK);
     }
 
-    @PutMapping("/update/{id}")
-    public VehicleResponse updateVehicle(@PathVariable long id, @RequestBody CreateVehicleRequest createVehicleRequest) {
-        return vehicleService.updateVehicle(id, createVehicleRequest);
+    @PatchMapping(path = VEHICLE_PATH_ID)
+    public VehicleResponse patchVehicle(@PathVariable Long vehicleId, @RequestBody PatchVehicleRequest patchVehicleRequest, @RequestParam(required = true) Long requester_id) {
+        return vehicleService.patchVehicle(vehicleId, patchVehicleRequest, requester_id);
     }
 
-    @DeleteMapping("/{id}")
-    public Boolean deleteVehicle(@PathVariable long id) {
-        return vehicleService.deleteVehicle(id);
+    @DeleteMapping(path = VEHICLE_PATH_ID)
+    public Boolean deleteVehicle(@PathVariable Long vehicleId, @RequestParam(required = true) Long requester_id) {
+        return vehicleService.deleteVehicle(vehicleId, requester_id);
     }
 
-    @PatchMapping("/status/{id}")
-    public VehicleEntity updateVehicleStatusFromId(@PathVariable long id, @RequestParam String status) {
-        return vehicleService.updateVehicleStatusFromId(id, status);
+    @PatchMapping(path = VEHICLE_PATH_ID + "/status")
+    public VehicleResponse patchStatus(@PathVariable Long vehicleId, @RequestParam String status, @RequestParam(required = true) Long requester_id) {
+        return vehicleService.patchStatus(vehicleId, status, requester_id);
     }
 
-    @GetMapping("/bystatus")
-    public ResponseEntity<?> findByStatusAndUsed(@RequestParam String status, @RequestParam Boolean used) {
-        return vehicleService.findByStatusAndUsed(status, used);
+    @GetMapping(path = VEHICLE_PATH + "/bystatus")
+    public ResponseEntity<?> findByStatus(@RequestParam String status, @RequestParam(required = true) Long requester_id) {
+        return vehicleService.findByStatus(status, requester_id);
     }
+
 
     @GetMapping("/all")
     public List<VehicleEntity> getAllVehicles() {

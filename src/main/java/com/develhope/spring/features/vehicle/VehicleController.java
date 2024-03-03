@@ -3,10 +3,7 @@ package com.develhope.spring.features.vehicle;
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.PatchVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.VehicleResponse;
-
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

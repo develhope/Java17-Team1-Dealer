@@ -8,18 +8,13 @@ import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.PatchVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.VehicleResponse;
-
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -113,83 +108,77 @@ public class VehicleService {
             return null; //unhaoutrized
         }
 
-        AtomicReference<Optional<VehicleResponse>> atomicReference = new AtomicReference<>();
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(id);
 
-        vehicleRepository.findById(id).ifPresentOrElse(vehicleEntity -> {
-
-            if (patchVehicleRequest.getBrand() != null) {
-                vehicleEntity.setBrand(patchVehicleRequest.getBrand());
-            }
-            if (patchVehicleRequest.getModel() != null) {
-                vehicleEntity.setModel(patchVehicleRequest.getModel());
-            }
-
-            if (patchVehicleRequest.getDisplacement() != null) {
-                vehicleEntity.setDisplacement(patchVehicleRequest.getDisplacement());
-            }
-
-            if (patchVehicleRequest.getColor() != null && StringUtils.hasText(patchVehicleRequest.getColor())) {
-                vehicleEntity.setColor(patchVehicleRequest.getColor());
-            }
-
-            if (patchVehicleRequest.getPower() != null && patchVehicleRequest.getPower() > 0) {
-                vehicleEntity.setPower(patchVehicleRequest.getPower());
-            }
-
-            if (patchVehicleRequest.getShiftType() != null) {
-                if (ShiftType.isValidShiftType(patchVehicleRequest.getShiftType())) {
-                    vehicleEntity.setShiftType(ShiftType.valueOf(patchVehicleRequest.getShiftType()));
-                }
-            }
-
-            if (patchVehicleRequest.getYearOfMatriculation() != null) {
-                vehicleEntity.setYearOfMatriculation(patchVehicleRequest.getYearOfMatriculation());
-            }
-
-
-            if (patchVehicleRequest.getFuelType() != null && StringUtils.hasText(patchVehicleRequest.getFuelType())) {
-                if (FuelType.isValidFuelType(patchVehicleRequest.getFuelType())) {
-                    vehicleEntity.setFuelType(FuelType.valueOf(patchVehicleRequest.getFuelType()));
-                }
-            }
-
-
-            if (patchVehicleRequest.getPrice() != null && patchVehicleRequest.getPrice() > 0) {
-                vehicleEntity.setPrice(patchVehicleRequest.getPrice());
-            }
-
-            if (patchVehicleRequest.getDiscount() != null && patchVehicleRequest.getDiscount() >= 0) {
-                vehicleEntity.setDiscount(patchVehicleRequest.getDiscount());
-            }
-
-            if (patchVehicleRequest.getAccessories() != null && StringUtils.hasText(patchVehicleRequest.getAccessories())) {
-                vehicleEntity.setAccessories(patchVehicleRequest.getAccessories());
-            }
-
-            if (patchVehicleRequest.getUsed() != null) {
-                vehicleEntity.setUsed(patchVehicleRequest.getUsed());
-            }
-
-            if (patchVehicleRequest.getVehicleStatus() != null) {
-                if (VehicleStatus.isValidVehicleStatus(patchVehicleRequest.getVehicleStatus())) {
-                    vehicleEntity.setVehicleStatus(VehicleStatus.valueOf(patchVehicleRequest.getVehicleStatus()));
-                }
-            }
-            if (patchVehicleRequest.getVehicleType() != null) {
-                if (VehicleType.isValidVehicleType(patchVehicleRequest.getVehicleType())) {
-                    vehicleEntity.setVehicleType(VehicleType.valueOf(patchVehicleRequest.getVehicleType()));
-                }
-            }
-
-            atomicReference.set(Optional.of(vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity))));
-        }, () -> {
-            atomicReference.set(Optional.empty());
-        });
-
-        if (atomicReference.get().isEmpty()) {
+        if (vehicleEntity.isEmpty()) {
             return null;
         }
-        return atomicReference.get().get();
+
+        if (patchVehicleRequest.getBrand() != null) {
+            vehicleEntity.get().setBrand(patchVehicleRequest.getBrand());
+        }
+        if (patchVehicleRequest.getModel() != null) {
+            vehicleEntity.get().setModel(patchVehicleRequest.getModel());
+        }
+
+        if (patchVehicleRequest.getDisplacement() != null) {
+            vehicleEntity.get().setDisplacement(patchVehicleRequest.getDisplacement());
+        }
+
+        if (patchVehicleRequest.getColor() != null && StringUtils.hasText(patchVehicleRequest.getColor())) {
+            vehicleEntity.get().setColor(patchVehicleRequest.getColor());
+        }
+
+        if (patchVehicleRequest.getPower() != null && patchVehicleRequest.getPower() > 0) {
+            vehicleEntity.get().setPower(patchVehicleRequest.getPower());
+        }
+
+        if (patchVehicleRequest.getShiftType() != null) {
+            if (ShiftType.isValidShiftType(patchVehicleRequest.getShiftType())) {
+                vehicleEntity.get().setShiftType(ShiftType.valueOf(patchVehicleRequest.getShiftType()));
+            }
+        }
+
+        if (patchVehicleRequest.getYearOfMatriculation() != null) {
+            vehicleEntity.get().setYearOfMatriculation(patchVehicleRequest.getYearOfMatriculation());
+        }
+
+
+        if (patchVehicleRequest.getFuelType() != null && StringUtils.hasText(patchVehicleRequest.getFuelType())) {
+            if (FuelType.isValidFuelType(patchVehicleRequest.getFuelType())) {
+                vehicleEntity.get().setFuelType(FuelType.valueOf(patchVehicleRequest.getFuelType()));
+            }
+        }
+
+
+        if (patchVehicleRequest.getPrice() != null && patchVehicleRequest.getPrice() > 0) {
+            vehicleEntity.get().setPrice(patchVehicleRequest.getPrice());
+        }
+
+        if (patchVehicleRequest.getDiscount() != null && patchVehicleRequest.getDiscount() >= 0) {
+            vehicleEntity.get().setDiscount(patchVehicleRequest.getDiscount());
+        }
+
+        if (patchVehicleRequest.getAccessories() != null && StringUtils.hasText(patchVehicleRequest.getAccessories())) {
+            vehicleEntity.get().setAccessories(patchVehicleRequest.getAccessories());
+        }
+
+        if (patchVehicleRequest.getUsed() != null) {
+            vehicleEntity.get().setUsed(patchVehicleRequest.getUsed());
+        }
+
+        if (patchVehicleRequest.getVehicleStatus() != null) {
+            if (VehicleStatus.isValidVehicleStatus(patchVehicleRequest.getVehicleStatus())) {
+                vehicleEntity.get().setVehicleStatus(VehicleStatus.valueOf(patchVehicleRequest.getVehicleStatus()));
+            }
+        }
+        if (patchVehicleRequest.getVehicleType() != null) {
+            if (VehicleType.isValidVehicleType(patchVehicleRequest.getVehicleType())) {
+                vehicleEntity.get().setVehicleType(VehicleType.valueOf(patchVehicleRequest.getVehicleType()));
+            }
+        }
+
+        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity.get()));
     }
 
     public Boolean deleteVehicle(Long id, Long requester_id) {
@@ -218,23 +207,15 @@ public class VehicleService {
             return null; //unhaoutrized
         }
 
-        AtomicReference<Optional<VehicleResponse>> atomicReference = new AtomicReference<>();
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(id);
+        if (vehicleEntity.isPresent()) {
 
-        vehicleRepository.findById(id).ifPresentOrElse(vehicleEntity -> {
             if (VehicleStatus.isValidVehicleStatus(status)) {
-                vehicleEntity.setVehicleStatus(VehicleStatus.valueOf(status));
-                atomicReference.set(Optional.of(vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity))));
-            } else {
-                atomicReference.set(Optional.empty());
+                vehicleEntity.get().setVehicleStatus(VehicleStatus.valueOf(status));
+                return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity.get()));
             }
-        }, () -> {
-            atomicReference.set(Optional.empty());
-        });
-
-        if (atomicReference.get().isEmpty()) {
-            return null;
         }
-        return atomicReference.get().get();
+        return null;
     }
 
 

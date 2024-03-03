@@ -1,19 +1,13 @@
 package com.develhope.spring.features.users;
 
-import com.develhope.spring.features.rentals.dto.RentalResponse;
 import com.develhope.spring.features.users.dto.CreateUserRequest;
 import com.develhope.spring.features.users.dto.PatchUserRequest;
 import com.develhope.spring.features.users.dto.UserResponse;
-
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
-
 import org.springframework.util.StringUtils;
 
 @Service
@@ -34,6 +28,7 @@ public class UserService {
         }
         return true;
     }
+
 
     public Boolean isRequesterIDValid(UserEntity originalUser, Long requester_id) {
         if (originalUser == null) {
@@ -119,6 +114,9 @@ public class UserService {
         if (!UserType.isValidUserType(userRequest.getUserType())) {
             return null; //invalid user type
         }
+
+        String hash = BCrypt.hashpw(password, BCrypt.gensalt(9));
+        userRequest.setPassword(hash);
         */
         UserEntity userEntity = userMapper.convertUserRequestToEntity(userRequest);
         return userMapper.convertUserEntityToResponse(userRepository.saveAndFlush(userEntity));
@@ -131,67 +129,57 @@ public class UserService {
     //TO DO: general functions for better checks (like, userNameCheck(string) -> bool)
     //right now these are simple, just checking empty/null
     public UserResponse patchUser(Long user_id, PatchUserRequest patchUserRequest, Long requester_id) {
-        AtomicReference<Optional<UserResponse>> atomicReference = new AtomicReference<>();
-
-
-        userRepository.findById(user_id).ifPresentOrElse(userEntity -> {
-            if (!isRequesterIDValid(userEntity, requester_id)) {
-                atomicReference.set(Optional.empty());
-                return;
-            }
-
-            if (StringUtils.hasText(patchUserRequest.getName())) {
-                userEntity.setName(patchUserRequest.getName());
-            }
-
-            if (StringUtils.hasText(patchUserRequest.getEmail())) {
-                userEntity.setEmail(patchUserRequest.getEmail());
-            }
-
-            if (StringUtils.hasText(patchUserRequest.getTelephoneNumber())) {
-                userEntity.setTelephoneNumber(patchUserRequest.getTelephoneNumber());
-            }
-
-            if (StringUtils.hasText(patchUserRequest.getPassword())) {
-                userEntity.setPassword(patchUserRequest.getPassword());
-            }
-
-            atomicReference.set(Optional.of(userMapper.convertUserEntityToResponse(userRepository.saveAndFlush(userEntity))));
-        }, () -> {
-            atomicReference.set(Optional.empty());
-        });
-
-
-        if (atomicReference.get().isEmpty()) {
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (requesterUser.isEmpty()) {
             return null;
         }
-        return atomicReference.get().get();
 
+        Optional<UserEntity> originalUser = userRepository.findById(user_id);
+        if (originalUser.isEmpty()) {
+            return null;
+        }
+
+        if (originalUser.get().getId() != requester_id && requesterUser.get().getUserType() != UserType.ADMIN) {
+            return null;
+        }
+
+
+        if (StringUtils.hasText(patchUserRequest.getName())) {
+            originalUser.get().setName(patchUserRequest.getName());
+        }
+
+        if (StringUtils.hasText(patchUserRequest.getEmail())) {
+            originalUser.get().setEmail(patchUserRequest.getEmail());
+        }
+
+        if (StringUtils.hasText(patchUserRequest.getTelephoneNumber())) {
+            originalUser.get().setTelephoneNumber(patchUserRequest.getTelephoneNumber());
+        }
+
+        if (StringUtils.hasText(patchUserRequest.getPassword())) {
+            originalUser.get().setPassword(patchUserRequest.getPassword());
+        }
+
+        return userMapper.convertUserEntityToResponse(userRepository.saveAndFlush(originalUser.get()));
     }
 
-    private Optional<UserEntity> checkAndGetkUser(Long searched_id, Long requester_id) { //TODO: put this check before
-        AtomicReference<Optional<UserEntity>> atomicReference = new AtomicReference<>();
-        userRepository.findById(requester_id).ifPresentOrElse(userEntity -> {
-            atomicReference.set(Optional.of(userEntity));
-        }, () -> {
-            atomicReference.set(Optional.empty());
-        });
-
-        if (!isRequesterIDValid(atomicReference.get(), searched_id)) {
+    private Optional<UserEntity> checkAndGetUser(Long searched_id, Long requester_id) { //TODO: put this check before
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (!isRequesterIDValid(requesterUser, searched_id)) {
             return Optional.empty();
         }
 
-        return requester_id == searched_id ? atomicReference.get() : userRepository.findById(searched_id);
+        return requester_id == searched_id ? requesterUser : userRepository.findById(searched_id);
     }
 
     public UserResponse getUser(Long id, Long requester_id) {
-        Optional<UserEntity> foundUser = checkAndGetkUser(id, requester_id);
+        Optional<UserEntity> foundUser = checkAndGetUser(id, requester_id);
         return foundUser.map(this::generateUserResponseFromEntity).orElse(null);
     }
 
     //TODO: proper returns for proper errors;
-    public UserResponse updatePassword(Long id, String password, Long requester_id) { //already hashed
-        Optional<UserEntity> foundUser = checkAndGetkUser(id, requester_id);
+    public UserResponse updatePassword(Long id, String password, Long requester_id) { //should be already hashed, from middleware
+        Optional<UserEntity> foundUser = checkAndGetUser(id, requester_id);
 
         if (foundUser.isPresent()) {
             if (password.length() < 5) {
@@ -206,7 +194,10 @@ public class UserService {
                 return null; //empty
             }
 
-            foundUser.get().setPassword(password);
+            String hash = BCrypt.hashpw(password, BCrypt.gensalt(9));
+
+
+            foundUser.get().setPassword(hash);
             var savedUser = userRepository.saveAndFlush(foundUser.get());
             return generateUserResponseFromEntity(savedUser);
         } else {
@@ -226,7 +217,7 @@ public class UserService {
         if (!StringUtils.hasText(userName)) {
             return null; //empty
         }
-        Optional<UserEntity> foundUser = checkAndGetkUser(id, requester_id);
+        Optional<UserEntity> foundUser = checkAndGetUser(id, requester_id);
         if (foundUser.isPresent()) {
             foundUser.get().setName(userName);
             var savedUser = userRepository.saveAndFlush(foundUser.get());
@@ -241,7 +232,7 @@ public class UserService {
             return null; //empty
         }
 
-        Optional<UserEntity> foundUser = checkAndGetkUser(id, requester_id);
+        Optional<UserEntity> foundUser = checkAndGetUser(id, requester_id);
 
         if (foundUser.isPresent()) {
             foundUser.get().setTelephoneNumber(telephoneNumber);
@@ -256,7 +247,7 @@ public class UserService {
         if (!StringUtils.hasText(email)) {
             return null; //empty
         }
-        Optional<UserEntity> foundUser = checkAndGetkUser(id, requester_id);
+        Optional<UserEntity> foundUser = checkAndGetUser(id, requester_id);
 
         if (foundUser.isPresent()) {
             foundUser.get().setEmail(email);
@@ -269,15 +260,17 @@ public class UserService {
 
     public Boolean deleteSingleUser(Long id_to_delete, Long requester_id) {
         Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (!isRequesterIDValid(requesterUser, id_to_delete)) {
+        if (requesterUser.isEmpty()) {
             return false;
         }
 
-        if (userRepository.existsById(id_to_delete)) {
-            userRepository.deleteById(id_to_delete);
-            return true;
+        final var userType = requesterUser.get().getUserType();
+        if (userType != UserType.ADMIN || (id_to_delete != requester_id)) {
+            return false; //unhaoutrized
         }
-        return false;
+
+        userRepository.deleteById(id_to_delete);
+        return true;
     }
 
 

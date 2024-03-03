@@ -13,6 +13,8 @@ import com.develhope.spring.features.vehicle.VehicleStatus;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -46,43 +48,48 @@ public class OrderService {
         return true;
     }
 
-    public OrderEntity patchOrder(Long orderId, PatchOrderRequest patchOrderRequest, Long requester_id) {
+    public OrderResponse patchOrder(Long orderId, PatchOrderRequest patchOrderRequest, Long requester_id) {
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (requesterUser.isEmpty()) {
+            return null;
+        }
+
         Optional<OrderEntity> foundOrderEntity = orderRepository.findById(orderId);
         if (foundOrderEntity.isEmpty()) {
             return null; //order of orderId not exists
         }
 
         UserEntity originalUser = foundOrderEntity.get().getBuyer();
-        if (!userService.isRequesterIDValid(originalUser, requester_id)) {
+        if (originalUser == null) {
             return null;
         }
 
-        if (foundOrderEntity.isPresent()) {
-            final var orderRequestPaymentStatusString = patchOrderRequest.getPaymentStatus().toUpperCase();
-            if (OrderStatus.isValidOrderStatus(orderRequestPaymentStatusString)) {
-                foundOrderEntity.get().setPaymentStatus(PaymentStatus.valueOf(orderRequestPaymentStatusString));
-            }
-
-            final var orderRequestOrderStatusString = patchOrderRequest.getOrderStatus().toUpperCase();
-            if (OrderStatus.isValidOrderStatus(orderRequestOrderStatusString)) {
-                foundOrderEntity.get().setOrderStatus(OrderStatus.valueOf(orderRequestOrderStatusString));
-            }
-
-            if (patchOrderRequest.getDeposit() >= 0) {
-                foundOrderEntity.get().setDeposit(patchOrderRequest.getDeposit());
-            }
-
-            //can a seller change vehicle of an ongoing order?
-            if (originalUser.getUserType() == UserType.ADMIN || (originalUser.getUserType() == UserType.SELLER && originalUser.getId() == requester_id)) {
-                if (patchOrderRequest.getVehicleEntity() != null) {
-                    //CHECK VEHICLE ENTITY
-                    foundOrderEntity.get().setVehicleEntity(patchOrderRequest.getVehicleEntity());
-                }
-            }
-            return orderRepository.saveAndFlush(foundOrderEntity.get());
-        } else {
+        if ((originalUser.getUserType() == UserType.SELLER && originalUser.getId() != requester_id) || originalUser.getUserType() == UserType.CUSTOMER) {
             return null;
         }
+
+
+        final var orderRequestPaymentStatusString = patchOrderRequest.getPaymentStatus().toUpperCase();
+        if (OrderStatus.isValidOrderStatus(orderRequestPaymentStatusString)) {
+            foundOrderEntity.get().setPaymentStatus(PaymentStatus.valueOf(orderRequestPaymentStatusString));
+        }
+
+        final var orderRequestOrderStatusString = patchOrderRequest.getOrderStatus().toUpperCase();
+        if (OrderStatus.isValidOrderStatus(orderRequestOrderStatusString)) {
+            foundOrderEntity.get().setOrderStatus(OrderStatus.valueOf(orderRequestOrderStatusString));
+        }
+
+        if (patchOrderRequest.getDeposit() >= 0) {
+            foundOrderEntity.get().setDeposit(patchOrderRequest.getDeposit());
+        }
+
+        //can a seller change vehicle of an ongoing order?
+        if (patchOrderRequest.getVehicleEntity() != null) {
+            //CHECK VEHICLE ENTITY
+            foundOrderEntity.get().setVehicleEntity(patchOrderRequest.getVehicleEntity());
+        }
+        return orderMapper.convertOrderEntityToResponse(orderRepository.saveAndFlush(foundOrderEntity.get()));
+
     }
 
 
@@ -100,28 +107,39 @@ public class OrderService {
         return orderEntity.get().getOrderStatus();
     }
 
-    public List<OrderResponse> getOrderListById(Long id, Long requester_id) {
-        List<OrderEntity> orderEntityList = orderRepository.findAllByBuyer(id);
-        System.out.println(orderEntityList);
+    public List<OrderResponse> getOrderListById(Long userId, Long requester_id) {
+        List<OrderEntity> orderEntityList = orderRepository.findAllByBuyer(userId);
         return orderMapper.mapList(orderEntityList, OrderResponse.class);
     }
 
-    public OrderEntity patchOrderStatus(Long id, String status) {
+    public OrderResponse patchOrderStatus(Long id, String status) {
+        final String statusString = status.toUpperCase();
+        if (OrderStatus.isValidOrderStatus(statusString)) {
+            return null;
+        }
+
         Optional<OrderEntity> order = orderRepository.findById(id);
         if (order.isPresent()) {
-            String statusString = status.toUpperCase();
-            OrderStatus s = OrderStatus.valueOf(statusString);
-            order.get().setOrderStatus(s);
-            return orderRepository.saveAndFlush(order.get());
+            order.get().setOrderStatus(OrderStatus.valueOf(statusString));
+            return orderMapper.convertOrderEntityToResponse(orderRepository.saveAndFlush(order.get()));
         } else {
             return null;
         }
     }
 
-    public List<OrderEntity> findByStatus(String status, Long requester_id) {
-        String statusString = status.toUpperCase();
-        OrderStatus s = OrderStatus.valueOf(statusString);
-        return new ArrayList<>(orderRepository.findByOrderStatus(s));
+    public ResponseEntity<?> findByStatus(String status, Long requester_id) {
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (requesterUser.isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        final String statusString = status.toUpperCase();
+        if (!OrderStatus.isValidOrderStatus(status)) {
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        List<OrderEntity> orderEntityList = orderRepository.findByOrderStatus(OrderStatus.valueOf(statusString));
+        return new ResponseEntity<>(orderMapper.mapList(orderEntityList, OrderResponse.class), HttpStatus.OK);
     }
 
     public OrderResponse prepareOrderByVehicleId(Long vehicleId, CreateOrderRequest orderRequest, Long requester_id) {

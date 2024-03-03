@@ -44,12 +44,12 @@ public class OrderController {
 
 
     @PutMapping(path = ORDER_PATH_ID)
-    public OrderEntity patchOrder(@PathVariable Long orderId, @RequestBody PatchOrderRequest patchOrderRequest, @RequestParam(required = true) Long requester_id) {
+    public OrderResponse patchOrder(@PathVariable Long orderId, @RequestBody PatchOrderRequest patchOrderRequest, @RequestParam(required = true) Long requester_id) {
         return orderService.patchOrder(orderId, patchOrderRequest, requester_id);
     }
 
     @PatchMapping(path = ORDER_PATH_ID + "/status")
-    public OrderEntity patchOrderStatus(@PathVariable Long orderId, @RequestParam String status) {
+    public OrderResponse patchOrderStatus(@PathVariable Long orderId, @RequestParam String status) {
         return orderService.patchOrderStatus(orderId, status);
     }
 
@@ -64,7 +64,7 @@ public class OrderController {
 
     //this is a list of the orders that have a certain status
     @GetMapping(path = ORDER_PATH + "/bystatus")
-    public List<OrderEntity> getOrdersByStatus(@RequestParam String status, @RequestParam(required = true) Long requester_id) {
+    public ResponseEntity<?> getOrdersByStatus(@RequestParam String status, @RequestParam(required = true) Long requester_id) {
         return orderService.findByStatus(status, requester_id);
     }
 

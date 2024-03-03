@@ -2,7 +2,6 @@ package com.develhope.spring.features.vehicle;
 
 import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
 import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
-
 import io.micrometer.common.lang.NonNullFields;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;

@@ -1,8 +1,6 @@
 package com.develhope.spring.features.rentals;
 
-import com.develhope.spring.features.orders.OrderEntity;
 import com.develhope.spring.features.orders.PaymentStatus;
-import com.develhope.spring.features.orders.dto.PatchOrderRequest;
 import com.develhope.spring.features.rentals.dto.CreateRentalRequest;
 import com.develhope.spring.features.rentals.dto.PatchRentalRequest;
 import com.develhope.spring.features.rentals.dto.RentalResponse;
@@ -13,15 +11,11 @@ import com.develhope.spring.features.users.UserType;
 import com.develhope.spring.features.vehicle.VehicleEntity;
 import com.develhope.spring.features.vehicle.VehicleRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @RequiredArgsConstructor
@@ -76,58 +70,66 @@ public class RentalService {
     }
 
 
-    public RentalResponse patchRental(Long rental_id, PatchRentalRequest rentalRequest, Long requester_id) {
-        AtomicReference<Optional<RentalResponse>> atomicReference = new AtomicReference<>();
+    public RentalResponse patchRental(Long rentalId, PatchRentalRequest rentalRequest, Long requester_id) {
 
-        rentalRepository.findById(rental_id).ifPresentOrElse(foundRental -> {
-            if (rentalRequest.getStartOfRental() != null && rentalRequest.getEndOfRental() != null) {
-                OffsetDateTime startOfRental = rentalRequest.getStartOfRental();
-                OffsetDateTime endOfRental = rentalRequest.getEndOfRental();
-
-                if (endOfRental.isAfter(startOfRental)) {
-                    foundRental.setStartOfRental(startOfRental);
-                    foundRental.setEndOfRental(endOfRental);
-                }
-            }
-
-            if (rentalRequest.getDailyCostRental() != null) {
-                foundRental.setDailyCostRental(rentalRequest.getDailyCostRental());
-            }
-
-            if (rentalRequest.getTotalCostRental() != null) {
-                foundRental.setTotalCostRental(rentalRequest.getTotalCostRental());
-            }
-
-            if (rentalRequest.getVehicleEntity() != null) {
-                foundRental.setVehicleEntity(rentalRequest.getVehicleEntity());
-            }
-
-            if (rentalRequest.getUserEntity() != null) {
-                foundRental.setRenter(rentalRequest.getUserEntity());
-            }
-
-            if (rentalRequest.getPaymentStatus() != null) {
-                if (PaymentStatus.isValidPaymentStatus(rentalRequest.getPaymentStatus())) {
-                    foundRental.setPaymentStatus(PaymentStatus.valueOf(rentalRequest.getPaymentStatus()));
-                }
-            }
-            atomicReference.set(Optional.of(rentalMapper.convertRentalEntityToResponse(rentalRepository.save(foundRental))));
-        }, () -> {
-            atomicReference.set(Optional.empty());
-        });
-
-        if (atomicReference.get().isEmpty()) {
+        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
+        if (requesterUser.isEmpty()) {
             return null;
         }
-        
-        return atomicReference.get().get();
+
+        Optional<RentalEntity> rentalEntity = rentalRepository.findById(rentalId);
+        if (rentalEntity.isEmpty()) {
+            return null; //order of orderId not exists
+        }
+
+
+        UserEntity originalUser = rentalEntity.get().getRenter();
+        if (originalUser == null) {
+            return null;
+        }
+
+
+        if ((originalUser.getUserType() == UserType.SELLER && originalUser.getId() != requester_id) || originalUser.getUserType() == UserType.CUSTOMER) {
+            return null;
+        }
+
+        if (rentalRequest.getStartOfRental() != null && rentalRequest.getEndOfRental() != null) {
+            OffsetDateTime startOfRental = rentalRequest.getStartOfRental();
+            OffsetDateTime endOfRental = rentalRequest.getEndOfRental();
+
+            if (endOfRental.isAfter(startOfRental)) {
+                rentalEntity.get().setStartOfRental(startOfRental);
+                rentalEntity.get().setEndOfRental(endOfRental);
+            }
+        }
+
+        if (rentalRequest.getDailyCostRental() != null) {
+            rentalEntity.get().setDailyCostRental(rentalRequest.getDailyCostRental());
+        }
+
+        if (rentalRequest.getTotalCostRental() != null) {
+            rentalEntity.get().setTotalCostRental(rentalRequest.getTotalCostRental());
+        }
+
+        if (rentalRequest.getVehicleEntity() != null) {
+            rentalEntity.get().setVehicleEntity(rentalRequest.getVehicleEntity());
+        }
+
+        if (rentalRequest.getUserEntity() != null) {
+            rentalEntity.get().setRenter(rentalRequest.getUserEntity());
+        }
+
+        if (rentalRequest.getPaymentStatus() != null) {
+            if (PaymentStatus.isValidPaymentStatus(rentalRequest.getPaymentStatus())) {
+                rentalEntity.get().setPaymentStatus(PaymentStatus.valueOf(rentalRequest.getPaymentStatus()));
+            }
+        }
+        return rentalMapper.convertRentalEntityToResponse(rentalRepository.saveAndFlush(rentalEntity.get()));
+
     }
 
     public List<RentalResponse> getRentalListById(Long id, Long requester_id) {
         List<RentalEntity> rentalEntityList = rentalRepository.findAllByRenter(id);
-        if (rentalEntityList.isEmpty()) {
-            return null;
-        }
         return rentalMapper.mapList(rentalEntityList, RentalResponse.class);
     }
 }

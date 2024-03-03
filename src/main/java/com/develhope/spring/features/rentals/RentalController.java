@@ -5,7 +5,6 @@ import com.develhope.spring.features.rentals.dto.PatchRentalRequest;
 import com.develhope.spring.features.rentals.dto.RentalResponse;
 
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
-import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;

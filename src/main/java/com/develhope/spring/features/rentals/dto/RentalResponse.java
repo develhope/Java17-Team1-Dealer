@@ -1,7 +1,7 @@
 package com.develhope.spring.features.rentals.dto;
 
 import com.develhope.spring.features.orders.PaymentStatus;
-import com.develhope.spring.features.users.UserEntity;
+import com.develhope.spring.features.users.dto.UserResponse;
 import com.develhope.spring.features.vehicle.VehicleEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,5 +20,6 @@ public class RentalResponse {
     private Integer totalCostRental;
     private PaymentStatus status;
     private VehicleEntity vehicleEntity;
-    private UserEntity userEntity;
+    private UserResponse renter;
+    private UserResponse seller;
 }

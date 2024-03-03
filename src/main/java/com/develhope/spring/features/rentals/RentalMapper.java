@@ -2,6 +2,8 @@ package com.develhope.spring.features.rentals;
 
 import com.develhope.spring.features.rentals.dto.CreateRentalRequest;
 import com.develhope.spring.features.rentals.dto.RentalResponse;
+import com.develhope.spring.features.users.UserMapper;
+
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class RentalMapper {
     private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
 
     public RentalEntity convertCreateRentalRequestToEntity(CreateRentalRequest createRentalRequest) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
@@ -23,7 +26,10 @@ public class RentalMapper {
 
     public RentalResponse convertRentalEntityToResponse(RentalEntity rentalEntity) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
-        return modelMapper.map(rentalEntity, RentalResponse.class);
+        RentalResponse rentalResponse = modelMapper.map(rentalEntity, RentalResponse.class);
+        rentalResponse.setRenter(userMapper.convertUserEntityToResponse(rentalEntity.getRenter()));
+        rentalResponse.setSeller(userMapper.convertUserEntityToResponse(rentalEntity.getSeller()));
+        return rentalResponse;
     }
 
     <S, T> List<T> mapList(List<S> source, Class<T> targetClass) {

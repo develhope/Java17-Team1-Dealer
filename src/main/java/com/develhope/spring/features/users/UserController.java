@@ -31,7 +31,7 @@ public class UserController {
         if (userResponse == null) {
             return new ResponseEntity<>(userResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        return new ResponseEntity<>(null, HttpStatus.OK);
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
     @GetMapping(path = USER_PATH)

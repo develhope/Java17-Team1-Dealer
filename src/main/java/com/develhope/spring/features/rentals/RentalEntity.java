@@ -3,7 +3,6 @@ package com.develhope.spring.features.rentals;
 import com.develhope.spring.features.orders.PaymentStatus;
 import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.vehicle.VehicleEntity;
-import io.micrometer.common.lang.NonNullFields;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -15,7 +14,6 @@ import java.time.OffsetDateTime;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@NonNullFields
 public class RentalEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,7 +31,9 @@ public class RentalEntity {
     @JoinColumn(name = "vehicle", nullable = false)
     private VehicleEntity vehicleEntity;
     @ManyToOne
-    @JoinColumn(name = "renter", nullable = false)
-    @NotBlank
+    @JoinColumn(name = "renter")
     private UserEntity renter;
+    @ManyToOne
+    @JoinColumn(name = "seller")
+    private UserEntity seller;
 }

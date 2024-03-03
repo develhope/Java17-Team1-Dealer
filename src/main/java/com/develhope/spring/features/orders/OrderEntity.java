@@ -2,7 +2,6 @@ package com.develhope.spring.features.orders;
 
 import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.vehicle.VehicleEntity;
-import io.micrometer.common.lang.NonNullFields;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -12,7 +11,6 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@NonNullFields
 public class OrderEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +29,9 @@ public class OrderEntity {
     @JoinColumn(name = "vehicle", nullable = false)
     private VehicleEntity vehicleEntity;
     @ManyToOne
-    @JoinColumn(name = "buyer", nullable = false)
-    @NotBlank
+    @JoinColumn(name = "buyer")
     private UserEntity buyer;
+    @ManyToOne
+    @JoinColumn(name = "seller")
+    private UserEntity seller;
 }

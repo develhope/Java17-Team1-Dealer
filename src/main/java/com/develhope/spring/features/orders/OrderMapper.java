@@ -2,6 +2,8 @@ package com.develhope.spring.features.orders;
 
 import com.develhope.spring.features.orders.dto.CreateOrderRequest;
 import com.develhope.spring.features.orders.dto.OrderResponse;
+import com.develhope.spring.features.users.UserMapper;
+
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrderMapper {
     private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
 
     public OrderEntity convertOrderRequestToEntity(CreateOrderRequest orderRequest) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
@@ -22,7 +25,11 @@ public class OrderMapper {
     }
 
     public OrderResponse convertOrderEntityToResponse(OrderEntity orderEntitySaved) {
-        return modelMapper.map(orderEntitySaved, OrderResponse.class);
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
+        OrderResponse orderResponse = modelMapper.map(orderEntitySaved, OrderResponse.class);
+        orderResponse.setBuyer(userMapper.convertUserEntityToResponse(orderEntitySaved.getBuyer()));
+        orderResponse.setSeller(userMapper.convertUserEntityToResponse(orderEntitySaved.getSeller()));
+        return orderResponse;
     }
 
     <S, T> List<T> mapList(List<S> source, Class<T> targetClass) {

@@ -1,8 +1,10 @@
 package com.develhope.spring.features.vehicle;
 
 import com.develhope.spring.features.users.UserEntity;
+import com.develhope.spring.features.users.UserMapper;
 import com.develhope.spring.features.users.UserRepository;
 import com.develhope.spring.features.users.UserType;
+import com.develhope.spring.features.users.dto.UserResponse;
 import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
 import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
@@ -13,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -22,6 +25,7 @@ public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final VehicleMapper vehicleMapper;
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
 
     public VehicleResponse createVehicle(CreateVehicleRequest createVehicleRequest, Long requester_id) {
@@ -35,27 +39,34 @@ public class VehicleService {
             return null; //unhaoutrized
         }
 
-        /*if (!StringUtils.hasText(createVehicleRequest.getBrand())) {
+        /*
+        if (createVehicleRequest.getBrand() == null || !StringUtils.hasText(createVehicleRequest.getBrand())) {
             return null; //brand is required
         }
 
-        if (!StringUtils.hasText(createVehicleRequest.getModel())) {
+        if (createVehicleRequest.getModel() == null || !StringUtils.hasText(createVehicleRequest.getModel())) {
             return null; //model is required
         }
+        
 
         if (createVehicleRequest.getDisplacement() == null || createVehicleRequest.getDisplacement() <= 0) {
             return null; //displacement is required
         }
 
-        if (!StringUtils.hasText(createVehicleRequest.getColor())) {
+        if (createVehicleRequest.getColor() == null || !StringUtils.hasText(createVehicleRequest.getColor())) {
             return null; //color is required
         }
 
         if (createVehicleRequest.getPower() == null || createVehicleRequest.getPower() <= 0) {
             return null; //power is required
         }
+        
+        if (createVehicleRequest.getShiftType() == null) {
+            return null; //shiftType is required
+        }
 
-        if (createVehicleRequest.getShiftType() == null || !ShiftType.isValidShiftType(createVehicleRequest.getShiftType()) {
+        final String shiftTypeString = createVehicleRequest.getShiftType().toUpperCase();
+        if (!ShiftType.isValidShiftType(shiftTypeString)) {
             return null; //shiftType is required
         }
 
@@ -63,7 +74,12 @@ public class VehicleService {
             return null; //yearOfMatriculation is required
         }
 
-        if (!StringUtils.hasText(createVehicleRequest.getFuelType()) || !FuelType.isValidFuelType(createVehicleRequest.getFuelType()) {
+        if (createVehicleRequest.getFuelType() == null) {
+            return null; //fuelType is required
+        }
+
+        final String fuelTypeString = createVehicleRequest.getFuelType().toUpperCase();
+        if (!FuelType.isValidFuelType(fuelTypeString)) {
             return null; //fuelType is required
         }
 
@@ -79,16 +95,30 @@ public class VehicleService {
             return null; //used is required
         }
 
-        if (createVehicleRequest.getVehicleStatus() == null || !VehicleStatus.isValidVehicleStatus(createVehicleRequest.getVehicleStatus()) {
+        if (createVehicleRequest.getVehicleStatus() == null) {
             return null; //vehicleStatus is required
         }
 
-        if (createVehicleRequest.getVehicleType() == null || !VehicleType.isValidVehicleType(createVehicleRequest.getVehicleType() {
+        final String vehicleStatusString = createVehicleRequest.getVehicleStatus().toUpperCase();
+        if (!VehicleStatus.isValidVehicleStatus(vehicleStatusString)) {
+            return null; //vehicleStatus is required
+        }
+
+        if (createVehicleRequest.getVehicleType() == null) {
             return null; //vehicleType is required
-        }*/
+        }
+
+        final String vehicleTypeString = createVehicleRequest.getVehicleType().toUpperCase();
+        if (!VehicleType.isValidVehicleType(vehicleTypeString)) {
+            return null; //vehicleType is required
+        }
+        
+        */
 
         VehicleEntity vehicleEntity = vehicleMapper.convertCreateVehicleRequestToEntity(createVehicleRequest);
-        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity));
+        vehicleEntity.setSeller(requesterUser.get());
+        UserResponse sellerResponse = userMapper.convertUserEntityToResponse(requesterUser.get());
+        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity), sellerResponse);
     }
 
     public VehicleEntity getSingleVehicle(Long id) {

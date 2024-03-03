@@ -121,9 +121,13 @@ public class VehicleService {
         return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity), sellerResponse);
     }
 
-    public VehicleEntity getSingleVehicle(Long id) {
-        Optional<VehicleEntity> user = vehicleRepository.findById(id);
-        return user.orElse(null);
+    public VehicleResponse getSingleVehicle(Long id) {
+        Optional<VehicleEntity> vehicleFound = vehicleRepository.findById(id);
+        if (vehicleFound.isEmpty()) {
+            return null;
+        }
+
+        return vehicleMapper.convertVehicleEntityToResponse(vehicleFound.get());
     }
 
 
@@ -267,12 +271,9 @@ public class VehicleService {
         return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
     }
 
-    public VehicleEntity getDetailsOfVehicle(Long id) {
-        return getSingleVehicle(id);
-    }
-
-    public List<VehicleEntity> getAllVehicles() {
-        return vehicleRepository.findAll();
+    public List<VehicleResponse> getAllVehicles() {
+        List<VehicleEntity> vehicleEntities = vehicleRepository.findAll();
+        return vehicleMapper.mapList(vehicleEntities, VehicleResponse.class);
     }
 
 }

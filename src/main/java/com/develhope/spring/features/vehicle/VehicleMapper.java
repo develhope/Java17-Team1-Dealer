@@ -6,6 +6,10 @@ import com.develhope.spring.features.users.dto.UserResponse;
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.VehicleResponse;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
 import org.modelmapper.PropertyMap;
 import org.modelmapper.convention.MatchingStrategies;
@@ -17,6 +21,7 @@ public class VehicleMapper {
     private final ModelMapper modelMapper;
     private final UserMapper userMapper;
 
+    //to fix mixmatch of properties
     public VehicleEntity convertCreateVehicleRequestToEntity(CreateVehicleRequest createVehicleRequest) {
         modelMapper.addMappings(new PropertyMap<CreateVehicleRequest, VehicleEntity>() {
             protected void configure() {
@@ -40,6 +45,14 @@ public class VehicleMapper {
         VehicleResponse vehicleResponse = modelMapper.map(vehicleEntity, VehicleResponse.class);
         vehicleResponse.setSeller(seller);
         return vehicleResponse;
+    }
+
+    <S, T> List<T> mapList(List<S> source, Class<T> targetClass) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
+        return source
+                .stream()
+                .map(element -> modelMapper.map(element, targetClass))
+                .collect(Collectors.toList());
     }
 
 }

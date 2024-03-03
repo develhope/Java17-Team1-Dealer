@@ -15,4 +15,9 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
             value = "SELECT * FROM order_entity o WHERE o.buyer = ?1",
             nativeQuery = true)
     List<OrderEntity> findAllByBuyer(Long buyerId);
+
+    @Query(
+        value = "SELECT * FROM order_entity o WHERE o.buyer = ?1 and o.payment_status = 'PAID'",
+        nativeQuery = true)
+    List<OrderEntity> findAllByBuyerPaymentStatusIsPaid(Long buyerId);
 }

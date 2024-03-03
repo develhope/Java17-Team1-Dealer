@@ -24,20 +24,27 @@ public class RentalService {
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
 
-    public RentalResponse createRentalByVehicleId(Long vehicleId, CreateRentalRequest rentalRequest, Long requester_id) {
+    public RentalResponse createRentalByVehicleId(Long vehicleId, CreateRentalRequest rentalRequest, Long requester_id, Long customRenterId) {
         Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
         if (requesterUser.isEmpty()) {
             return null;
         }
-
-        final var userType = requesterUser.get().getUserType();
-        if (userType == UserType.SELLER) {
-            return null; //unhaoutrized
-        }
-
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(vehicleId);
         if (vehicleEntity.isEmpty()) {
             return null; //invalid vehicle id
+        }
+
+        if(requesterUser.get().getUserType() !=  UserType.CUSTOMER){
+            if(customRenterId != 0){
+                requesterUser = userRepository.findById(customRenterId);
+                if(requesterUser.isEmpty()){
+                    return null;
+                }
+            }
+        } else{
+            if(customRenterId != 0 && customRenterId != requester_id){
+                return null; 
+            }
         }
 
 
@@ -148,8 +155,8 @@ public class RentalService {
 
     }
 
-    public List<RentalResponse> getRentalListById(Long id, Long requester_id) {
-        List<RentalEntity> rentalEntityList = rentalRepository.findAllByRenter(id);
+    public List<RentalResponse> getRentalListByRenterId(Long renterId, Long requester_id) {
+        List<RentalEntity> rentalEntityList = rentalRepository.findAllByRenter(renterId);
         return rentalMapper.mapList(rentalEntityList, RentalResponse.class);
     }
 }

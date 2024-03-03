@@ -35,7 +35,7 @@ public class UserController {
     }
 
     @GetMapping(path = USER_PATH)
-    public List<UserEntity> getall() {
+    public List<UserResponse> getall() {
         return userService.getAllUsers();
     }
 

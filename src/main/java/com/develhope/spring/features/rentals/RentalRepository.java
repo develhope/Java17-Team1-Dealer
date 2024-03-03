@@ -14,9 +14,9 @@ import java.util.Optional;
 interface RentalRepository extends JpaRepository<RentalEntity, Long> {
 
     @Query(
-            value = "SELECT * FROM order_entity o WHERE o.buyer = ?1",
+            value = "SELECT * FROM order_entity o WHERE o.renter = ?1",
             nativeQuery = true)
-    List<RentalEntity> findAllByRenter(Long buyerId);
+    List<RentalEntity> findAllByRenter(Long renterId);
 
 
 }

@@ -5,15 +5,17 @@ import com.develhope.spring.features.orders.PaymentStatus;
 import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.vehicle.VehicleEntity;
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Value
 @AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class OrderResponse {
     Long id;
     Integer deposit;
     PaymentStatus paymentStatus;
     OrderStatus orderStatus;
     VehicleEntity vehicleEntity;
-    UserEntity userEntity;
+    UserEntity buyer;
 }

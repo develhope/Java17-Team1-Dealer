@@ -6,10 +6,12 @@ import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.vehicle.VehicleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Value;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Value
+@Data
 @AllArgsConstructor
-public class OrderRequest {
+@NoArgsConstructor
+public class CreateOrderRequest {
     Integer deposit;
 }

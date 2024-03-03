@@ -1,5 +1,8 @@
 package com.develhope.spring.features.vehicle;
 
+import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
+import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,19 +12,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VehicleModel {
-    private Long id;
-    private String model;
-    private String brand;
-    private Integer displacement;
-    private String color;
-    private Integer power;
-    private String shift;
-    private Integer yearOfMatriculation;
-    private String fuelType;
-    private Integer price;
-    private Integer discount;
-    private String accessories;
-    private Boolean used;
-    private VehicleStatus vehicleStatus;
-    private VehicleType vehicleType;
+    String model;
+    String brand;
+    Integer displacement;
+    String color;
+    Integer power;
+    ShiftType shiftType;
+    Integer yearOfMatriculation;
+    FuelType fuelType;
+    Integer price;
+    Integer discount;
+    String accessories;
+    Boolean used;
+    VehicleStatus vehicleStatus;
+    VehicleType vehicleType;
 }

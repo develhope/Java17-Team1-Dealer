@@ -3,6 +3,7 @@ package com.develhope.spring.features.orders;
 public enum PaymentStatus {
     PAID("Paid"),
     NOT_PAID("Not paid"),
+    PENDING("Pending"),
     DEPOSIT("Deposit");
     private String status;
 

@@ -10,4 +10,9 @@ import java.util.List;
 public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     @Query
     List<OrderEntity> findByOrderStatus(OrderStatus status);
+
+    @Query(
+            value = "SELECT * FROM order_entity o WHERE o.buyer = ?1",
+            nativeQuery = true)
+    List<OrderEntity> findAllByBuyer(Long buyerId);
 }

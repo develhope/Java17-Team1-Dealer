@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface VehicleRepository extends JpaRepository<VehicleEntity, Long> {
     @Query
-    List<VehicleEntity> findByVehicleStatusAndUsed(VehicleStatus status, Boolean used);
+    List<VehicleEntity> findByVehicleStatus(VehicleStatus status);
 }

@@ -35,7 +35,7 @@ public class OrderController {
     //this creates an order that is ready to be delivered
     @PutMapping(path = ORDER_CREATION_PATH + "/create")
     public ResponseEntity<?> createOrderByVehicleId(@PathVariable Long vehicleId, @RequestBody CreateOrderRequest orderRequest, @RequestParam(required = true) Long requester_id) {
-        OrderResponse orderResponse = orderService.prepareOrderByVehicleId(vehicleId, orderRequest, requester_id);
+        OrderResponse orderResponse = orderService.createOrderByVehicleId(vehicleId, orderRequest, requester_id);
         if (orderResponse == null) {
             return new ResponseEntity<>(orderResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -49,8 +49,8 @@ public class OrderController {
     }
 
     @PatchMapping(path = ORDER_PATH_ID + "/status")
-    public OrderResponse patchOrderStatus(@PathVariable Long orderId, @RequestParam String status) {
-        return orderService.patchOrderStatus(orderId, status);
+    public OrderResponse patchOrderStatus(@PathVariable Long orderId, @RequestParam String status, @RequestParam(required = true) Long requester_id) {
+        return orderService.patchOrderStatus(orderId, status, requester_id);
     }
 
     //this is a list of orders that the user has made
@@ -66,6 +66,15 @@ public class OrderController {
     @GetMapping(path = ORDER_PATH + "/bystatus")
     public ResponseEntity<?> getOrdersByStatus(@RequestParam String status, @RequestParam(required = true) Long requester_id) {
         return orderService.findByStatus(status, requester_id);
+    }
+
+    @GetMapping(path = ORDER_PATH_ID + "/status")
+    public ResponseEntity<?> getOrderStatus(@PathVariable Long orderId, @RequestParam(required = true) Long requester_id) {
+        OrderStatus orderStatus = orderService.getOrderStatus(orderId, requester_id);
+        if (orderStatus == null) {
+            return new ResponseEntity<>(orderStatus, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(orderStatus, HttpStatus.OK);
     }
 
     @DeleteMapping(path = ORDER_PATH_ID)

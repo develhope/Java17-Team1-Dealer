@@ -1,6 +1,5 @@
 package com.develhope.spring.features.users;
 
-import io.micrometer.common.lang.NonNullFields;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -12,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
-@NonNullFields
 public class UserEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

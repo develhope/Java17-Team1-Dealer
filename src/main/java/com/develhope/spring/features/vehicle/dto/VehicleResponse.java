@@ -1,5 +1,8 @@
 package com.develhope.spring.features.vehicle.dto;
 
+import com.develhope.spring.features.orders.dto.OrderResponse;
+import com.develhope.spring.features.users.UserEntity;
+import com.develhope.spring.features.users.dto.UserResponse;
 import com.develhope.spring.features.vehicle.VehicleStatus;
 import com.develhope.spring.features.vehicle.VehicleType;
 import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
@@ -29,4 +32,5 @@ public class VehicleResponse {
     Boolean used;
     VehicleStatus vehicleStatus;
     VehicleType vehicleType;
+    UserResponse seller;
 }

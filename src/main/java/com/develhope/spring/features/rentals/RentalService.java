@@ -6,7 +6,6 @@ import com.develhope.spring.features.rentals.dto.PatchRentalRequest;
 import com.develhope.spring.features.rentals.dto.RentalResponse;
 import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.users.UserRepository;
-import com.develhope.spring.features.users.UserService;
 import com.develhope.spring.features.users.UserType;
 import com.develhope.spring.features.vehicle.VehicleEntity;
 import com.develhope.spring.features.vehicle.VehicleRepository;
@@ -22,7 +21,6 @@ import java.util.Optional;
 public class RentalService {
     private final RentalRepository rentalRepository;
     private final RentalMapper rentalMapper;
-    private final UserService userService;
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
 
@@ -47,7 +45,7 @@ public class RentalService {
         rentalEntity.setPaymentStatus(PaymentStatus.PENDING); //let's assume user hasn't confirmed yet
         rentalEntity.setVehicleEntity(vehicleEntity.get());
         rentalEntity.setRenter(requesterUser.get());
-
+        rentalEntity.setSeller(vehicleEntity.get().getSeller());
         RentalEntity rentalEntitySaved = rentalRepository.saveAndFlush(rentalEntity);
 
         return rentalMapper.convertRentalEntityToResponse(rentalEntitySaved);
@@ -59,11 +57,33 @@ public class RentalService {
             return false; //order of orderId not exists
         }
 
-        UserEntity originalUser = rentalEntity.get().getRenter();
-        if (!userService.isRequesterIDValid(originalUser, requester_id)) {
+        UserEntity userRenter = rentalEntity.get().getRenter();
+        if (userRenter == null) {
             return false;
         }
 
+        Optional<UserEntity> userRequester = userRepository.findById(requester_id);
+
+        if (userRequester.isEmpty()) {
+            return false;
+        }
+
+        UserEntity userSeller = rentalEntity.get().getSeller();
+        if (userSeller == null) {
+            return false;
+        }
+
+        if (userRequester.get().getUserType() != UserType.ADMIN) {
+            if (userRequester.get().getUserType() == UserType.SELLER) {
+                if (userRequester.get().getId() != userSeller.getId()) {
+                    return false;
+                }
+            } else {
+                if (userRequester.get().getId() != userRenter.getId()) {
+                    return false;
+                }
+            }
+        }
 
         rentalRepository.deleteById(orderId);
         return true;

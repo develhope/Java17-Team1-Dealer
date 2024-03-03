@@ -1,8 +1,8 @@
 package com.develhope.spring.features.vehicle;
 
+import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
 import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
-import io.micrometer.common.lang.NonNullFields;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -12,7 +12,6 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@NonNullFields
 public class VehicleEntity { //owner?
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,5 +54,7 @@ public class VehicleEntity { //owner?
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private VehicleType vehicleType;
+    @OneToOne
+    private UserEntity seller;
 }
 

@@ -40,8 +40,8 @@ public class UserController {
     }
 
     @GetMapping(path = USER_PATH_ID)
-    public ResponseEntity<?> getone(@PathVariable Long userId, @RequestParam(required = true) Long requester_id) {
-        UserResponse userResponse = userService.getUser(userId, requester_id);
+    public ResponseEntity<?> getone(@PathVariable Long userId) {
+        UserResponse userResponse = userService.getUser(userId);
         if (userResponse == null) {
             throw new NotFoundException();
         }

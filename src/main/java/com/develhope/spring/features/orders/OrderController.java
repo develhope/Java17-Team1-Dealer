@@ -24,8 +24,11 @@ public class OrderController {
     //this creates an order that has to be yet finalized, because the vehicle is not ready
     //for delivery
     @PutMapping(path = ORDER_CREATION_PATH + "/prepare")
-    public ResponseEntity<?> prepareOrderByVehicleId(@PathVariable Long vehicleId, @RequestBody CreateOrderRequest orderRequest, @RequestParam(required = true) Long requester_id) {
-        OrderResponse orderResponse = orderService.prepareOrderByVehicleId(vehicleId, orderRequest, requester_id);
+    public ResponseEntity<?> prepareOrderByVehicleId(@PathVariable Long vehicleId,
+    @RequestBody CreateOrderRequest orderRequest,
+    @RequestParam(required = true) Long requester_id,
+    @RequestParam(required = false, defaultValue = "0") Long customBuyerId) {
+        OrderResponse orderResponse = orderService.prepareOrderByVehicleId(vehicleId, orderRequest, requester_id, customBuyerId);
         if (orderResponse == null) {
             return new ResponseEntity<>(orderResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -34,8 +37,11 @@ public class OrderController {
 
     //this creates an order that is ready to be delivered
     @PutMapping(path = ORDER_CREATION_PATH + "/create")
-    public ResponseEntity<?> createOrderByVehicleId(@PathVariable Long vehicleId, @RequestBody CreateOrderRequest orderRequest, @RequestParam(required = true) Long requester_id) {
-        OrderResponse orderResponse = orderService.createOrderByVehicleId(vehicleId, orderRequest, requester_id);
+    public ResponseEntity<?> createOrderByVehicleId(@PathVariable Long vehicleId,
+    @RequestBody CreateOrderRequest orderRequest,
+    @RequestParam(required = true) Long requester_id,
+    @RequestParam(required = false, defaultValue = "0") Long customBuyerId) {
+        OrderResponse orderResponse = orderService.createOrderByVehicleId(vehicleId, orderRequest, requester_id, customBuyerId);
         if (orderResponse == null) {
             return new ResponseEntity<>(orderResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -58,8 +64,14 @@ public class OrderController {
     public ResponseEntity<?> getOrdersByUserId(@PathVariable Long userId, @RequestParam(required = true) Long requester_id) {
 
         List<OrderResponse> orderResponseList = orderService.getOrderListById(userId, requester_id);
-        System.out.println(orderResponseList);
         return new ResponseEntity<>(orderResponseList, HttpStatus.OK);
+    }
+
+    @GetMapping(path = ORDER_PATH + "/byuser/{userId}/complete")
+    public ResponseEntity<?> getOrdersCompletedListById(@PathVariable Long userId, @RequestParam(required = true) Long requester_id) {
+
+        List<OrderResponse> ordersCompleteResponseList = orderService.getOrdersCompletedListById(userId, requester_id);
+        return new ResponseEntity<>(ordersCompleteResponseList, HttpStatus.OK);
     }
 
     //this is a list of the orders that have a certain status

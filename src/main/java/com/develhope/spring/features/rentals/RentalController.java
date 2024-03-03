@@ -29,8 +29,11 @@ public class RentalController {
     private final RentalService rentalService;
 
     @PutMapping(path = RENTAL_CREATION_PATH + "/create")
-    public ResponseEntity<?> createRentalByVehicleId(@PathVariable Long vehicleId, @RequestBody CreateRentalRequest rentalRequest, @RequestParam(required = true) Long requester_id) {
-        RentalResponse rentalResponse = rentalService.createRentalByVehicleId(vehicleId, rentalRequest, requester_id);
+    public ResponseEntity<?> createRentalByVehicleId(@PathVariable Long vehicleId,
+    @RequestBody CreateRentalRequest rentalRequest,
+    @RequestParam(required = true) Long requester_id,
+    @RequestParam(required = false, defaultValue = "0") Long customRenterId) {
+        RentalResponse rentalResponse = rentalService.createRentalByVehicleId(vehicleId, rentalRequest, requester_id, customRenterId);
         if (rentalResponse == null) {
             return new ResponseEntity<>(rentalResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -45,10 +48,7 @@ public class RentalController {
 
     @GetMapping(path = RENTAL_PATH + "/byuser/{userId}")
     public ResponseEntity<?> getRentalsByUserId(@PathVariable Long userId, @RequestParam(required = true) Long requester_id) {
-        List<RentalResponse> rentalResponseList = rentalService.getRentalListById(userId, requester_id);
-        if (rentalResponseList == null) {
-            return new ResponseEntity<>(rentalResponseList, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        List<RentalResponse> rentalResponseList = rentalService.getRentalListByRenterId(userId, requester_id);
         return new ResponseEntity<>(rentalResponseList, HttpStatus.OK);
     }
 

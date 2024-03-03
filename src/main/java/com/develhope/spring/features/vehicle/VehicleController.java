@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,8 +49,17 @@ public class VehicleController {
     }
 
 
-    @GetMapping("/all")
-    public List<VehicleEntity> getAllVehicles() {
+    @GetMapping(path = VEHICLE_PATH_ID)
+    public ResponseEntity<?> getSingleVehicle(@PathVariable Long vehicleId) {
+        VehicleResponse vehicleResponse = vehicleService.getSingleVehicle(vehicleId);
+        if (vehicleResponse == null) {
+            return new ResponseEntity<>(vehicleResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+        return new ResponseEntity<>(vehicleResponse, HttpStatus.OK);
+    }
+
+    @GetMapping(path = VEHICLE_PATH + "/all")
+    public List<VehicleResponse> getAllVehicles() {
         return vehicleService.getAllVehicles();
     }
 }

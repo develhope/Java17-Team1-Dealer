@@ -7,9 +7,11 @@ import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.users.UserRepository;
 import com.develhope.spring.features.users.UserType;
 import com.develhope.spring.features.vehicle.VehicleEntity;
-import com.develhope.spring.features.vehicle.VehicleService;
+import com.develhope.spring.features.vehicle.VehicleRepository;
 import com.develhope.spring.features.vehicle.VehicleStatus;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.boot.autoconfigure.security.SecurityProperties.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,7 +24,7 @@ import java.util.Optional;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private final VehicleService vehicleService;
+    private final VehicleRepository vehicleRepository;
     private final UserRepository userRepository;
 
     private final OrderMapper orderMapper;
@@ -158,8 +160,35 @@ public class OrderService {
     }
 
     public List<OrderResponse> getOrderListById(Long userId, Long requester_id) {
+        Optional<UserEntity> userRequester = userRepository.findById(requester_id);
+        if (userRequester.isEmpty()) {
+            return null;
+        }
+
+        if (userRequester.get().getUserType() != UserType.ADMIN) {
+            if (userRequester.get().getId() != userId) {
+                return null;
+            }
+        }
+
         List<OrderEntity> orderEntityList = orderRepository.findAllByBuyer(userId);
         return orderMapper.mapList(orderEntityList, OrderResponse.class);
+    }
+
+    public List<OrderResponse> getOrdersCompletedListById(Long userId, Long requester_id) {
+        Optional<UserEntity> userRequester = userRepository.findById(requester_id);
+        if (userRequester.isEmpty()) {
+            return null;
+        }
+
+        if (userRequester.get().getUserType() != UserType.ADMIN) {
+            if (userRequester.get().getId() != userId) {
+                return null;
+            }
+        }
+        
+        List<OrderEntity> ordersCompleteEntityList = orderRepository.findAllByBuyerPaymentStatusIsPaid(userId);
+        return orderMapper.mapList(ordersCompleteEntityList, OrderResponse.class);
     }
 
     public OrderResponse patchOrderStatus(Long orderId, String status, Long requester_id) {
@@ -257,81 +286,102 @@ public class OrderService {
         return orderEntity.get().getOrderStatus();
     }
 
-
-    public OrderResponse prepareOrderByVehicleId(Long vehicleId, CreateOrderRequest orderRequest, Long requester_id) {
+    
+    public OrderResponse prepareOrderByVehicleId(Long vehicleId, CreateOrderRequest orderRequest, Long requester_id, Long customBuyerId) {
         Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        System.out.println("HERE1");
+
         if (requesterUser.isEmpty()) {
             return null; //usernotfound
         }
 
-        System.out.println("HERE2");
         if (orderRequest.getDeposit() <= 0) {
             return null; //invalid deposit
         }
-        System.out.println("HERE3");
 
-        final VehicleEntity vehicleEntity = vehicleService.getSingleVehicle(vehicleId);
-        if (vehicleEntity == null) {
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(vehicleId);
+        if (vehicleEntity.isEmpty()) {
             return null; //invalid vehicle id
         }
 
-        if (vehicleEntity.getSeller().getId() == requester_id) {
-            return null; //unhaoutrized
+        UserEntity userSeller = vehicleEntity.get().getSeller();
+        if (userSeller == null) {
+            return null; //invalid seller
         }
 
-        if (orderRequest.getDeposit() > vehicleEntity.getPrice()) {
+        if (orderRequest.getDeposit() > vehicleEntity.get().getPrice()) {
             return null; //invalid price
         }
 
-        if (vehicleEntity.getVehicleStatus() != VehicleStatus.CAN_BE_ORDERED) {
+        if (vehicleEntity.get().getVehicleStatus() != VehicleStatus.CAN_BE_ORDERED) {
             return null;
         }
 
+        if(requesterUser.get().getUserType() !=  UserType.CUSTOMER){
+            
+            if(customBuyerId == 0){
+                return null;
+            }
+            requesterUser = userRepository.findById(customBuyerId);
+            if(requesterUser.isEmpty()){
+                return null;
+            }
+        } else{
+            if(customBuyerId != 0 && customBuyerId != requester_id){
+                return null; 
+            }
+        }
 
-        final PaymentStatus paymentStatus = orderRequest.getDeposit() == vehicleEntity.getPrice() ? PaymentStatus.PAID : PaymentStatus.DEPOSIT;
+        final PaymentStatus paymentStatus = orderRequest.getDeposit() == vehicleEntity.get().getPrice() ? PaymentStatus.PAID : PaymentStatus.DEPOSIT;
         OrderEntity orderEntity = orderMapper.convertOrderRequestToEntity(orderRequest);
         orderEntity.setOrderStatus(OrderStatus.TO_SEND);
         orderEntity.setPaymentStatus(paymentStatus);
-        orderEntity.setVehicleEntity(vehicleEntity);
+        orderEntity.setVehicleEntity(vehicleEntity.get());
         orderEntity.setBuyer(requesterUser.get());
-        orderEntity.setSeller(vehicleEntity.getSeller());
+        orderEntity.setSeller(vehicleEntity.get().getSeller());
         OrderEntity orderEntitySaved = orderRepository.save(orderEntity);
         return orderMapper.convertOrderEntityToResponse(orderEntitySaved);
     }
 
-    public OrderResponse createOrderByVehicleId(Long vehicleId, CreateOrderRequest orderRequest, Long requester_id) {
+    public OrderResponse createOrderByVehicleId(Long vehicleId, CreateOrderRequest orderRequest, Long requester_id, Long customBuyerId) {
         Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
 
         if (requesterUser.isEmpty()) {
             return null; //usernotfound
         }
 
-        final var userType = requesterUser.get().getUserType();
-        if (userType == UserType.SELLER) {
-            return null; //unhaoutrized
-        }
-        final VehicleEntity vehicleEntity = vehicleService.getSingleVehicle(vehicleId);
-        if (vehicleEntity == null) {
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(vehicleId);
+        if (vehicleEntity.isEmpty()) {
             return null; //invalid vehicle id
         }
 
-        if (vehicleEntity.getVehicleStatus() != VehicleStatus.PROMPT_DELIVERY) {
+        if (vehicleEntity.get().getVehicleStatus() != VehicleStatus.PROMPT_DELIVERY) {
             return null; //return the status trough error?
         }
 
-        if (orderRequest.getDeposit() <= 0 || orderRequest.getDeposit() > vehicleEntity.getPrice()) {
+        if (orderRequest.getDeposit() <= 0 || orderRequest.getDeposit() > vehicleEntity.get().getPrice()) {
             return null; //invalid price
         }
 
-        final PaymentStatus paymentStatus = orderRequest.getDeposit() == vehicleEntity.getPrice() ? PaymentStatus.PAID : PaymentStatus.DEPOSIT;
+        if(requesterUser.get().getUserType() !=  UserType.CUSTOMER){
+            if(customBuyerId != 0){
+                requesterUser = userRepository.findById(customBuyerId);
+                if(requesterUser.isEmpty()){
+                    return null;
+                }
+            }
+        } else{
+            if(customBuyerId != 0 && customBuyerId != requester_id){
+                return null; 
+            }
+        }
+        final PaymentStatus paymentStatus = orderRequest.getDeposit() == vehicleEntity.get().getPrice() ? PaymentStatus.PAID : PaymentStatus.DEPOSIT;
 
         OrderEntity orderEntity = orderMapper.convertOrderRequestToEntity(orderRequest);
         orderEntity.setOrderStatus(OrderStatus.TO_SEND);
         orderEntity.setPaymentStatus(paymentStatus);
-        orderEntity.setVehicleEntity(vehicleEntity);
+        orderEntity.setVehicleEntity(vehicleEntity.get());
         orderEntity.setBuyer(requesterUser.get());
-        orderEntity.setSeller(vehicleEntity.getSeller());
+        orderEntity.setSeller(vehicleEntity.get().getSeller());
         OrderEntity orderEntitySaved = orderRepository.save(orderEntity);
         return orderMapper.convertOrderEntityToResponse(orderEntitySaved);
     }

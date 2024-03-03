@@ -112,8 +112,9 @@ public class UserService {
         return userMapper.convertUserEntityToResponse(userRepository.saveAndFlush(userEntity));
     }
 
-    public List<UserEntity> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponse> getAllUsers() {
+        List<UserEntity> userEntities = userRepository.findAll();
+        return userMapper.mapList(userEntities, UserResponse.class);
     }
 
     //TO DO: general functions for better checks (like, userNameCheck(string) -> bool)

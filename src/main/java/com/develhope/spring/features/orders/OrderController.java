@@ -3,9 +3,8 @@ package com.develhope.spring.features.orders;
 import com.develhope.spring.features.orders.dto.CreateOrderRequest;
 import com.develhope.spring.features.orders.dto.OrderResponse;
 import com.develhope.spring.features.orders.dto.PatchOrderRequest;
-
+import com.develhope.spring.features.orders.dto.TotalSalesPricePeriodRequest;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,18 +16,15 @@ import java.util.List;
 public class OrderController {
     public static final String ORDER_PATH = "/orders";
     public static final String ORDER_PATH_ID = ORDER_PATH + "/{orderId}";
-    public static final String ORDER_CREATION_PATH = ORDER_PATH + "/vehicle/{vehicleId}";
 
     private final OrderService orderService;
 
     //this creates an order that has to be yet finalized, because the vehicle is not ready
     //for delivery
-    @PutMapping(path = ORDER_CREATION_PATH + "/prepare")
-    public ResponseEntity<?> prepareOrderByVehicleId(@PathVariable Long vehicleId,
-    @RequestBody CreateOrderRequest orderRequest,
-    @RequestParam(required = true) Long requester_id,
-    @RequestParam(required = false, defaultValue = "0") Long customBuyerId) {
-        OrderResponse orderResponse = orderService.prepareOrderByVehicleId(vehicleId, orderRequest, requester_id, customBuyerId);
+    @PutMapping(path = ORDER_PATH + "/prepare")
+    public ResponseEntity<?> prepareOrderByVehicleId(@RequestBody CreateOrderRequest orderRequest,
+                                                     @RequestParam(required = true) Long requester_id) {
+        OrderResponse orderResponse = orderService.prepareOrderByVehicleId(orderRequest, requester_id);
         if (orderResponse == null) {
             return new ResponseEntity<>(orderResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -36,12 +32,10 @@ public class OrderController {
     }
 
     //this creates an order that is ready to be delivered
-    @PutMapping(path = ORDER_CREATION_PATH + "/create")
-    public ResponseEntity<?> createOrderByVehicleId(@PathVariable Long vehicleId,
-    @RequestBody CreateOrderRequest orderRequest,
-    @RequestParam(required = true) Long requester_id,
-    @RequestParam(required = false, defaultValue = "0") Long customBuyerId) {
-        OrderResponse orderResponse = orderService.createOrderByVehicleId(vehicleId, orderRequest, requester_id, customBuyerId);
+    @PutMapping(path = ORDER_PATH + "/create")
+    public ResponseEntity<?> createOrderByVehicleId(@RequestBody CreateOrderRequest orderRequest,
+                                                    @RequestParam(required = true) Long requester_id) {
+        OrderResponse orderResponse = orderService.createOrderByVehicleId(orderRequest, requester_id);
         if (orderResponse == null) {
             return new ResponseEntity<>(orderResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -49,7 +43,7 @@ public class OrderController {
     }
 
 
-    @PutMapping(path = ORDER_PATH_ID)
+    @PatchMapping(path = ORDER_PATH_ID)
     public OrderResponse patchOrder(@PathVariable Long orderId, @RequestBody PatchOrderRequest patchOrderRequest, @RequestParam(required = true) Long requester_id) {
         return orderService.patchOrder(orderId, patchOrderRequest, requester_id);
     }
@@ -93,4 +87,11 @@ public class OrderController {
     public Boolean deleteOrder(@PathVariable Long orderId, @RequestParam(required = true) Long requester_id) {
         return orderService.deleteOrder(orderId, requester_id);
     }
+
+    //ADMIN ROUTES
+    @GetMapping(path = ORDER_PATH + "/totalsalespriceperiod")
+    public ResponseEntity<?> getTotalSalesPriceInAPeriod(@RequestBody TotalSalesPricePeriodRequest request) {
+        return orderService.getTotalSalesPriceInAPeriod(request.getStartDate(), request.getEndDate());
+    }
+
 }

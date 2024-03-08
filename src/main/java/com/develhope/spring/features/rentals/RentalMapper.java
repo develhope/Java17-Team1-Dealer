@@ -3,15 +3,13 @@ package com.develhope.spring.features.rentals;
 import com.develhope.spring.features.rentals.dto.CreateRentalRequest;
 import com.develhope.spring.features.rentals.dto.RentalResponse;
 import com.develhope.spring.features.users.UserMapper;
-
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor

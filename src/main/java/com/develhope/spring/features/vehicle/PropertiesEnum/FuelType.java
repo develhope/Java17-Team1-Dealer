@@ -9,9 +9,9 @@ public enum FuelType {
     LPG_PETROL("LPG/Petrol Hybrid"),
     METHANE("Methane"),
     ELECTRIC("Electric");
-    private String fuelType;
+    private final String fuelType;
 
-    private FuelType(String a) {
+    FuelType(String a) {
         this.fuelType = a;
     }
 

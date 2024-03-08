@@ -1,5 +1,6 @@
 package com.develhope.spring.features.vehicle;
 
+import com.develhope.spring.features.orders.OrderRepository;
 import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.users.UserMapper;
 import com.develhope.spring.features.users.UserRepository;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +28,7 @@ public class VehicleService {
     private final VehicleMapper vehicleMapper;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final OrderRepository orderRepository;
 
 
     public VehicleResponse createVehicle(CreateVehicleRequest createVehicleRequest, Long requester_id) {
@@ -35,7 +38,7 @@ public class VehicleService {
         }
 
         final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+        if (userType != UserType.ADMIN) {
             return null; //unhaoutrized
         }
 
@@ -115,10 +118,12 @@ public class VehicleService {
         
         */
 
+        //lower all text
+        //make query to check if there's a match
+        //if there's a match, return null
         VehicleEntity vehicleEntity = vehicleMapper.convertCreateVehicleRequestToEntity(createVehicleRequest);
-        vehicleEntity.setSeller(requesterUser.get());
         UserResponse sellerResponse = userMapper.convertUserEntityToResponse(requesterUser.get());
-        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity), sellerResponse);
+        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.saveAndFlush(vehicleEntity), sellerResponse);
     }
 
     public VehicleResponse getSingleVehicle(Long id) {
@@ -138,7 +143,7 @@ public class VehicleService {
         }
 
         final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+        if (userType != UserType.ADMIN) {
             return null; //unhaoutrized
         }
 
@@ -222,8 +227,13 @@ public class VehicleService {
         }
 
         final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+        if (userType != UserType.ADMIN) {
             return false; //unhaoutrized
+        }
+
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(id);
+        if (vehicleEntity.isEmpty()) {
+            return false;
         }
 
         vehicleRepository.deleteById(id);
@@ -237,7 +247,7 @@ public class VehicleService {
         }
 
         final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+        if (userType != UserType.ADMIN) {
             return null; //unhaoutrized
         }
 
@@ -275,5 +285,89 @@ public class VehicleService {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findAll();
         return vehicleMapper.mapList(vehicleEntities, VehicleResponse.class);
     }
+
+
+    //ADMIN ROUTES
+    public ResponseEntity<?> getMostSoldVehiclePeriod(String startDate, String endDate) {
+        try {
+            OffsetDateTime.parse(startDate);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            OffsetDateTime.parse(endDate);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
+        OffsetDateTime start = OffsetDateTime.parse(startDate);
+        OffsetDateTime end = OffsetDateTime.parse(endDate);
+        VehicleEntity mostVehicleSold = orderRepository.findMostSoldInAPeriod(start, end);
+
+
+        if (mostVehicleSold != null) {
+            return new ResponseEntity<>(vehicleMapper.convertVehicleEntityToResponse(mostVehicleSold), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity<?> getMostOrderedVehiclePeriod(String startDate, String endDate) {
+        try {
+            OffsetDateTime.parse(startDate);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            OffsetDateTime.parse(endDate);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
+        OffsetDateTime start = OffsetDateTime.parse(startDate);
+        OffsetDateTime end = OffsetDateTime.parse(endDate);
+        VehicleEntity mostVehicleSold = orderRepository.findMostOrderedInAPeriod(start, end);
+
+
+        if (mostVehicleSold != null) {
+            return new ResponseEntity<>(vehicleMapper.convertVehicleEntityToResponse(mostVehicleSold), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity<?> getSalesCountBySellerId(Long seller_id) {
+        Long salesCount = orderRepository.getSalesCountBySellerId(seller_id);
+        if (salesCount != null) {
+            return new ResponseEntity<>(salesCount, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity<?> getHighestPriceSold() {
+        VehicleEntity highestPriceVehicleSold = orderRepository.findHighestPriceSold();
+
+
+        if (highestPriceVehicleSold != null) {
+            return new ResponseEntity<>(vehicleMapper.convertVehicleEntityToResponse(highestPriceVehicleSold), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+	public ResponseEntity<?> getLowestPriceSold() {
+        VehicleEntity lowestPriceVehicleSold = orderRepository.findLowestPriceSold();
+
+
+        if (lowestPriceVehicleSold != null) {
+            return new ResponseEntity<>(vehicleMapper.convertVehicleEntityToResponse(lowestPriceVehicleSold), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+	}
 
 }

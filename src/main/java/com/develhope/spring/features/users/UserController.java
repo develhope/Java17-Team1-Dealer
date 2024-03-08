@@ -101,4 +101,17 @@ public class UserController {
         return new ResponseEntity<>(null, HttpStatus.OK);
     }
 
+
+    //ADMIN ROUTES
+    @GetMapping(path = USER_PATH_ID + "/salescount")
+    public ResponseEntity<?> getSalesCountBySellerId(@PathVariable Long sellerId) {
+        return userService.getSalesCountBySellerId(sellerId);
+    }
+
+    @GetMapping(path = USER_PATH_ID + "/profit")
+    public ResponseEntity<?> getSalesTotalPriceBySellerId(@PathVariable Long sellerId) {
+        return userService.getSalesTotalPriceBySellerId(sellerId);
+    }
+
+
 }

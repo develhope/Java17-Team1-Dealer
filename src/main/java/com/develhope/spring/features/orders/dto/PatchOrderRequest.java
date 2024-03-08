@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PatchOrderRequest {
-    Integer deposit;
+    Long deposit;
     String paymentStatus;
     String orderStatus;
     VehicleEntity vehicleEntity;

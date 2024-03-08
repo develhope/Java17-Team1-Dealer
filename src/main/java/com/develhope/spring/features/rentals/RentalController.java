@@ -3,18 +3,11 @@ package com.develhope.spring.features.rentals;
 import com.develhope.spring.features.rentals.dto.CreateRentalRequest;
 import com.develhope.spring.features.rentals.dto.PatchRentalRequest;
 import com.develhope.spring.features.rentals.dto.RentalResponse;
-
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -24,23 +17,20 @@ public class RentalController {
 
     public static final String RENTAL_PATH = "/rentals";
     public static final String RENTAL_PATH_ID = RENTAL_PATH + "/{orderId}";
-    public static final String RENTAL_CREATION_PATH = RENTAL_PATH + "/vehicle/{vehicleId}";
 
     private final RentalService rentalService;
 
-    @PutMapping(path = RENTAL_CREATION_PATH + "/create")
-    public ResponseEntity<?> createRentalByVehicleId(@PathVariable Long vehicleId,
-    @RequestBody CreateRentalRequest rentalRequest,
-    @RequestParam(required = true) Long requester_id,
-    @RequestParam(required = false, defaultValue = "0") Long customRenterId) {
-        RentalResponse rentalResponse = rentalService.createRentalByVehicleId(vehicleId, rentalRequest, requester_id, customRenterId);
+    @PutMapping(path = RENTAL_PATH + "/create")
+    public ResponseEntity<?> createRentalByVehicleId(@RequestBody CreateRentalRequest rentalRequest,
+                                                     @RequestParam(required = true) Long requester_id) {
+        RentalResponse rentalResponse = rentalService.createRentalByVehicleId(rentalRequest, requester_id);
         if (rentalResponse == null) {
             return new ResponseEntity<>(rentalResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return new ResponseEntity<>(rentalResponse, HttpStatus.OK);
     }
 
-    @PutMapping(path = RENTAL_PATH_ID)
+    @PatchMapping(path = RENTAL_PATH_ID)
     public RentalResponse patchRental(@PathVariable Long rentalId, @RequestBody PatchRentalRequest patchRentalRequest, @RequestParam(required = true) Long requester_id) {
         return rentalService.patchRental(rentalId, patchRentalRequest, requester_id);
     }

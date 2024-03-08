@@ -32,4 +32,22 @@ public class UserEntity {
     private String password;
     @Enumerated(EnumType.STRING)
     private UserType userType;
+
+
+    /*@Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+        UserEntity user = (UserEntity) obj;
+        return id.equals(user.id) || email.equals(user.email) || (name.equals(user.name) && surname.equals(user.surname)) || surname.equals(user.surname) || telephoneNumber.equals(user.telephoneNumber);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
+    }*/
 }

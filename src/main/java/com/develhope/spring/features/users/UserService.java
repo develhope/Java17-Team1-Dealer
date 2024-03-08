@@ -1,22 +1,25 @@
 package com.develhope.spring.features.users;
 
+import com.develhope.spring.features.orders.OrderRepository;
 import com.develhope.spring.features.users.dto.CreateUserRequest;
 import com.develhope.spring.features.users.dto.PatchUserRequest;
 import com.develhope.spring.features.users.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
-
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
     private final UserMapper userMapper;
 
 
@@ -31,10 +34,7 @@ public class UserService {
             return false;
         }
 
-        if (originalUser.getId() != requester_id && userRequester.get().getUserType() != UserType.ADMIN) {
-            return false;
-        }
-        return true;
+        return originalUser.getId() == requester_id || userRequester.get().getUserType() == UserType.ADMIN;
     }
 
     private UserResponse generateUserResponseFromEntity(UserEntity userEntity) {
@@ -151,7 +151,7 @@ public class UserService {
             originalUser.get().setPassword(patchUserRequest.getPassword());
         }
 
-        return userMapper.convertUserEntityToResponse(userRepository.saveAndFlush(originalUser.get()));
+        return userMapper.convertUserEntityToResponse(userRepository.save(originalUser.get()));
     }
 
 
@@ -195,7 +195,7 @@ public class UserService {
 
 
         originalUser.get().setPassword(hash);
-        var savedUser = userRepository.saveAndFlush(originalUser.get());
+        var savedUser = userRepository.save(originalUser.get());
         return generateUserResponseFromEntity(savedUser);
     }
 
@@ -227,7 +227,7 @@ public class UserService {
 
 
         originalUser.get().setName(userName);
-        var savedUser = userRepository.saveAndFlush(originalUser.get());
+        var savedUser = userRepository.save(originalUser.get());
         return generateUserResponseFromEntity(savedUser);
 
     }
@@ -253,7 +253,7 @@ public class UserService {
 
 
         originalUser.get().setTelephoneNumber(telephoneNumber);
-        var savedUser = userRepository.saveAndFlush(originalUser.get());
+        var savedUser = userRepository.save(originalUser.get());
         return generateUserResponseFromEntity(savedUser);
 
     }
@@ -277,7 +277,7 @@ public class UserService {
         }
 
         originalUser.get().setEmail(email);
-        var savedUser = userRepository.saveAndFlush(originalUser.get());
+        var savedUser = userRepository.save(originalUser.get());
         return generateUserResponseFromEntity(savedUser);
 
     }
@@ -297,5 +297,29 @@ public class UserService {
         return true;
     }
 
+    public ResponseEntity<?> getSalesCountBySellerId(Long sellerId) {
+        Optional<UserEntity> seller = userRepository.findById(sellerId);
+        if (seller.isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
 
+        if (seller.get().getUserType() != UserType.SELLER) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(orderRepository.getSalesCountBySellerId(sellerId), HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getSalesTotalPriceBySellerId(Long sellerId) {
+        Optional<UserEntity> seller = userRepository.findById(sellerId);
+        if (seller.isEmpty()) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+
+        if (seller.get().getUserType() != UserType.SELLER) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(orderRepository.getSalesTotalPriceBySellerId(sellerId), HttpStatus.OK);
+    }
 }

@@ -5,9 +5,9 @@ public enum UserType {
     ADMIN("Admin"),
     SELLER("Seller"),
     CUSTOMER("Customer");
-    private String type;
+    private final String type;
 
-    private UserType(String a) {
+    UserType(String a) {
         this.type = a;
     }
 

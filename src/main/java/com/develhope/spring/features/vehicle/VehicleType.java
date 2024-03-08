@@ -6,9 +6,9 @@ public enum VehicleType {
     MOTORBIKE("Motorbike"),
     SCOOTER("Scooter"),
     VAN("Van");
-    private String type;
+    private final String type;
 
-    private VehicleType(String a) {
+    VehicleType(String a) {
         this.type = a;
     }
 

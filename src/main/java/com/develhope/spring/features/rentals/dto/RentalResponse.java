@@ -16,8 +16,8 @@ public class RentalResponse {
     private Long id;
     private OffsetDateTime startOfRental;
     private OffsetDateTime endOfRental;
-    private Integer dailyCostRental;
-    private Integer totalCostRental;
+    private Long dailyCostRental;
+    private Long totalCostRental;
     private PaymentStatus status;
     private VehicleEntity vehicleEntity;
     private UserResponse renter;

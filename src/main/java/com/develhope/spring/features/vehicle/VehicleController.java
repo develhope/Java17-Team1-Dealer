@@ -1,6 +1,7 @@
 package com.develhope.spring.features.vehicle;
 
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
+import com.develhope.spring.features.vehicle.dto.MostSoldOrOrderedVehiclePeriodRequest;
 import com.develhope.spring.features.vehicle.dto.PatchVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.VehicleResponse;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -61,5 +61,21 @@ public class VehicleController {
     @GetMapping(path = VEHICLE_PATH + "/all")
     public List<VehicleResponse> getAllVehicles() {
         return vehicleService.getAllVehicles();
+    }
+
+    //ADMIN ROUTES
+    @GetMapping(path = VEHICLE_PATH + "/mostsold")
+    public ResponseEntity<?> getMostSoldVehiclePeriod(@RequestBody MostSoldOrOrderedVehiclePeriodRequest request) {
+        return vehicleService.getMostSoldVehiclePeriod(request.getStartDate(), request.getEndDate());
+    }
+
+    @GetMapping(path = VEHICLE_PATH + "/mostordered")
+    public ResponseEntity<?> getMostOrderedVehiclePeriod(@RequestBody MostSoldOrOrderedVehiclePeriodRequest request) {
+        return vehicleService.getMostOrderedVehiclePeriod(request.getStartDate(), request.getEndDate());
+    }
+
+    @GetMapping(path = VEHICLE_PATH + "/highestpricesold")
+    public ResponseEntity<?> getHighestPriceSold() {
+        return vehicleService.getHighestPriceSold();
     }
 }

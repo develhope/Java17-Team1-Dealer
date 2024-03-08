@@ -7,9 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateOrderRequest {
-    Long vehicleId;
-    Long sellerId;
-    Long customerId;
-    Long deposit;
+public class TotalSalesPricePeriodRequest {
+    String startDate;
+    String endDate;
 }

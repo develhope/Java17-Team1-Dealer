@@ -5,9 +5,9 @@ public enum ShiftType {
     MANUAL("Manual"),
     SEMI_AUTOMATIC("Semi automatic"),
     AUTOMATIC("Automatic");
-    private String shiftType;
+    private final String shiftType;
 
-    private ShiftType(String a) {
+    ShiftType(String a) {
         this.shiftType = a;
     }
 

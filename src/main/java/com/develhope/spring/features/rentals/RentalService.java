@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,35 +26,75 @@ public class RentalService {
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
 
-    public RentalResponse createRentalByVehicleId(Long vehicleId, CreateRentalRequest rentalRequest, Long requester_id, Long customRenterId) {
+    public RentalResponse createRentalByVehicleId(CreateRentalRequest rentalRequest, Long requester_id) {
         Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
         if (requesterUser.isEmpty()) {
             return null;
         }
-        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(vehicleId);
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(rentalRequest.getVehicleId());
         if (vehicleEntity.isEmpty()) {
             return null; //invalid vehicle id
         }
 
-        if(requesterUser.get().getUserType() !=  UserType.CUSTOMER){
-            if(customRenterId != 0){
-                requesterUser = userRepository.findById(customRenterId);
-                if(requesterUser.isEmpty()){
-                    return null;
-                }
-            }
-        } else{
-            if(customRenterId != 0 && customRenterId != requester_id){
-                return null; 
+        if (rentalRequest.getSellerId() == rentalRequest.getCustomerId()) {
+            return null;
+        }
+
+
+        if (requesterUser.get().getUserType() == UserType.SELLER) {
+            if (rentalRequest.getSellerId() != requester_id) {
+                return null;
             }
         }
 
 
+        Optional<UserEntity> userRenter = userRepository.findById(rentalRequest.getCustomerId());
+        if (userRenter.isEmpty()) {
+            return null; //invalid renter
+        }
+
+        if (userRenter.get().getUserType() != UserType.CUSTOMER) {
+            return null;
+        }
+
+        if (requesterUser.get().getUserType() != UserType.ADMIN && requesterUser.get().getUserType() != UserType.SELLER && userRenter.get().getId() != requester_id) {
+            return null;
+        }
+
+
+        Optional<UserEntity> userSeller = userRepository.findById(rentalRequest.getSellerId());
+        if (userSeller.isEmpty()) {
+            return null; //invalid seller
+        }
+
+        if (userSeller.get().getUserType() != UserType.SELLER) {
+            return null;
+        }
+
+        if (requesterUser.get().getUserType() != UserType.ADMIN && requesterUser.get().getUserType() != UserType.CUSTOMER && userSeller.get().getId() != requester_id) {
+            return null;
+        }
+
+        if (requesterUser.get().getUserType() != UserType.ADMIN && requesterUser.get().getUserType() != UserType.SELLER && userSeller.get().getId() == requester_id) {
+            return null;
+        }
+
+        if (rentalRequest.getStartOfRental().isBefore(OffsetDateTime.now(ZoneOffset.UTC))) {
+            return null;
+        }
+        if (rentalRequest.getEndOfRental().isBefore(rentalRequest.getStartOfRental())) {
+            return null;
+        }
+
         RentalEntity rentalEntity = rentalMapper.convertCreateRentalRequestToEntity(rentalRequest);
         rentalEntity.setPaymentStatus(PaymentStatus.PENDING); //let's assume user hasn't confirmed yet
         rentalEntity.setVehicleEntity(vehicleEntity.get());
-        rentalEntity.setRenter(requesterUser.get());
-        rentalEntity.setSeller(vehicleEntity.get().getSeller());
+        rentalEntity.setRenter(userRenter.get());
+        rentalEntity.setSeller(userSeller.get());
+
+
+        Long days = ChronoUnit.DAYS.between(rentalRequest.getStartOfRental(), rentalRequest.getEndOfRental()) + 1;
+        rentalEntity.setTotalCostRental(vehicleEntity.get().getDailyCostRental() * days.intValue());
         RentalEntity rentalEntitySaved = rentalRepository.saveAndFlush(rentalEntity);
 
         return rentalMapper.convertRentalEntityToResponse(rentalEntitySaved);
@@ -151,7 +193,7 @@ public class RentalService {
                 rentalEntity.get().setPaymentStatus(PaymentStatus.valueOf(rentalRequest.getPaymentStatus()));
             }
         }
-        return rentalMapper.convertRentalEntityToResponse(rentalRepository.saveAndFlush(rentalEntity.get()));
+        return rentalMapper.convertRentalEntityToResponse(rentalRepository.save(rentalEntity.get()));
 
     }
 

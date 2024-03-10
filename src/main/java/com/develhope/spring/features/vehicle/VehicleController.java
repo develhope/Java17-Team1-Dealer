@@ -1,5 +1,7 @@
 package com.develhope.spring.features.vehicle;
 
+import com.develhope.spring.features.users.Role;
+import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.MostSoldOrOrderedVehiclePeriodRequest;
 import com.develhope.spring.features.vehicle.dto.PatchVehicleRequest;
@@ -7,6 +9,7 @@ import com.develhope.spring.features.vehicle.dto.VehicleResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,8 +23,9 @@ public class VehicleController {
     private final VehicleService vehicleService;
 
     @PostMapping(path = VEHICLE_PATH)
-    public ResponseEntity<?> createVehicle(@RequestBody CreateVehicleRequest createVehicleRequest, @RequestParam(required = true) Long requester_id) {
-        VehicleResponse vehicleResponse = vehicleService.createVehicle(createVehicleRequest, requester_id);
+    public ResponseEntity<?> createVehicle(@AuthenticationPrincipal UserEntity user,
+                                           @RequestBody CreateVehicleRequest createVehicleRequest) {
+        VehicleResponse vehicleResponse = vehicleService.createVehicle(user, createVehicleRequest);
         if (vehicleResponse == null) {
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -29,23 +33,29 @@ public class VehicleController {
     }
 
     @PatchMapping(path = VEHICLE_PATH_ID)
-    public VehicleResponse patchVehicle(@PathVariable Long vehicleId, @RequestBody PatchVehicleRequest patchVehicleRequest, @RequestParam(required = true) Long requester_id) {
-        return vehicleService.patchVehicle(vehicleId, patchVehicleRequest, requester_id);
+    public VehicleResponse patchVehicle(@AuthenticationPrincipal UserEntity user,
+                                        @PathVariable Long vehicleId,
+                                        @RequestBody PatchVehicleRequest patchVehicleRequest) {
+        return vehicleService.patchVehicle(user, vehicleId, patchVehicleRequest);
     }
 
     @DeleteMapping(path = VEHICLE_PATH_ID)
-    public Boolean deleteVehicle(@PathVariable Long vehicleId, @RequestParam(required = true) Long requester_id) {
-        return vehicleService.deleteVehicle(vehicleId, requester_id);
+    public Boolean deleteVehicle(@AuthenticationPrincipal UserEntity user,
+                                 @PathVariable Long vehicleId) {
+        return vehicleService.deleteVehicle(user, vehicleId);
     }
 
     @PatchMapping(path = VEHICLE_PATH_ID + "/status")
-    public VehicleResponse patchStatus(@PathVariable Long vehicleId, @RequestParam String status, @RequestParam(required = true) Long requester_id) {
-        return vehicleService.patchStatus(vehicleId, status, requester_id);
+    public VehicleResponse patchStatus(@AuthenticationPrincipal UserEntity user,
+                                       @PathVariable Long vehicleId,
+                                       @RequestParam String status) {
+        return vehicleService.patchStatus(user, vehicleId, status);
     }
 
     @GetMapping(path = VEHICLE_PATH + "/bystatus")
-    public ResponseEntity<?> findByStatus(@RequestParam String status, @RequestParam(required = true) Long requester_id) {
-        return vehicleService.findByStatus(status, requester_id);
+    public ResponseEntity<?> findByStatus(@AuthenticationPrincipal UserEntity user,
+                                          @RequestParam String status) {
+        return vehicleService.findByStatus(user, status);
     }
 
 
@@ -65,22 +75,36 @@ public class VehicleController {
 
     //ADMIN ROUTES
     @GetMapping(path = VEHICLE_PATH + "/mostsold")
-    public ResponseEntity<?> getMostSoldVehiclePeriod(@RequestBody MostSoldOrOrderedVehiclePeriodRequest request) {
+    public ResponseEntity<?> getMostSoldVehiclePeriod(@AuthenticationPrincipal UserEntity user,
+                                                      @RequestBody MostSoldOrOrderedVehiclePeriodRequest request) {
+        if (user.getRole() != Role.ADMIN) {
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
         return vehicleService.getMostSoldVehiclePeriod(request.getStartDate(), request.getEndDate());
     }
 
     @GetMapping(path = VEHICLE_PATH + "/mostorderedinaperiod")
-    public ResponseEntity<?> getMostOrderedVehiclePeriod(@RequestBody MostSoldOrOrderedVehiclePeriodRequest request) {
+    public ResponseEntity<?> getMostOrderedVehiclePeriod(@AuthenticationPrincipal UserEntity user,
+                                                         @RequestBody MostSoldOrOrderedVehiclePeriodRequest request) {
+        if (user.getRole() != Role.ADMIN) {
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
         return vehicleService.getMostOrderedVehiclePeriod(request.getStartDate(), request.getEndDate());
     }
 
     @GetMapping(path = VEHICLE_PATH + "/highestpricesold")
-    public ResponseEntity<?> getHighestPriceSold() {
+    public ResponseEntity<?> getHighestPriceSold(@AuthenticationPrincipal UserEntity user) {
+        if (user.getRole() != Role.ADMIN) {
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
         return vehicleService.getHighestPriceSold();
     }
 
     @GetMapping(path = VEHICLE_PATH + "/lowestpricesold")
-    public ResponseEntity<?> getLowestPriceSold() {
+    public ResponseEntity<?> getLowestPriceSold(@AuthenticationPrincipal UserEntity user) {
+        if (user.getRole() != Role.ADMIN) {
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
         return vehicleService.getLowestPriceSold();
     }
 }

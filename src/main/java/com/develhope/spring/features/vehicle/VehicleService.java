@@ -5,7 +5,6 @@ import com.develhope.spring.features.users.Role;
 import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.users.UserMapper;
 import com.develhope.spring.features.users.UserRepository;
-import com.develhope.spring.features.users.dto.UserResponse;
 import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
 import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
@@ -31,18 +30,12 @@ public class VehicleService {
     private final OrderRepository orderRepository;
 
 
-    public VehicleResponse createVehicle(CreateVehicleRequest createVehicleRequest, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return null;
-        }
-
-        final var userRole = requesterUser.get().getRole();
-        if (userRole != Role.ADMIN) {
+    public VehicleResponse createVehicle(UserEntity user, CreateVehicleRequest createVehicleRequest) {
+        if (user.getRole() != Role.ADMIN) {
             return null; //unhaoutrized
         }
 
-        /*
+
         if (createVehicleRequest.getBrand() == null || !StringUtils.hasText(createVehicleRequest.getBrand())) {
             return null; //brand is required
         }
@@ -50,7 +43,7 @@ public class VehicleService {
         if (createVehicleRequest.getModel() == null || !StringUtils.hasText(createVehicleRequest.getModel())) {
             return null; //model is required
         }
-        
+
 
         if (createVehicleRequest.getDisplacement() == null || createVehicleRequest.getDisplacement() <= 0) {
             return null; //displacement is required
@@ -63,7 +56,7 @@ public class VehicleService {
         if (createVehicleRequest.getPower() == null || createVehicleRequest.getPower() <= 0) {
             return null; //power is required
         }
-        
+
         if (createVehicleRequest.getShiftType() == null) {
             return null; //shiftType is required
         }
@@ -115,15 +108,13 @@ public class VehicleService {
         if (!VehicleType.isValidVehicleType(vehicleTypeString)) {
             return null; //vehicleType is required
         }
-        
-        */
+
 
         //lower all text
         //make query to check if there's a match
         //if there's a match, return null
         VehicleEntity vehicleEntity = vehicleMapper.convertCreateVehicleRequestToEntity(createVehicleRequest);
-        UserResponse sellerResponse = userMapper.convertUserEntityToResponse(requesterUser.get());
-        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.saveAndFlush(vehicleEntity), sellerResponse);
+        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.saveAndFlush(vehicleEntity));
     }
 
     public VehicleResponse getSingleVehicle(Long id) {
@@ -136,14 +127,8 @@ public class VehicleService {
     }
 
 
-    public VehicleResponse patchVehicle(Long id, PatchVehicleRequest patchVehicleRequest, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return null;
-        }
-
-        final var userRole = requesterUser.get().getRole();
-        if (userRole != Role.ADMIN) {
+    public VehicleResponse patchVehicle(UserEntity user, Long id, PatchVehicleRequest patchVehicleRequest) {
+        if (user.getRole() != Role.ADMIN) {
             return null; //unhaoutrized
         }
 
@@ -220,14 +205,8 @@ public class VehicleService {
         return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity.get()));
     }
 
-    public Boolean deleteVehicle(Long id, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return false;
-        }
-
-        final var userRole = requesterUser.get().getRole();
-        if (userRole != Role.ADMIN) {
+    public Boolean deleteVehicle(UserEntity user, Long id) {
+        if (user.getRole() != Role.ADMIN) {
             return false; //unhaoutrized
         }
 
@@ -240,14 +219,8 @@ public class VehicleService {
         return true;
     }
 
-    public VehicleResponse patchStatus(Long id, String status, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return null;
-        }
-
-        final var userRole = requesterUser.get().getRole();
-        if (userRole != Role.ADMIN) {
+    public VehicleResponse patchStatus(UserEntity user, Long id, String status) {
+        if (user.getRole() != Role.ADMIN) {
             return null; //unhaoutrized
         }
 
@@ -263,16 +236,11 @@ public class VehicleService {
     }
 
 
-    public ResponseEntity<?> findByStatus(String status, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
+    public ResponseEntity<?> findByStatus(UserEntity user, String status) {
+        if (user.getRole() != Role.ADMIN && user.getRole() != Role.SELLER) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
-        final var userRole = requesterUser.get().getRole();
-        if (userRole != Role.ADMIN && userRole != Role.SELLER) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
 
         String statusString = status.toUpperCase();
         if (VehicleStatus.isValidVehicleStatus(statusString)) {

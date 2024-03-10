@@ -14,6 +14,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 
@@ -28,13 +29,73 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public JwtAuthenticationResponse signup(SignUpRequest request) {
+        if (!StringUtils.hasText(request.getName())) {
+            return null; //empty
+        }
+
+        if (!StringUtils.hasText(request.getEmail())) {
+            return null; //empty
+        }
+
+        if (!StringUtils.hasText(request.getPassword())) {
+            return null; //empty
+        }
+
+        if (request.getName().length() < 3) {
+            return null; //too short
+        }
+
+        if (request.getName().length() > 20) {
+            return null; //too long
+        }
+
+        if (request.getEmail().length() < 5) {
+            return null; //too short
+        }
+
+        if (request.getEmail().length() > 50) {
+            return null; //too long
+        }
+
+        if (request.getTelephoneNumber().length() < 5) {
+            return null; //too short
+        }
+
+        if (request.getTelephoneNumber().length() > 11) {
+            return null; //too long
+        }
+
+        if (request.getPassword().length() < 5) {
+            return null; //too short
+        }
+
+        if (request.getPassword().length() > 20) {
+            return null; //too long
+        }
+        final var roleString = request.getRole().toUpperCase();
+        if (!Role.isValidUserRole(roleString)) {
+            return null; //invalid role
+        }
+
+        var userExists = userRepository.findByTelephoneNumber(request.getEmail());
+
+        if (userExists.isPresent()) {
+            return null; //user already exists
+        }
+
+        userExists = userRepository.findByEmail(request.getEmail());
+
+        if (userExists.isPresent()) {
+            return null; //user already exists
+        }
+
         UserEntity user = UserEntity.builder()
                 .name(request.getName())
                 .surname(request.getSurname())
                 .telephoneNumber(request.getTelephoneNumber())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
-                .role(Role.valueOf(request.getRole())).build();
+                .role(Role.valueOf(roleString)).build();
 
         userRepository.save(user);
         String jwt = jwtService.generateToken(user);

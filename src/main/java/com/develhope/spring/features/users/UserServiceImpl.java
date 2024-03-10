@@ -1,5 +1,6 @@
 package com.develhope.spring.features.users;
 
+import com.develhope.spring.exception.NotFoundException;
 import com.develhope.spring.features.orders.OrderRepository;
 import com.develhope.spring.features.users.dto.CreateUserRequest;
 import com.develhope.spring.features.users.dto.PatchUserRequest;
@@ -25,28 +26,11 @@ public class UserServiceImpl implements UserService {
     private final OrderRepository orderRepository;
     private final UserMapper userMapper;
 
-
-    public Boolean isRequesterIDValid(UserEntity originalUser, Long requester_id) { //still bad and should be in middleware
-        if (originalUser == null) {
-            return false;
-        }
-
-        Optional<UserEntity> userRequester = userRepository.findById(requester_id);
-
-        if (userRequester.isEmpty()) {
-            return false;
-        }
-
-        return originalUser.getId() == requester_id || userRequester.get().getRole() == Role.ADMIN;
-    }
-
     private UserResponse generateUserResponseFromEntity(UserEntity userEntity) {
         return userMapper.convertUserEntityToResponse(userEntity);
     }
 
     public UserResponse createUser(CreateUserRequest userRequest) {
-        
-        /*
         if (!StringUtils.hasText(userRequest.getName())) {
             return null; //empty
         }
@@ -91,26 +75,22 @@ public class UserServiceImpl implements UserService {
             return null; //too long
         }
 
-         if (userRepository.existsByEmail(userRequest.getEmail())) {
+        if (userRepository.findByEmail(userRequest.getEmail()).isPresent()) {
             return null; //email exists
         }
 
-        if (userRepository.existsByTelephoneNumber(userRequest.getTelephoneNumber())) {
+        if (userRepository.findByTelephoneNumber(userRequest.getTelephoneNumber()).isPresent()) {
             return null; //telephone exists
         }
 
-        if (userRepository.existsBySurmame(userRequest.getSurname())) {
-            return null; //surname exists
-        }
-
-        userRequest.setUserType(userRequest.getUserType().toUpperCase());
-        if (!UserType.isValidUserType(userRequest.getUserType())) {
+        userRequest.setRole(userRequest.getRole().toUpperCase());
+        if (Role.isValidUserRole(userRequest.getRole())) {
             return null; //invalid user type
         }
 
-        String hash = BCrypt.hashpw(password, BCrypt.gensalt(9));
+        String hash = BCrypt.hashpw(userRequest.getPassword(), BCrypt.gensalt(9));
         userRequest.setPassword(hash);
-        */
+
         UserEntity userEntity = userMapper.convertUserRequestToEntity(userRequest);
         return userMapper.convertUserEntityToResponse(userRepository.saveAndFlush(userEntity));
     }
@@ -120,20 +100,14 @@ public class UserServiceImpl implements UserService {
         return userMapper.mapList(userEntities, UserResponse.class);
     }
 
-    //TO DO: general functions for better checks (like, userNameCheck(string) -> bool)
-    //right now these are simple, just checking empty/null
-    public UserResponse patchUser(Long user_id, PatchUserRequest patchUserRequest, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return null;
+    public UserResponse patchUser(UserEntity user, Long user_id, PatchUserRequest patchUserRequest) {
+        final var sameUser = user_id.equals(user.getId());
+        if (!sameUser && user.getRole() != Role.ADMIN) {
+            return null; //unauthorized
         }
 
-        Optional<UserEntity> originalUser = userRepository.findById(user_id);
+        Optional<UserEntity> originalUser = !sameUser ? userRepository.findById(user_id) : Optional.of(user);
         if (originalUser.isEmpty()) {
-            return null;
-        }
-
-        if (originalUser.get().getId() != requester_id && requesterUser.get().getRole() != Role.ADMIN) {
             return null;
         }
 
@@ -167,18 +141,14 @@ public class UserServiceImpl implements UserService {
     }
 
     //TODO: proper returns for proper errors;
-    public UserResponse updatePassword(Long user_id, String password, Long requester_id) { //should be already hashed, from middleware
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return null;
+    public UserResponse updatePassword(UserEntity user, Long user_id, String password) { //should be already hashed, from middleware
+        final var sameUser = user_id == user.getId();
+        if (!sameUser && user.getRole() != Role.ADMIN) {
+            return null; //unauthorized
         }
 
-        Optional<UserEntity> originalUser = userRepository.findById(user_id);
+        Optional<UserEntity> originalUser = !sameUser ? userRepository.findById(user_id) : Optional.of(user);
         if (originalUser.isEmpty()) {
-            return null;
-        }
-
-        if (originalUser.get().getId() != requester_id && requesterUser.get().getRole() != Role.ADMIN) {
             return null;
         }
 
@@ -202,7 +172,17 @@ public class UserServiceImpl implements UserService {
         return generateUserResponseFromEntity(savedUser);
     }
 
-    public UserResponse updateUserName(Long user_id, String userName, Long requester_id) {
+    public UserResponse updateUserName(UserEntity user, Long user_id, String userName) {
+        final var sameUser = user_id == user.getId();
+        if (!sameUser && user.getRole() != Role.ADMIN) {
+            return null; //unauthorized
+        }
+
+        Optional<UserEntity> originalUser = !sameUser ? userRepository.findById(user_id) : Optional.of(user);
+        if (originalUser.isEmpty()) {
+            return null;
+        }
+
         if (userName.length() < 3) {
             return null; //too short
         }
@@ -214,19 +194,6 @@ public class UserServiceImpl implements UserService {
         if (!StringUtils.hasText(userName)) {
             return null; //empty
         }
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return null;
-        }
-
-        Optional<UserEntity> originalUser = userRepository.findById(user_id);
-        if (originalUser.isEmpty()) {
-            return null;
-        }
-
-        if (originalUser.get().getId() != requester_id && requesterUser.get().getRole() != Role.ADMIN) {
-            return null;
-        }
 
 
         originalUser.get().setName(userName);
@@ -235,23 +202,19 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    public UserResponse updateTelephoneNumber(Long user_id, String telephoneNumber, Long requester_id) { //phone checks? some lib maybe?
-        if (!StringUtils.hasText(telephoneNumber)) {
-            return null; //empty
+    public UserResponse updateTelephoneNumber(UserEntity user, Long user_id, String telephoneNumber) { //phone checks? some lib maybe?
+        final var sameUser = user_id == user.getId();
+        if (!sameUser && user.getRole() != Role.ADMIN) {
+            return null; //unauthorized
         }
 
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return null;
-        }
-
-        Optional<UserEntity> originalUser = userRepository.findById(user_id);
+        Optional<UserEntity> originalUser = !sameUser ? userRepository.findById(user_id) : Optional.of(user);
         if (originalUser.isEmpty()) {
             return null;
         }
 
-        if (originalUser.get().getId() != requester_id && requesterUser.get().getRole() != Role.ADMIN) {
-            return null;
+        if (!StringUtils.hasText(telephoneNumber)) {
+            return null; //empty
         }
 
 
@@ -261,22 +224,19 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    public UserResponse updateEmail(Long user_id, String email, Long requester_id) { //TODO: mail checks
-        if (!StringUtils.hasText(email)) {
-            return null; //empty
-        }
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return null;
+    public UserResponse updateEmail(UserEntity user, Long user_id, String email) { //TODO: mail checks
+        final var sameUser = user_id == user.getId();
+        if (!sameUser && user.getRole() != Role.ADMIN) {
+            return null; //unauthorized
         }
 
-        Optional<UserEntity> originalUser = userRepository.findById(user_id);
+        Optional<UserEntity> originalUser = !sameUser ? userRepository.findById(user_id) : Optional.of(user);
         if (originalUser.isEmpty()) {
             return null;
         }
 
-        if (originalUser.get().getId() != requester_id && requesterUser.get().getRole() != Role.ADMIN) {
-            return null;
+        if (!StringUtils.hasText(email)) {
+            return null; //empty
         }
 
         originalUser.get().setEmail(email);
@@ -285,15 +245,15 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    public Boolean deleteSingleUser(Long id_to_delete, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return false;
+    public Boolean deleteSingleUser(UserEntity user, Long id_to_delete) {
+        final var sameUser = user.getId().equals(id_to_delete);
+        if (!sameUser && user.getRole() != Role.ADMIN) {
+            return null; //unauthorized
         }
 
-        final var userRole = requesterUser.get().getRole();
-        if (userRole != Role.ADMIN || (id_to_delete != requester_id)) {
-            return false; //unhaoutrized
+        Optional<UserEntity> originalUser = !sameUser ? userRepository.findById(id_to_delete) : Optional.of(user);
+        if (originalUser.isEmpty()) {
+            throw new NotFoundException();
         }
 
         userRepository.deleteById(id_to_delete);

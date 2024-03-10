@@ -4,12 +4,13 @@ import com.develhope.spring.features.orders.dto.CreateOrderRequest;
 import com.develhope.spring.features.orders.dto.OrderResponse;
 import com.develhope.spring.features.orders.dto.PatchOrderRequest;
 import com.develhope.spring.features.orders.dto.TotalSalesPricePeriodRequest;
+import com.develhope.spring.features.users.Role;
+import com.develhope.spring.features.users.UserEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,9 +23,9 @@ public class OrderController {
     //this creates an order that has to be yet finalized, because the vehicle is not ready
     //for delivery
     @PutMapping(path = ORDER_PATH + "/prepare")
-    public ResponseEntity<?> prepareOrderByVehicleId(@RequestBody CreateOrderRequest orderRequest,
-                                                     @RequestParam(required = true) Long requester_id) {
-        OrderResponse orderResponse = orderService.prepareOrderByVehicleId(orderRequest, requester_id);
+    public ResponseEntity<?> prepareOrderByVehicleId(@AuthenticationPrincipal UserEntity user,
+                                                     @RequestBody CreateOrderRequest orderRequest) {
+        OrderResponse orderResponse = orderService.prepareOrderByVehicleId(user, orderRequest);
         if (orderResponse == null) {
             return new ResponseEntity<>(orderResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -33,9 +34,9 @@ public class OrderController {
 
     //this creates an order that is ready to be delivered
     @PutMapping(path = ORDER_PATH + "/create")
-    public ResponseEntity<?> createOrderByVehicleId(@RequestBody CreateOrderRequest orderRequest,
-                                                    @RequestParam(required = true) Long requester_id) {
-        OrderResponse orderResponse = orderService.createOrderByVehicleId(orderRequest, requester_id);
+    public ResponseEntity<?> createOrderByVehicleId(@AuthenticationPrincipal UserEntity user,
+                                                    @RequestBody CreateOrderRequest orderRequest) {
+        OrderResponse orderResponse = orderService.createOrderByVehicleId(user, orderRequest);
         if (orderResponse == null) {
             return new ResponseEntity<>(orderResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -44,39 +45,43 @@ public class OrderController {
 
 
     @PatchMapping(path = ORDER_PATH_ID)
-    public OrderResponse patchOrder(@PathVariable Long orderId, @RequestBody PatchOrderRequest patchOrderRequest, @RequestParam(required = true) Long requester_id) {
-        return orderService.patchOrder(orderId, patchOrderRequest, requester_id);
+    public OrderResponse patchOrder(@AuthenticationPrincipal UserEntity user,
+                                    @PathVariable Long orderId,
+                                    @RequestBody PatchOrderRequest patchOrderRequest) {
+        return orderService.patchOrder(user, orderId, patchOrderRequest);
     }
 
     @PatchMapping(path = ORDER_PATH_ID + "/status")
-    public OrderResponse patchOrderStatus(@PathVariable Long orderId, @RequestParam String status, @RequestParam(required = true) Long requester_id) {
-        return orderService.patchOrderStatus(orderId, status, requester_id);
+    public OrderResponse patchOrderStatus(@AuthenticationPrincipal UserEntity user,
+                                          @PathVariable Long orderId,
+                                          @RequestParam String status) {
+        return orderService.patchOrderStatus(user, orderId, status);
     }
 
     //this is a list of orders that the user has made
     @GetMapping(path = ORDER_PATH + "/byuser/{userId}")
-    public ResponseEntity<?> getOrdersByUserId(@PathVariable Long userId, @RequestParam(required = true) Long requester_id) {
-
-        List<OrderResponse> orderResponseList = orderService.getOrderListById(userId, requester_id);
-        return new ResponseEntity<>(orderResponseList, HttpStatus.OK);
+    public ResponseEntity<?> getOrdersByUserId(@AuthenticationPrincipal UserEntity user,
+                                               @PathVariable Long userId) {
+        return orderService.getOrderListByBuyerId(user, userId);
     }
 
-    @GetMapping(path = ORDER_PATH + "/byuser/{userId}/complete")
-    public ResponseEntity<?> getOrdersCompletedListById(@PathVariable Long userId, @RequestParam(required = true) Long requester_id) {
-
-        List<OrderResponse> ordersCompleteResponseList = orderService.getOrdersCompletedListById(userId, requester_id);
-        return new ResponseEntity<>(ordersCompleteResponseList, HttpStatus.OK);
+    @GetMapping(path = ORDER_PATH + "/{buyerId}/complete")
+    public ResponseEntity<?> getOrdersCompletedListByBuyerId(@AuthenticationPrincipal UserEntity user,
+                                                             @PathVariable Long buyerId) {
+        return orderService.getOrdersCompletedListByBuyerId(user, buyerId);
     }
 
     //this is a list of the orders that have a certain status
     @GetMapping(path = ORDER_PATH + "/bystatus")
-    public ResponseEntity<?> getOrdersByStatus(@RequestParam String status, @RequestParam(required = true) Long requester_id) {
-        return orderService.findByStatus(status, requester_id);
+    public ResponseEntity<?> getOrdersByStatus(@AuthenticationPrincipal UserEntity user,
+                                               @RequestParam String status) {
+        return orderService.getOrdersByStatus(user, status);
     }
 
     @GetMapping(path = ORDER_PATH_ID + "/status")
-    public ResponseEntity<?> getOrderStatus(@PathVariable Long orderId, @RequestParam(required = true) Long requester_id) {
-        OrderStatus orderStatus = orderService.getOrderStatus(orderId, requester_id);
+    public ResponseEntity<?> getOrderStatus(@AuthenticationPrincipal UserEntity user,
+                                            @PathVariable Long orderId) {
+        OrderStatus orderStatus = orderService.getOrderStatus(user, orderId);
         if (orderStatus == null) {
             return new ResponseEntity<>(orderStatus, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -84,13 +89,17 @@ public class OrderController {
     }
 
     @DeleteMapping(path = ORDER_PATH_ID)
-    public Boolean deleteOrder(@PathVariable Long orderId, @RequestParam(required = true) Long requester_id) {
-        return orderService.deleteOrder(orderId, requester_id);
+    public Boolean deleteOrder(@AuthenticationPrincipal UserEntity user,
+                               @PathVariable Long orderId) {
+        return orderService.deleteOrder(user, orderId);
     }
 
     //ADMIN ROUTES
     @GetMapping(path = ORDER_PATH + "/totalsalespriceperiod")
-    public ResponseEntity<?> getTotalSalesPriceInAPeriod(@RequestBody TotalSalesPricePeriodRequest request) {
+    public ResponseEntity<?> getTotalSalesPriceInAPeriod(@AuthenticationPrincipal UserEntity user, @RequestBody TotalSalesPricePeriodRequest request) {
+        if (user.getRole() != Role.ADMIN) {
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
         return orderService.getTotalSalesPriceInAPeriod(request.getStartDate(), request.getEndDate());
     }
 

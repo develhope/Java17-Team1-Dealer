@@ -1,6 +1,5 @@
 package com.develhope.spring.features.vehicle;
 
-import com.develhope.spring.features.users.dto.UserResponse;
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.VehicleResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +22,6 @@ public class VehicleMapper {
     }
 
     public VehicleResponse convertVehicleEntityToResponse(VehicleEntity vehicleEntity) {
-        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
-        VehicleResponse vehicleResponse = modelMapper.map(vehicleEntity, VehicleResponse.class);
-        return vehicleResponse;
-    }
-
-    public VehicleResponse convertVehicleEntityToResponse(VehicleEntity vehicleEntity, UserResponse seller) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
         VehicleResponse vehicleResponse = modelMapper.map(vehicleEntity, VehicleResponse.class);
         return vehicleResponse;

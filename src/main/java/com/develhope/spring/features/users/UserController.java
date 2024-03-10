@@ -7,6 +7,7 @@ import com.develhope.spring.features.users.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,13 +20,12 @@ public class UserController {
 
 
     private final UserServiceImpl userService;
-    private final UserMapper userMapper;
 
     @PostMapping(path = USER_PATH)
-    public ResponseEntity<?> createOne(@RequestBody CreateUserRequest userRequest) {
-        /*if(userRequest.getUserType() == UserType.ADMIN){
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }*/
+    public ResponseEntity<?> createOne(@AuthenticationPrincipal UserEntity user, @RequestBody CreateUserRequest userRequest) {
+        if (user.getRole() != Role.ADMIN) {
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
 
         UserResponse userResponse = userService.createUser(userRequest);
         if (userResponse == null) {
@@ -49,8 +49,10 @@ public class UserController {
     }
 
     @PatchMapping(path = USER_PATH_ID)
-    public ResponseEntity<?> patchUser(@PathVariable Long userId, @RequestBody PatchUserRequest patchUserRequest, @RequestParam(required = true) Long requester_id) {
-        UserResponse updatedUserEntity = userService.patchUser(userId, patchUserRequest, requester_id);
+    public ResponseEntity<?> patchUser(@AuthenticationPrincipal UserEntity user,
+                                       @PathVariable Long userId,
+                                       @RequestBody PatchUserRequest patchUserRequest) {
+        UserResponse updatedUserEntity = userService.patchUser(user, userId, patchUserRequest);
         if (updatedUserEntity == null) {
             throw new NotFoundException();
         }
@@ -58,8 +60,10 @@ public class UserController {
     }
 
     @PatchMapping(path = USER_PATH_ID + "/password")
-    public ResponseEntity<?> updatePassword(@PathVariable Long userId, @RequestParam(required = true) String password, @RequestParam(required = true) Long requester_id) {
-        UserResponse updatedUserEntity = userService.updatePassword(userId, password, requester_id);
+    public ResponseEntity<?> updatePassword(@AuthenticationPrincipal UserEntity user,
+                                            @PathVariable Long userId,
+                                            @RequestParam(required = true) String password) {
+        UserResponse updatedUserEntity = userService.updatePassword(user, userId, password);
         if (updatedUserEntity == null) {
             throw new NotFoundException();
         }
@@ -67,8 +71,10 @@ public class UserController {
     }
 
     @PatchMapping(path = USER_PATH_ID + "/username")
-    public ResponseEntity<?> updateUsername(@PathVariable Long userId, @RequestParam(required = true) String username, @RequestParam(required = true) Long requester_id) {
-        UserResponse updatedUserEntity = userService.updateUserName(userId, username, requester_id);
+    public ResponseEntity<?> updateUsername(@AuthenticationPrincipal UserEntity user,
+                                            @PathVariable Long userId,
+                                            @RequestParam(required = true) String username) {
+        UserResponse updatedUserEntity = userService.updateUserName(user, userId, username);
         if (updatedUserEntity == null) {
             throw new NotFoundException();
         }
@@ -76,8 +82,10 @@ public class UserController {
     }
 
     @PatchMapping(path = USER_PATH_ID + "/phone")
-    public ResponseEntity<?> updateTelephoneNumber(@PathVariable Long userId, @RequestParam(required = true) String phone, @RequestParam(required = true) Long requester_id) {
-        UserResponse updatedUserEntity = userService.updateTelephoneNumber(userId, phone, requester_id);
+    public ResponseEntity<?> updateTelephoneNumber(@AuthenticationPrincipal UserEntity user,
+                                                   @PathVariable Long userId,
+                                                   @RequestParam(required = true) String phone) {
+        UserResponse updatedUserEntity = userService.updateTelephoneNumber(user, userId, phone);
         if (updatedUserEntity == null) {
             throw new NotFoundException();
         }
@@ -85,8 +93,9 @@ public class UserController {
     }
 
     @PatchMapping(path = USER_PATH_ID + "/email")
-    public ResponseEntity<?> updateEmail(@PathVariable Long userId, @RequestParam(required = true) String email, @RequestParam(required = true) Long requester_id) {
-        UserResponse updatedUserEntity = userService.updateEmail(userId, email, requester_id);
+    public ResponseEntity<?> updateEmail(@AuthenticationPrincipal UserEntity user,
+                                         @PathVariable Long userId, @RequestParam(required = true) String email) {
+        UserResponse updatedUserEntity = userService.updateEmail(user, userId, email);
         if (updatedUserEntity == null) {
             throw new NotFoundException();
         }
@@ -94,22 +103,27 @@ public class UserController {
     }
 
     @DeleteMapping(path = USER_PATH_ID)
-    public ResponseEntity<?> deleteOne(@PathVariable Long userId, @RequestParam(required = true) Long requester_id) {
-        if (userService.deleteSingleUser(userId, requester_id)) {
-            throw new NotFoundException();
-        }
-        return new ResponseEntity<>(null, HttpStatus.OK);
+    public ResponseEntity<?> deleteOne(@AuthenticationPrincipal UserEntity user,
+                                       @PathVariable Long userId) {
+        userService.deleteSingleUser(user, userId);
+        return new ResponseEntity<>("deleted", HttpStatus.OK);
     }
 
 
     //ADMIN ROUTES
     @GetMapping(path = USER_PATH_ID + "/salescount")
-    public ResponseEntity<?> getSalesCountBySellerId(@PathVariable Long sellerId) {
+    public ResponseEntity<?> getSalesCountBySellerId(@AuthenticationPrincipal UserEntity user, @PathVariable Long sellerId) {
+        if (user.getRole() != Role.ADMIN) {
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
         return userService.getSalesCountBySellerId(sellerId);
     }
 
     @GetMapping(path = USER_PATH_ID + "/profit")
-    public ResponseEntity<?> getSalesTotalPriceBySellerId(@PathVariable Long sellerId) {
+    public ResponseEntity<?> getSalesTotalPriceBySellerId(@AuthenticationPrincipal UserEntity user, @PathVariable Long sellerId) {
+        if (user.getRole() != Role.ADMIN) {
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
+        }
         return userService.getSalesTotalPriceBySellerId(sellerId);
     }
 

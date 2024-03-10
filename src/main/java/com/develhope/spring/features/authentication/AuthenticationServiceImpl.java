@@ -30,63 +30,63 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     public JwtAuthenticationResponse signup(SignUpRequest request) {
         if (!StringUtils.hasText(request.getName())) {
-            return null; //empty
+            throw new IllegalArgumentException("Name is empty");
         }
 
         if (!StringUtils.hasText(request.getEmail())) {
-            return null; //empty
+            throw new IllegalArgumentException("Email is empty");
         }
 
         if (!StringUtils.hasText(request.getPassword())) {
-            return null; //empty
+            throw new IllegalArgumentException("Password is empty");
         }
 
         if (request.getName().length() < 3) {
-            return null; //too short
+            throw new IllegalArgumentException("Name is too short: min 3 characters");
         }
 
         if (request.getName().length() > 20) {
-            return null; //too long
+            throw new IllegalArgumentException("Name is too long: max 20 characters");
         }
 
         if (request.getEmail().length() < 5) {
-            return null; //too short
+            throw new IllegalArgumentException("Email is too short: min 5 characters");
         }
 
         if (request.getEmail().length() > 50) {
-            return null; //too long
+            throw new IllegalArgumentException("Email is too long: max 50 characters");
         }
 
         if (request.getTelephoneNumber().length() < 5) {
-            return null; //too short
+            throw new IllegalArgumentException("Telephone number is too short: min 5 digits");
         }
 
         if (request.getTelephoneNumber().length() > 11) {
-            return null; //too long
+            throw new IllegalArgumentException("Telephone number is too long: max 11 digits");
         }
 
         if (request.getPassword().length() < 5) {
-            return null; //too short
+            throw new IllegalArgumentException("Password is too short: min 5 characters");
         }
 
         if (request.getPassword().length() > 20) {
-            return null; //too long
+            throw new IllegalArgumentException("Password is too long: max 20 characters");
         }
         final var roleString = request.getRole().toUpperCase();
         if (!Role.isValidUserRole(roleString)) {
-            return null; //invalid role
+            throw new IllegalArgumentException("Invalid role");
         }
 
         var userExists = userRepository.findByTelephoneNumber(request.getEmail());
 
         if (userExists.isPresent()) {
-            return null; //user already exists
+            throw new IllegalArgumentException("User with this telephone number already exists");
         }
 
         userExists = userRepository.findByEmail(request.getEmail());
 
         if (userExists.isPresent()) {
-            return null; //user already exists
+            throw new IllegalArgumentException("User with this email already exists");
         }
 
         UserEntity user = UserEntity.builder()

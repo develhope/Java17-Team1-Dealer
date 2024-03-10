@@ -5,9 +5,9 @@ public enum PaymentStatus {
     NOT_PAID("Not paid"),
     PENDING("Pending"),
     DEPOSIT("Deposit");
-    private String status;
+    private final String status;
 
-    private PaymentStatus(String a) {
+    PaymentStatus(String a) {
         this.status = a;
     }
 

@@ -5,9 +5,9 @@ public enum VehicleStatus {
     UNAVAILABLE("Unavailable"),
     CAN_BE_ORDERED("Available for order"),
     PROMPT_DELIVERY("Available for prompt delivery");
-    private String status;
+    private final String status;
 
-    private VehicleStatus(String a) {
+    VehicleStatus(String a) {
         this.status = a;
     }
 

@@ -1,9 +1,5 @@
 package com.develhope.spring.features.vehicle.dto;
 
-import com.develhope.spring.features.vehicle.VehicleStatus;
-import com.develhope.spring.features.vehicle.VehicleType;
-import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,18 +9,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateVehicleRequest {
-    String model;
-    String brand;
-    Integer displacement;
-    String color;
-    Integer power;
-    String shiftType;
-    Integer yearOfMatriculation;
-    String fuelType;
-    Integer price;
-    Integer discount;
-    String accessories;
-    Boolean used;
-    String vehicleStatus;
-    String vehicleType;
+    private String model;
+    private String brand;
+    private Integer displacement;
+    private String color;
+    private Integer power;
+    private String shiftType;
+    private Integer yearOfMatriculation;
+    private String fuelType;
+    private Long price;
+    private Integer discount;
+    private String accessories;
+    private Boolean used;
+    private String vehicleStatus;
+    private String vehicleType;
 }

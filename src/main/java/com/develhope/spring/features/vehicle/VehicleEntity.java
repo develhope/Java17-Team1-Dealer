@@ -1,13 +1,14 @@
 package com.develhope.spring.features.vehicle;
 
-import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
 import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Table
+@Table(name = "vehicles")
 @Entity
 @Data
 @AllArgsConstructor
@@ -41,7 +42,9 @@ public class VehicleEntity { //owner?
     private FuelType fuelType;
     @Column(nullable = false)
     @NotBlank
-    private Integer price;
+    private Long price;
+    @Column(nullable = false)
+    private Long dailyCostRental = Long.valueOf(0);
     @Column(nullable = false)
     private Integer discount = 0;
     private String accessories;
@@ -54,7 +57,4 @@ public class VehicleEntity { //owner?
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private VehicleType vehicleType;
-    @OneToOne
-    private UserEntity seller;
 }
-

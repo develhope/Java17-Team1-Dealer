@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PatchOrderRequest {
-    Integer deposit;
-    String paymentStatus;
-    String orderStatus;
-    VehicleEntity vehicleEntity;
+    private Long deposit;
+    private String paymentStatus;
+    private String orderStatus;
+    private VehicleEntity vehicleEntity;
 }

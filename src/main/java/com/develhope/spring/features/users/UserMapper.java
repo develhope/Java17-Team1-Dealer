@@ -1,15 +1,14 @@
 package com.develhope.spring.features.users;
 
-import com.develhope.spring.features.users.dto.UserResponse;
 import com.develhope.spring.features.users.dto.CreateUserRequest;
+import com.develhope.spring.features.users.dto.UserResponse;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-import java.util.stream.Collectors;
-
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -26,7 +25,7 @@ public class UserMapper {
         return modelMapper.map(userEntity, UserResponse.class);
     }
 
-        <S, T> List<T> mapList(List<S> source, Class<T> targetClass) {
+    <S, T> List<T> mapList(List<S> source, Class<T> targetClass) {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE);
         return source
                 .stream()

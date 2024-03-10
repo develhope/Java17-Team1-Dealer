@@ -6,12 +6,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.OffsetDateTime;
 
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Data
 public class CreateRentalRequest {
+    Long vehicleId;
+    Long sellerId;
+    Long customerId;
     private OffsetDateTime startOfRental;
     private OffsetDateTime endOfRental;
-    private Integer dailyCostRental;
-    private Integer totalCostRental;
 }

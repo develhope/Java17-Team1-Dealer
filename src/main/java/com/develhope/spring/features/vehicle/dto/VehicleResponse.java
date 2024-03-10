@@ -1,13 +1,9 @@
 package com.develhope.spring.features.vehicle.dto;
 
-import com.develhope.spring.features.orders.dto.OrderResponse;
-import com.develhope.spring.features.users.UserEntity;
-import com.develhope.spring.features.users.dto.UserResponse;
-import com.develhope.spring.features.vehicle.VehicleStatus;
-import com.develhope.spring.features.vehicle.VehicleType;
 import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
 import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
-
+import com.develhope.spring.features.vehicle.VehicleStatus;
+import com.develhope.spring.features.vehicle.VehicleType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,20 +13,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VehicleResponse {
-    Long id;
-    String model;
-    String brand;
-    Integer displacement;
-    String color;
-    Integer power;
-    ShiftType shift;
-    Integer yearOfMatriculation;
-    FuelType fuelType;
-    Integer price;
-    Integer discount;
-    String accessories;
-    Boolean used;
-    VehicleStatus vehicleStatus;
-    VehicleType vehicleType;
-    UserResponse seller;
+    private Long id;
+    private String model;
+    private String brand;
+    private Integer displacement;
+    private String color;
+    private Integer power;
+    private ShiftType shift;
+    private Integer yearOfMatriculation;
+    private FuelType fuelType;
+    private Long price;
+    private Integer discount;
+    private String accessories;
+    private Boolean used;
+    private VehicleStatus vehicleStatus;
+    private VehicleType vehicleType;
 }

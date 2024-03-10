@@ -1,10 +1,10 @@
 package com.develhope.spring.features.vehicle;
 
+import com.develhope.spring.features.orders.OrderRepository;
+import com.develhope.spring.features.users.Role;
 import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.users.UserMapper;
 import com.develhope.spring.features.users.UserRepository;
-import com.develhope.spring.features.users.UserType;
-import com.develhope.spring.features.users.dto.UserResponse;
 import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
 import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,20 +27,15 @@ public class VehicleService {
     private final VehicleMapper vehicleMapper;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final OrderRepository orderRepository;
 
 
-    public VehicleResponse createVehicle(CreateVehicleRequest createVehicleRequest, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return null;
-        }
-
-        final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+    public VehicleResponse createVehicle(UserEntity user, CreateVehicleRequest createVehicleRequest) {
+        if (user.getRole() != Role.ADMIN) {
             return null; //unhaoutrized
         }
 
-        /*
+
         if (createVehicleRequest.getBrand() == null || !StringUtils.hasText(createVehicleRequest.getBrand())) {
             return null; //brand is required
         }
@@ -47,7 +43,7 @@ public class VehicleService {
         if (createVehicleRequest.getModel() == null || !StringUtils.hasText(createVehicleRequest.getModel())) {
             return null; //model is required
         }
-        
+
 
         if (createVehicleRequest.getDisplacement() == null || createVehicleRequest.getDisplacement() <= 0) {
             return null; //displacement is required
@@ -60,7 +56,7 @@ public class VehicleService {
         if (createVehicleRequest.getPower() == null || createVehicleRequest.getPower() <= 0) {
             return null; //power is required
         }
-        
+
         if (createVehicleRequest.getShiftType() == null) {
             return null; //shiftType is required
         }
@@ -112,13 +108,13 @@ public class VehicleService {
         if (!VehicleType.isValidVehicleType(vehicleTypeString)) {
             return null; //vehicleType is required
         }
-        
-        */
 
+
+        //lower all text
+        //make query to check if there's a match
+        //if there's a match, return null
         VehicleEntity vehicleEntity = vehicleMapper.convertCreateVehicleRequestToEntity(createVehicleRequest);
-        vehicleEntity.setSeller(requesterUser.get());
-        UserResponse sellerResponse = userMapper.convertUserEntityToResponse(requesterUser.get());
-        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity), sellerResponse);
+        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.saveAndFlush(vehicleEntity));
     }
 
     public VehicleResponse getSingleVehicle(Long id) {
@@ -131,14 +127,8 @@ public class VehicleService {
     }
 
 
-    public VehicleResponse patchVehicle(Long id, PatchVehicleRequest patchVehicleRequest, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return null;
-        }
-
-        final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+    public VehicleResponse patchVehicle(UserEntity user, Long id, PatchVehicleRequest patchVehicleRequest) {
+        if (user.getRole() != Role.ADMIN) {
             return null; //unhaoutrized
         }
 
@@ -215,29 +205,22 @@ public class VehicleService {
         return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity.get()));
     }
 
-    public Boolean deleteVehicle(Long id, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return false;
+    public Boolean deleteVehicle(UserEntity user, Long id) {
+        if (user.getRole() != Role.ADMIN) {
+            return false; //unhaoutrized
         }
 
-        final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
-            return false; //unhaoutrized
+        Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(id);
+        if (vehicleEntity.isEmpty()) {
+            return false;
         }
 
         vehicleRepository.deleteById(id);
         return true;
     }
 
-    public VehicleResponse patchStatus(Long id, String status, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
-            return null;
-        }
-
-        final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+    public VehicleResponse patchStatus(UserEntity user, Long id, String status) {
+        if (user.getRole() != Role.ADMIN) {
             return null; //unhaoutrized
         }
 
@@ -253,16 +236,11 @@ public class VehicleService {
     }
 
 
-    public ResponseEntity<?> findByStatus(String status, Long requester_id) {
-        Optional<UserEntity> requesterUser = userRepository.findById(requester_id);
-        if (requesterUser.isEmpty()) {
+    public ResponseEntity<?> findByStatus(UserEntity user, String status) {
+        if (user.getRole() != Role.ADMIN && user.getRole() != Role.SELLER) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
-        final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
-            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
-        }
 
         String statusString = status.toUpperCase();
         if (VehicleStatus.isValidVehicleStatus(statusString)) {
@@ -274,6 +252,90 @@ public class VehicleService {
     public List<VehicleResponse> getAllVehicles() {
         List<VehicleEntity> vehicleEntities = vehicleRepository.findAll();
         return vehicleMapper.mapList(vehicleEntities, VehicleResponse.class);
+    }
+
+
+    //ADMIN ROUTES
+    public ResponseEntity<?> getMostSoldVehiclePeriod(String startDate, String endDate) {
+        try {
+            OffsetDateTime.parse(startDate);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            OffsetDateTime.parse(endDate);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
+        OffsetDateTime start = OffsetDateTime.parse(startDate);
+        OffsetDateTime end = OffsetDateTime.parse(endDate);
+        VehicleEntity mostVehicleSold = orderRepository.findMostSoldInAPeriod(start, end);
+
+
+        if (mostVehicleSold != null) {
+            return new ResponseEntity<>(vehicleMapper.convertVehicleEntityToResponse(mostVehicleSold), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity<?> getMostOrderedVehiclePeriod(String startDate, String endDate) {
+        try {
+            OffsetDateTime.parse(startDate);
+
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            OffsetDateTime.parse(endDate);
+        } catch (Exception e) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+
+        OffsetDateTime start = OffsetDateTime.parse(startDate);
+        OffsetDateTime end = OffsetDateTime.parse(endDate);
+        VehicleEntity mostVehicleSold = orderRepository.findMostOrderedInAPeriod(start, end);
+
+
+        if (mostVehicleSold != null) {
+            return new ResponseEntity<>(vehicleMapper.convertVehicleEntityToResponse(mostVehicleSold), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity<?> getSalesCountBySellerId(Long seller_id) {
+        Long salesCount = orderRepository.getSalesCountBySellerId(seller_id);
+        if (salesCount != null) {
+            return new ResponseEntity<>(salesCount, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity<?> getHighestPriceSold() {
+        VehicleEntity highestPriceVehicleSold = orderRepository.findHighestPriceSold();
+
+
+        if (highestPriceVehicleSold != null) {
+            return new ResponseEntity<>(vehicleMapper.convertVehicleEntityToResponse(highestPriceVehicleSold), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
+    }
+
+    public ResponseEntity<?> getLowestPriceSold() {
+        VehicleEntity lowestPriceVehicleSold = orderRepository.findLowestPriceSold();
+
+
+        if (lowestPriceVehicleSold != null) {
+            return new ResponseEntity<>(vehicleMapper.convertVehicleEntityToResponse(lowestPriceVehicleSold), HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
 }

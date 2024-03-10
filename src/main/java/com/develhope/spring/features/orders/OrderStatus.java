@@ -5,9 +5,9 @@ public enum OrderStatus {
     SHIPPED("Shipped"),
     DELIVERING("Delivering"),
     DELIVERED("Delivered");
-    private String status;
+    private final String status;
 
-    private OrderStatus(String a) {
+    OrderStatus(String a) {
         this.status = a;
     }
 

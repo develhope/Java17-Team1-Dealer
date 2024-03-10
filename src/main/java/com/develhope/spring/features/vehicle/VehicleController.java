@@ -69,7 +69,7 @@ public class VehicleController {
         return vehicleService.getMostSoldVehiclePeriod(request.getStartDate(), request.getEndDate());
     }
 
-    @GetMapping(path = VEHICLE_PATH + "/mostordered")
+    @GetMapping(path = VEHICLE_PATH + "/mostorderedinaperiod")
     public ResponseEntity<?> getMostOrderedVehiclePeriod(@RequestBody MostSoldOrOrderedVehiclePeriodRequest request) {
         return vehicleService.getMostOrderedVehiclePeriod(request.getStartDate(), request.getEndDate());
     }
@@ -77,5 +77,10 @@ public class VehicleController {
     @GetMapping(path = VEHICLE_PATH + "/highestpricesold")
     public ResponseEntity<?> getHighestPriceSold() {
         return vehicleService.getHighestPriceSold();
+    }
+
+    @GetMapping(path = VEHICLE_PATH + "/lowestpricesold")
+    public ResponseEntity<?> getLowestPriceSold() {
+        return vehicleService.getLowestPriceSold();
     }
 }

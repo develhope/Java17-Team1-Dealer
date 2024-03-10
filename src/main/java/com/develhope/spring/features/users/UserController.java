@@ -18,7 +18,7 @@ public class UserController {
     public static final String USER_PATH_ID = USER_PATH + "/{userId}";
 
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final UserMapper userMapper;
 
     @PostMapping(path = USER_PATH)

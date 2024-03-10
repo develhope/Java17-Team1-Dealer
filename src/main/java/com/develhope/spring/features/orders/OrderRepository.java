@@ -40,9 +40,9 @@ public interface OrderRepository extends JpaRepository<OrderEntity, Long> {
     VehicleEntity findHighestPriceSold();
 
     @Query(
-        value = "SELECT vehicle_id FROM orders o ORDER BY o.price ASC LIMIT 1",
-        nativeQuery = true)
-VehicleEntity findLowestPriceSold();
+            value = "SELECT vehicle_id FROM orders o ORDER BY o.price ASC LIMIT 1",
+            nativeQuery = true)
+    VehicleEntity findLowestPriceSold();
 
     @Query(
             value = "SELECT COUNT(*) FROM orders o WHERE o.seller_id = ?1",

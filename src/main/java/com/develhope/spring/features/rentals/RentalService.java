@@ -4,9 +4,9 @@ import com.develhope.spring.features.orders.PaymentStatus;
 import com.develhope.spring.features.rentals.dto.CreateRentalRequest;
 import com.develhope.spring.features.rentals.dto.PatchRentalRequest;
 import com.develhope.spring.features.rentals.dto.RentalResponse;
+import com.develhope.spring.features.users.Role;
 import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.users.UserRepository;
-import com.develhope.spring.features.users.UserType;
 import com.develhope.spring.features.vehicle.VehicleEntity;
 import com.develhope.spring.features.vehicle.VehicleRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +41,7 @@ public class RentalService {
         }
 
 
-        if (requesterUser.get().getUserType() == UserType.SELLER) {
+        if (requesterUser.get().getRole() == Role.SELLER) {
             if (rentalRequest.getSellerId() != requester_id) {
                 return null;
             }
@@ -53,11 +53,11 @@ public class RentalService {
             return null; //invalid renter
         }
 
-        if (userRenter.get().getUserType() != UserType.CUSTOMER) {
+        if (userRenter.get().getRole() != Role.CUSTOMER) {
             return null;
         }
 
-        if (requesterUser.get().getUserType() != UserType.ADMIN && requesterUser.get().getUserType() != UserType.SELLER && userRenter.get().getId() != requester_id) {
+        if (requesterUser.get().getRole() != Role.ADMIN && requesterUser.get().getRole() != Role.SELLER && userRenter.get().getId() != requester_id) {
             return null;
         }
 
@@ -67,15 +67,15 @@ public class RentalService {
             return null; //invalid seller
         }
 
-        if (userSeller.get().getUserType() != UserType.SELLER) {
+        if (userSeller.get().getRole() != Role.SELLER) {
             return null;
         }
 
-        if (requesterUser.get().getUserType() != UserType.ADMIN && requesterUser.get().getUserType() != UserType.CUSTOMER && userSeller.get().getId() != requester_id) {
+        if (requesterUser.get().getRole() != Role.ADMIN && requesterUser.get().getRole() != Role.CUSTOMER && userSeller.get().getId() != requester_id) {
             return null;
         }
 
-        if (requesterUser.get().getUserType() != UserType.ADMIN && requesterUser.get().getUserType() != UserType.SELLER && userSeller.get().getId() == requester_id) {
+        if (requesterUser.get().getRole() != Role.ADMIN && requesterUser.get().getRole() != Role.SELLER && userSeller.get().getId() == requester_id) {
             return null;
         }
 
@@ -122,8 +122,8 @@ public class RentalService {
             return false;
         }
 
-        if (userRequester.get().getUserType() != UserType.ADMIN) {
-            if (userRequester.get().getUserType() == UserType.SELLER) {
+        if (userRequester.get().getRole() != Role.ADMIN) {
+            if (userRequester.get().getRole() == Role.SELLER) {
                 if (userRequester.get().getId() != userSeller.getId()) {
                     return false;
                 }
@@ -158,7 +158,7 @@ public class RentalService {
         }
 
 
-        if ((originalUser.getUserType() == UserType.SELLER && originalUser.getId() != requester_id) || originalUser.getUserType() == UserType.CUSTOMER) {
+        if ((originalUser.getRole() == Role.SELLER && originalUser.getId() != requester_id) || originalUser.getRole() == Role.CUSTOMER) {
             return null;
         }
 

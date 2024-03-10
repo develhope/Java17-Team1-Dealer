@@ -13,19 +13,19 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VehicleResponse {
-    Long id;
-    String model;
-    String brand;
-    Integer displacement;
-    String color;
-    Integer power;
-    ShiftType shift;
-    Integer yearOfMatriculation;
-    FuelType fuelType;
-    Long price;
-    Integer discount;
-    String accessories;
-    Boolean used;
-    VehicleStatus vehicleStatus;
-    VehicleType vehicleType;
+    private Long id;
+    private String model;
+    private String brand;
+    private Integer displacement;
+    private String color;
+    private Integer power;
+    private ShiftType shift;
+    private Integer yearOfMatriculation;
+    private FuelType fuelType;
+    private Long price;
+    private Integer discount;
+    private String accessories;
+    private Boolean used;
+    private VehicleStatus vehicleStatus;
+    private VehicleType vehicleType;
 }

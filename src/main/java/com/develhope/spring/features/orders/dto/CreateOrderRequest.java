@@ -8,8 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateOrderRequest {
-    Long vehicleId;
-    Long sellerId;
-    Long customerId;
-    Long deposit;
+    private Long vehicleId;
+    private Long sellerId;
+    private Long customerId;
+    private Long deposit;
 }

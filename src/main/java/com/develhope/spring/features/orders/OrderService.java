@@ -3,9 +3,9 @@ package com.develhope.spring.features.orders;
 import com.develhope.spring.features.orders.dto.CreateOrderRequest;
 import com.develhope.spring.features.orders.dto.OrderResponse;
 import com.develhope.spring.features.orders.dto.PatchOrderRequest;
+import com.develhope.spring.features.users.Role;
 import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.users.UserRepository;
-import com.develhope.spring.features.users.UserType;
 import com.develhope.spring.features.vehicle.VehicleEntity;
 import com.develhope.spring.features.vehicle.VehicleRepository;
 import com.develhope.spring.features.vehicle.VehicleStatus;
@@ -50,8 +50,8 @@ public class OrderService {
             return false;
         }
 
-        if (userRequester.get().getUserType() != UserType.ADMIN) {
-            if (userRequester.get().getUserType() == UserType.SELLER) {
+        if (userRequester.get().getRole() != Role.ADMIN) {
+            if (userRequester.get().getRole() == Role.SELLER) {
                 if (userRequester.get().getId() != userSeller.getId()) {
                     return false;
                 }
@@ -86,8 +86,8 @@ public class OrderService {
             return null;
         }
 
-        if (userRequester.get().getUserType() != UserType.ADMIN) {
-            if (userRequester.get().getUserType() == UserType.SELLER) {
+        if (userRequester.get().getRole() != Role.ADMIN) {
+            if (userRequester.get().getRole() == Role.SELLER) {
                 if (userRequester.get().getId() != userSeller.getId()) {
                     return null;
                 }
@@ -143,8 +143,8 @@ public class OrderService {
             return null;
         }
 
-        if (userRequester.get().getUserType() != UserType.ADMIN) {
-            if (userRequester.get().getUserType() == UserType.SELLER) {
+        if (userRequester.get().getRole() != Role.ADMIN) {
+            if (userRequester.get().getRole() == Role.SELLER) {
                 if (userRequester.get().getId() != userSeller.getId()) {
                     return null;
                 }
@@ -164,7 +164,7 @@ public class OrderService {
             return null;
         }
 
-        if (userRequester.get().getUserType() != UserType.ADMIN) {
+        if (userRequester.get().getRole() != Role.ADMIN) {
             if (userRequester.get().getId() != userId) {
                 return null;
             }
@@ -180,7 +180,7 @@ public class OrderService {
             return null;
         }
 
-        if (userRequester.get().getUserType() != UserType.ADMIN) {
+        if (userRequester.get().getRole() != Role.ADMIN) {
             if (userRequester.get().getId() != userId) {
                 return null;
             }
@@ -217,8 +217,8 @@ public class OrderService {
             return null;
         }
 
-        if (userRequester.get().getUserType() != UserType.ADMIN) {
-            if (userRequester.get().getUserType() == UserType.SELLER) {
+        if (userRequester.get().getRole() != Role.ADMIN) {
+            if (userRequester.get().getRole() == Role.SELLER) {
                 if (userRequester.get().getId() != userSeller.getId()) {
                     return null;
                 }
@@ -270,8 +270,8 @@ public class OrderService {
             return null;
         }
 
-        if (requesterUser.get().getUserType() != UserType.ADMIN) {
-            if (requesterUser.get().getUserType() == UserType.SELLER) {
+        if (requesterUser.get().getRole() != Role.ADMIN) {
+            if (requesterUser.get().getRole() == Role.SELLER) {
                 if (requesterUser.get().getId() != userSeller.getId()) {
                     return null;
                 }
@@ -302,7 +302,7 @@ public class OrderService {
             return null;
         }
 
-        if (requesterUser.get().getUserType() == UserType.SELLER) {
+        if (requesterUser.get().getRole() == Role.SELLER) {
             if (orderRequest.getSellerId() != requester_id) {
                 return null;
             }
@@ -318,15 +318,15 @@ public class OrderService {
             return null; //invalid seller
         }
 
-        if (userSeller.get().getUserType() != UserType.SELLER) {
+        if (userSeller.get().getRole() != Role.SELLER) {
             return null;
         }
 
-        if (requesterUser.get().getUserType() != UserType.ADMIN && requesterUser.get().getUserType() != UserType.CUSTOMER && userSeller.get().getId() != requester_id) {
+        if (requesterUser.get().getRole() != Role.ADMIN && requesterUser.get().getRole() != Role.CUSTOMER && userSeller.get().getId() != requester_id) {
             return null;
         }
 
-        if (requesterUser.get().getUserType() != UserType.ADMIN && requesterUser.get().getUserType() != UserType.SELLER && userSeller.get().getId() == requester_id) {
+        if (requesterUser.get().getRole() != Role.ADMIN && requesterUser.get().getRole() != Role.SELLER && userSeller.get().getId() == requester_id) {
             return null;
         }
 
@@ -368,7 +368,7 @@ public class OrderService {
             return null;
         }
 
-        if (requesterUser.get().getUserType() == UserType.SELLER) {
+        if (requesterUser.get().getRole() == Role.SELLER) {
             if (orderRequest.getSellerId() != requester_id) {
                 return null;
             }
@@ -384,15 +384,15 @@ public class OrderService {
             return null; //invalid seller
         }
 
-        if (userSeller.get().getUserType() != UserType.SELLER) {
+        if (userSeller.get().getRole() != Role.SELLER) {
             return null;
         }
 
-        if (requesterUser.get().getUserType() != UserType.ADMIN && requesterUser.get().getUserType() != UserType.CUSTOMER && userSeller.get().getId() != requester_id) {
+        if (requesterUser.get().getRole() != Role.ADMIN && requesterUser.get().getRole() != Role.CUSTOMER && userSeller.get().getId() != requester_id) {
             return null;
         }
 
-        if (requesterUser.get().getUserType() != UserType.ADMIN && requesterUser.get().getUserType() != UserType.SELLER && userSeller.get().getId() == requester_id) {
+        if (requesterUser.get().getRole() != Role.ADMIN && requesterUser.get().getRole() != Role.SELLER && userSeller.get().getId() == requester_id) {
             return null;
         }
 

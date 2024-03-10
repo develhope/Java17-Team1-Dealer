@@ -9,12 +9,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PatchUserRequest {
-    String name;
-    String surname;
-    String telephoneNumber;
-    String email;
-
-    String password;
-    String userType;
+    private String name;
+    private String surname;
+    private String telephoneNumber;
+    private String email;
+    private String password;
+    private String role;
 }
 

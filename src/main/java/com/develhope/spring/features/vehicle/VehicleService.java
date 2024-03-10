@@ -1,10 +1,10 @@
 package com.develhope.spring.features.vehicle;
 
 import com.develhope.spring.features.orders.OrderRepository;
+import com.develhope.spring.features.users.Role;
 import com.develhope.spring.features.users.UserEntity;
 import com.develhope.spring.features.users.UserMapper;
 import com.develhope.spring.features.users.UserRepository;
-import com.develhope.spring.features.users.UserType;
 import com.develhope.spring.features.users.dto.UserResponse;
 import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
 import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
@@ -37,8 +37,8 @@ public class VehicleService {
             return null;
         }
 
-        final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN) {
+        final var userRole = requesterUser.get().getRole();
+        if (userRole != Role.ADMIN) {
             return null; //unhaoutrized
         }
 
@@ -142,8 +142,8 @@ public class VehicleService {
             return null;
         }
 
-        final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN) {
+        final var userRole = requesterUser.get().getRole();
+        if (userRole != Role.ADMIN) {
             return null; //unhaoutrized
         }
 
@@ -226,8 +226,8 @@ public class VehicleService {
             return false;
         }
 
-        final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN) {
+        final var userRole = requesterUser.get().getRole();
+        if (userRole != Role.ADMIN) {
             return false; //unhaoutrized
         }
 
@@ -246,8 +246,8 @@ public class VehicleService {
             return null;
         }
 
-        final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN) {
+        final var userRole = requesterUser.get().getRole();
+        if (userRole != Role.ADMIN) {
             return null; //unhaoutrized
         }
 
@@ -269,8 +269,8 @@ public class VehicleService {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
-        final var userType = requesterUser.get().getUserType();
-        if (userType != UserType.ADMIN && userType != UserType.SELLER) {
+        final var userRole = requesterUser.get().getRole();
+        if (userRole != Role.ADMIN && userRole != Role.SELLER) {
             return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
@@ -359,7 +359,7 @@ public class VehicleService {
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
     }
 
-	public ResponseEntity<?> getLowestPriceSold() {
+    public ResponseEntity<?> getLowestPriceSold() {
         VehicleEntity lowestPriceVehicleSold = orderRepository.findLowestPriceSold();
 
 
@@ -368,6 +368,6 @@ public class VehicleService {
         }
 
         return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
-	}
+    }
 
 }

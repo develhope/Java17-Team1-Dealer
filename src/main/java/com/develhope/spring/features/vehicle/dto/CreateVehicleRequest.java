@@ -9,18 +9,18 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateVehicleRequest {
-    String model;
-    String brand;
-    Integer displacement;
-    String color;
-    Integer power;
-    String shiftType;
-    Integer yearOfMatriculation;
-    String fuelType;
-    Long price;
-    Integer discount;
-    String accessories;
-    Boolean used;
-    String vehicleStatus;
-    String vehicleType;
+    private String model;
+    private String brand;
+    private Integer displacement;
+    private String color;
+    private Integer power;
+    private String shiftType;
+    private Integer yearOfMatriculation;
+    private String fuelType;
+    private Long price;
+    private Integer discount;
+    private String accessories;
+    private Boolean used;
+    private String vehicleStatus;
+    private String vehicleType;
 }

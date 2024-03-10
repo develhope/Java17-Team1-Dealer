@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TotalSalesPricePeriodRequest {
-    String startDate;
-    String endDate;
+    private String startDate;
+    private String endDate;
 }

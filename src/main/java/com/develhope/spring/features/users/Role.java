@@ -1,19 +1,20 @@
 package com.develhope.spring.features.users;
 
-public enum UserType {
+public enum Role {
 
     ADMIN("Admin"),
     SELLER("Seller"),
-    CUSTOMER("Customer");
-    private final String type;
+    CUSTOMER("Customer"),
+    NOT_SET("Not Set");
+    private final String role;
 
-    UserType(String a) {
-        this.type = a;
+    Role(String a) {
+        this.role = a;
     }
 
-    public static boolean isValidUserType(String str) {
+    public static boolean isValidUserRole(String str) {
         try {
-            UserType.valueOf(str);
+            Role.valueOf(str);
         } catch (Exception e) {
             return false;
         }
@@ -22,6 +23,6 @@ public enum UserType {
 
     @Override
     public String toString() {
-        return type;
+        return role;
     }
 }

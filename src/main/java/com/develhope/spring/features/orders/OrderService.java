@@ -1,5 +1,7 @@
 package com.develhope.spring.features.orders;
 
+import com.develhope.spring.exception.NotFoundException;
+import com.develhope.spring.exception.UnauthorizedException;
 import com.develhope.spring.features.orders.dto.CreateOrderRequest;
 import com.develhope.spring.features.orders.dto.OrderResponse;
 import com.develhope.spring.features.orders.dto.PatchOrderRequest;
@@ -27,51 +29,51 @@ public class OrderService {
 
     private final OrderMapper orderMapper;
 
-    public Boolean deleteOrder(UserEntity user, Long id_do_delete) {
-        Optional<OrderEntity> orderEntity = orderRepository.findById(id_do_delete);
+    public Boolean deleteOrder(UserEntity user, Long id_to_delete) {
+        Optional<OrderEntity> orderEntity = orderRepository.findById(id_to_delete);
         if (orderEntity.isEmpty()) {
-            return false; //order of orderId not exists
+            throw new NotFoundException("Order with id: " + id_to_delete + " not found"); //order of orderId not exists
         }
 
         UserEntity userBuyer = orderEntity.get().getBuyer();
         if (userBuyer == null) {
-            return false;
+            throw new NotFoundException("Buyer in the order with id: " + id_to_delete + " not found");
         }
 
         UserEntity userSeller = orderEntity.get().getSeller();
         if (userSeller == null) {
-            return false;
+            throw new NotFoundException("Seller in the order with id: " + id_to_delete + " not found");
         }
 
         if (user.getRole() != Role.ADMIN) {
             if (user.getRole() == Role.SELLER) {
                 if (user.getId() != userSeller.getId()) {
-                    return false;
+                    throw new UnauthorizedException();
                 }
             } else {
                 if (user.getId() != userBuyer.getId()) {
-                    return false;
+                    throw new UnauthorizedException();
                 }
             }
         }
-        orderRepository.deleteById(id_do_delete);
+        orderRepository.deleteById(id_to_delete);
         return true;
     }
 
-    public OrderResponse patchOrder(UserEntity user, Long orderId, PatchOrderRequest patchOrderRequest) {
+    public ResponseEntity<?> patchOrder(UserEntity user, Long orderId, PatchOrderRequest patchOrderRequest) {
         Optional<OrderEntity> foundOrderEntity = orderRepository.findById(orderId);
         if (foundOrderEntity.isEmpty()) {
-            return null; //order of orderId not exists
+            return new ResponseEntity<>("Id: " + orderId + " not found.", HttpStatus.NOT_FOUND);
         }
 
         UserEntity userBuyer = foundOrderEntity.get().getBuyer();
         if (userBuyer == null) {
-            return null;
+            return new ResponseEntity<>("Invalid buyer in the order with id: " + orderId + ".", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         UserEntity userSeller = foundOrderEntity.get().getSeller();
         if (userSeller == null) {
-            return null;
+            return new ResponseEntity<>("Invalid seller in the order with id: " + orderId + ".", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         final var sellerSameUser = userSeller.getId().equals(user.getId());
@@ -79,14 +81,14 @@ public class OrderService {
         userSeller = sellerSameUser ? user : userSeller;
 
         if (user.getRole() != Role.ADMIN && user.getRole() == Role.SELLER && !sellerSameUser) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         final var customerSameUser = userBuyer.getId().equals(user.getId());
         userBuyer = customerSameUser ? user : userBuyer;
 
         if (user.getRole() != Role.ADMIN && user.getRole() == Role.CUSTOMER && !customerSameUser) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
 
@@ -107,51 +109,15 @@ public class OrderService {
         if (patchOrderRequest.getVehicleEntity() != null) {
             foundOrderEntity.get().setVehicleEntity(patchOrderRequest.getVehicleEntity());
         }
-        return orderMapper.convertOrderEntityToResponse(orderRepository.save(foundOrderEntity.get()));
-
+        OrderResponse orderResponse = orderMapper.convertOrderEntityToResponse(orderRepository.save(foundOrderEntity.get()));
+        return new ResponseEntity<>(orderResponse, HttpStatus.OK);
     }
 
-
-    public OrderStatus getOrderStatusFromId(Long orderId, Long requester_id) {
-        Optional<OrderEntity> foundOrderEntity = orderRepository.findById(orderId);
-        if (foundOrderEntity.isEmpty()) {
-            return null; //order of orderId not exists
-        }
-
-        Optional<UserEntity> userRequester = userRepository.findById(requester_id);
-        if (userRequester.isEmpty()) {
-            return null;
-        }
-
-        UserEntity userBuyer = foundOrderEntity.get().getBuyer();
-        if (userBuyer == null) {
-            return null;
-        }
-
-        UserEntity userSeller = foundOrderEntity.get().getSeller();
-        if (userSeller == null) {
-            return null;
-        }
-
-        if (userRequester.get().getRole() != Role.ADMIN) {
-            if (userRequester.get().getRole() == Role.SELLER) {
-                if (userRequester.get().getId() != userSeller.getId()) {
-                    return null;
-                }
-            } else {
-                if (userRequester.get().getId() != userBuyer.getId()) {
-                    return null;
-                }
-            }
-        }
-
-        return foundOrderEntity.get().getOrderStatus();
-    }
 
     public ResponseEntity<?> getOrderListByBuyerId(UserEntity user, Long buyerId) {
         if (user.getRole() == Role.CUSTOMER) {
             if (user.getId() != buyerId) {
-                return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
             }
         }
 
@@ -202,25 +168,25 @@ public class OrderService {
         }
     }
 
-    public OrderResponse patchOrderStatus(UserEntity user, Long orderId, String status) {
+    public ResponseEntity<?> patchOrderStatus(UserEntity user, Long orderId, String status) {
         final String statusString = status.toUpperCase();
         if (OrderStatus.isValidOrderStatus(statusString)) {
-            return null;
+            return new ResponseEntity<>("Invalid status for id: " + orderId + ".", HttpStatus.BAD_REQUEST);
         }
 
         Optional<OrderEntity> order = orderRepository.findById(orderId);
         if (order.isEmpty()) {
-            return null;
+            return new ResponseEntity<>("Id: " + orderId + " not found.", HttpStatus.NOT_FOUND);
         }
 
         UserEntity userBuyer = order.get().getBuyer();
         if (userBuyer == null) {
-            return null;
+            return new ResponseEntity<>("Invalid buyer for id: " + orderId + ".", HttpStatus.BAD_REQUEST);
         }
 
         UserEntity userSeller = order.get().getSeller();
         if (userSeller == null) {
-            return null;
+            return new ResponseEntity<>("Invalid seller for id: " + orderId + ".", HttpStatus.BAD_REQUEST);
         }
 
         final var sellerSameUser = userSeller.getId().equals(user.getId());
@@ -228,11 +194,12 @@ public class OrderService {
         userSeller = sellerSameUser ? user : userSeller;
 
         if (user.getRole() != Role.ADMIN && user.getRole() == Role.SELLER && !sellerSameUser) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         order.get().setOrderStatus(OrderStatus.valueOf(statusString));
-        return orderMapper.convertOrderEntityToResponse(orderRepository.save(order.get()));
+        OrderResponse orderResponse = orderMapper.convertOrderEntityToResponse(orderRepository.save(order.get()));
+        return new ResponseEntity<>(orderResponse, HttpStatus.OK);
     }
 
     public ResponseEntity<?> getOrdersByStatus(UserEntity user, String status) {
@@ -260,90 +227,89 @@ public class OrderService {
     }
 
 
-    public OrderStatus getOrderStatus(UserEntity user, Long orderId) {
+    public ResponseEntity<?> getOrderStatus(UserEntity user, Long orderId) {
         Optional<OrderEntity> orderEntity = orderRepository.findById(orderId);
         if (orderEntity.isEmpty()) {
-            return null;
+            return new ResponseEntity<>("Id: " + orderId + " not found.", HttpStatus.NOT_FOUND);
         }
 
         UserEntity userBuyer = orderEntity.get().getBuyer();
         if (userBuyer == null) {
-            return null;
+            return new ResponseEntity<>("Invalid buyer for id: " + orderId + ".", HttpStatus.BAD_REQUEST);
         }
 
         UserEntity userSeller = orderEntity.get().getSeller();
         if (userSeller == null) {
-            return null;
+            return new ResponseEntity<>("Invalid seller for id: " + orderId + ".", HttpStatus.BAD_REQUEST);
         }
 
         if (user.getRole() != Role.ADMIN) {
             if (user.getRole() == Role.SELLER) {
                 if (user.getId() != userSeller.getId()) {
-                    return null;
+                    return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
                 }
             } else {
                 if (user.getId() != userBuyer.getId()) {
-                    return null;
+                    return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
                 }
             }
         }
-
-        return orderEntity.get().getOrderStatus();
+        return new ResponseEntity<>(orderEntity.get().getOrderStatus(), HttpStatus.OK);
     }
 
 
-    public OrderResponse prepareOrderByVehicleId(UserEntity user, CreateOrderRequest orderRequest) {
+    public ResponseEntity<?> prepareOrderByVehicleId(UserEntity user, CreateOrderRequest orderRequest) {
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(orderRequest.getVehicleId());
         if (vehicleEntity.isEmpty()) {
-            return null; //invalid vehicle id
+            return new ResponseEntity<>("Vehicle: " + orderRequest.getVehicleId() + " not found.", HttpStatus.NOT_FOUND);
         }
 
         if (orderRequest.getSellerId() == orderRequest.getCustomerId()) {
-            return null;
+            return new ResponseEntity<>("Customer id cannot be the same as the seller id", HttpStatus.BAD_REQUEST);
         }
 
         if (user.getRole() == Role.SELLER) {
             if (orderRequest.getSellerId() != user.getId()) {
-                return null;
+                return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
             }
         }
 
         if (orderRequest.getDeposit() <= 0) {
-            return null; //invalid deposit
+            return new ResponseEntity<>("Invalid deposit", HttpStatus.BAD_REQUEST);
         }
 
         final var sellerSameUser = orderRequest.getSellerId().equals(user.getId());
 
         Optional<UserEntity> userSeller = sellerSameUser ? Optional.of(user) : userRepository.findById(orderRequest.getSellerId());
         if (userSeller.isEmpty()) {
-            return null; //invalid seller
+            return new ResponseEntity<>("Invalid seller", HttpStatus.BAD_REQUEST);
         }
 
         if (userSeller.get().getRole() != Role.SELLER) {
-            return null;
+            return new ResponseEntity<>("Invalid seller", HttpStatus.BAD_REQUEST);
         }
 
         //probably definitely redundant
         if (user.getRole() != Role.ADMIN && user.getRole() == Role.SELLER && userSeller.get().getId() != user.getId()) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         final var customerSameUser = orderRequest.getCustomerId().equals(user.getId());
         Optional<UserEntity> userBuyer = customerSameUser ? Optional.of(user) : userRepository.findById(orderRequest.getCustomerId());
         if (userBuyer.isEmpty()) {
-            return null; //invalid seller
+            return new ResponseEntity<>("Invalid buyer", HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
         if (user.getRole() != Role.ADMIN && user.getRole() == Role.CUSTOMER && userBuyer.get().getId() != user.getId()) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         if (orderRequest.getDeposit() > vehicleEntity.get().getPrice()) {
-            return null; //invalid price
+            return new ResponseEntity<>("Invalid deposit", HttpStatus.BAD_REQUEST);
         }
 
         if (vehicleEntity.get().getVehicleStatus() != VehicleStatus.CAN_BE_ORDERED) {
-            return null;
+            return new ResponseEntity<>("Invalid status", HttpStatus.BAD_REQUEST);
         }
 
 
@@ -357,22 +323,23 @@ public class OrderService {
         Long totalPrice = (vehicleEntity.get().getDiscount() / 100 * vehicleEntity.get().getPrice()) + vehicleEntity.get().getPrice();
         orderEntity.setOrderPrice(totalPrice);
         OrderEntity orderEntitySaved = orderRepository.saveAndFlush(orderEntity);
-        return orderMapper.convertOrderEntityToResponse(orderEntitySaved);
+        OrderResponse orderResponse = orderMapper.convertOrderEntityToResponse(orderEntitySaved);
+        return new ResponseEntity<>(orderResponse, HttpStatus.OK);
     }
 
-    public OrderResponse createOrderByVehicleId(UserEntity user, CreateOrderRequest orderRequest) {
+    public ResponseEntity<?> createOrderByVehicleId(UserEntity user, CreateOrderRequest orderRequest) {
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(orderRequest.getVehicleId());
         if (vehicleEntity.isEmpty()) {
-            return null; //invalid vehicle id
+            return new ResponseEntity<>("Vechile with id: " + orderRequest.getVehicleId() + "not found.", HttpStatus.NOT_FOUND);
         }
 
         if (orderRequest.getDeposit() <= 0) {
-            return null; //invalid deposit
+            return new ResponseEntity<>("Invalid deposit", HttpStatus.BAD_REQUEST);
         }
 
         if (user.getRole() == Role.SELLER) {
             if (orderRequest.getSellerId() != user.getId()) {
-                return null;
+                return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
             }
         }
 
@@ -380,33 +347,33 @@ public class OrderService {
 
         Optional<UserEntity> userSeller = sellerSameUser ? Optional.of(user) : userRepository.findById(orderRequest.getSellerId());
         if (userSeller.isEmpty()) {
-            return null; //invalid seller
+            return new ResponseEntity<>("Invalid seller", HttpStatus.BAD_REQUEST);
         }
 
         if (userSeller.get().getRole() != Role.SELLER) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         if (user.getRole() != Role.ADMIN && user.getRole() == Role.SELLER && userSeller.get().getId() != user.getId()) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         final var customerSameUser = orderRequest.getCustomerId().equals(user.getId());
         Optional<UserEntity> userBuyer = customerSameUser ? Optional.of(user) : userRepository.findById(orderRequest.getCustomerId());
         if (userBuyer.isEmpty()) {
-            return null; //invalid seller
+            return new ResponseEntity<>("Invalid buyer", HttpStatus.BAD_REQUEST);
         }
 
         if (user.getRole() != Role.ADMIN && user.getRole() == Role.CUSTOMER && userBuyer.get().getId() != user.getId()) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         if (orderRequest.getDeposit() > vehicleEntity.get().getPrice()) {
-            return null; //invalid price
+            return new ResponseEntity<>("Invalid deposit", HttpStatus.BAD_REQUEST);
         }
 
         if (vehicleEntity.get().getVehicleStatus() != VehicleStatus.PROMPT_DELIVERY) {
-            return null;
+            return new ResponseEntity<>("Invalid status", HttpStatus.BAD_REQUEST);
         }
 
         final PaymentStatus paymentStatus = orderRequest.getDeposit() == vehicleEntity.get().getPrice() ? PaymentStatus.PAID : PaymentStatus.DEPOSIT;
@@ -420,7 +387,8 @@ public class OrderService {
         Long totalPrice = (vehicleEntity.get().getDiscount() / 100 * vehicleEntity.get().getPrice()) + vehicleEntity.get().getPrice();
         orderEntity.setOrderPrice(totalPrice);
         OrderEntity orderEntitySaved = orderRepository.saveAndFlush(orderEntity);
-        return orderMapper.convertOrderEntityToResponse(orderEntitySaved);
+        OrderResponse orderResponse = orderMapper.convertOrderEntityToResponse(orderEntitySaved);
+        return new ResponseEntity<>(orderResponse, HttpStatus.OK);
     }
 
     public ResponseEntity<?> getTotalSalesPriceInAPeriod(String startDate, String endDate) {

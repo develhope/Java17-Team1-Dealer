@@ -27,11 +27,7 @@ public class UserController {
             return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
-        UserResponse userResponse = userService.createUser(userRequest);
-        if (userResponse == null) {
-            return new ResponseEntity<>(userResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(userResponse, HttpStatus.OK);
+        return userService.createUser(userRequest);
     }
 
     @GetMapping(path = USER_PATH)
@@ -52,54 +48,34 @@ public class UserController {
     public ResponseEntity<?> patchUser(@AuthenticationPrincipal UserEntity user,
                                        @PathVariable Long userId,
                                        @RequestBody PatchUserRequest patchUserRequest) {
-        UserResponse updatedUserEntity = userService.patchUser(user, userId, patchUserRequest);
-        if (updatedUserEntity == null) {
-            throw new NotFoundException();
-        }
-        return new ResponseEntity<>(updatedUserEntity, HttpStatus.OK);
+        return userService.patchUser(user, userId, patchUserRequest);
     }
 
     @PatchMapping(path = USER_PATH_ID + "/password")
     public ResponseEntity<?> updatePassword(@AuthenticationPrincipal UserEntity user,
                                             @PathVariable Long userId,
                                             @RequestParam(required = true) String password) {
-        UserResponse updatedUserEntity = userService.updatePassword(user, userId, password);
-        if (updatedUserEntity == null) {
-            throw new NotFoundException();
-        }
-        return new ResponseEntity<>(updatedUserEntity, HttpStatus.OK);
+        return userService.updatePassword(user, userId, password);
     }
 
     @PatchMapping(path = USER_PATH_ID + "/username")
     public ResponseEntity<?> updateUsername(@AuthenticationPrincipal UserEntity user,
                                             @PathVariable Long userId,
                                             @RequestParam(required = true) String username) {
-        UserResponse updatedUserEntity = userService.updateUserName(user, userId, username);
-        if (updatedUserEntity == null) {
-            throw new NotFoundException();
-        }
-        return new ResponseEntity<>(updatedUserEntity, HttpStatus.OK);
+        return userService.updateUserName(user, userId, username);
     }
 
     @PatchMapping(path = USER_PATH_ID + "/phone")
     public ResponseEntity<?> updateTelephoneNumber(@AuthenticationPrincipal UserEntity user,
                                                    @PathVariable Long userId,
                                                    @RequestParam(required = true) String phone) {
-        UserResponse updatedUserEntity = userService.updateTelephoneNumber(user, userId, phone);
-        if (updatedUserEntity == null) {
-            throw new NotFoundException();
-        }
-        return new ResponseEntity<>(updatedUserEntity, HttpStatus.OK);
+        return userService.updateTelephoneNumber(user, userId, phone);
     }
 
     @PatchMapping(path = USER_PATH_ID + "/email")
     public ResponseEntity<?> updateEmail(@AuthenticationPrincipal UserEntity user,
                                          @PathVariable Long userId, @RequestParam(required = true) String email) {
-        UserResponse updatedUserEntity = userService.updateEmail(user, userId, email);
-        if (updatedUserEntity == null) {
-            throw new NotFoundException();
-        }
-        return new ResponseEntity<>(updatedUserEntity, HttpStatus.OK);
+        return userService.updateEmail(user, userId, email);
     }
 
     @DeleteMapping(path = USER_PATH_ID)

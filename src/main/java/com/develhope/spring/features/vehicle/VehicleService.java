@@ -1,5 +1,7 @@
 package com.develhope.spring.features.vehicle;
 
+import com.develhope.spring.exception.NotFoundException;
+import com.develhope.spring.exception.UnauthorizedException;
 import com.develhope.spring.features.orders.OrderRepository;
 import com.develhope.spring.features.users.Role;
 import com.develhope.spring.features.users.UserEntity;
@@ -30,83 +32,83 @@ public class VehicleService {
     private final OrderRepository orderRepository;
 
 
-    public VehicleResponse createVehicle(UserEntity user, CreateVehicleRequest createVehicleRequest) {
+    public ResponseEntity<?> createVehicle(UserEntity user, CreateVehicleRequest createVehicleRequest) {
         if (user.getRole() != Role.ADMIN) {
-            return null; //unhaoutrized
+            return new ResponseEntity<>(null, HttpStatus.UNAUTHORIZED);
         }
 
 
         if (createVehicleRequest.getBrand() == null || !StringUtils.hasText(createVehicleRequest.getBrand())) {
-            return null; //brand is required
+            return new ResponseEntity<>("Invalid brand: cannot be empty", HttpStatus.BAD_REQUEST); //brand is required
         }
 
         if (createVehicleRequest.getModel() == null || !StringUtils.hasText(createVehicleRequest.getModel())) {
-            return null; //model is required
+            return new ResponseEntity<>("Invalid model: cannot be empty", HttpStatus.BAD_REQUEST); //model is required
         }
 
 
         if (createVehicleRequest.getDisplacement() == null || createVehicleRequest.getDisplacement() <= 0) {
-            return null; //displacement is required
+            return new ResponseEntity<>("Invalid displacement: cannot be empty", HttpStatus.BAD_REQUEST); //displacement is required
         }
 
         if (createVehicleRequest.getColor() == null || !StringUtils.hasText(createVehicleRequest.getColor())) {
-            return null; //color is required
+            return new ResponseEntity<>("Invalid color: cannot be empty", HttpStatus.BAD_REQUEST); //color is required
         }
 
         if (createVehicleRequest.getPower() == null || createVehicleRequest.getPower() <= 0) {
-            return null; //power is required
+            return new ResponseEntity<>("Invalid power: cannot be empty", HttpStatus.BAD_REQUEST); //power is required
         }
 
         if (createVehicleRequest.getShiftType() == null) {
-            return null; //shiftType is required
+            return new ResponseEntity<>("Invalid shift: cannot be empty", HttpStatus.BAD_REQUEST); //shiftType is required
         }
 
         final String shiftTypeString = createVehicleRequest.getShiftType().toUpperCase();
         if (!ShiftType.isValidShiftType(shiftTypeString)) {
-            return null; //shiftType is required
+            return new ResponseEntity<>("Invalid shift", HttpStatus.BAD_REQUEST); //shiftType is required
         }
 
         if (createVehicleRequest.getYearOfMatriculation() == null || createVehicleRequest.getYearOfMatriculation() <= 1950) {
-            return null; //yearOfMatriculation is required
+            return new ResponseEntity<>("Invalid year of matriculation: cannot be empty", HttpStatus.BAD_REQUEST); //yearOfMatriculation is required
         }
 
         if (createVehicleRequest.getFuelType() == null) {
-            return null; //fuelType is required
+            return new ResponseEntity<>("Invalid fuel type: cannot be empty", HttpStatus.BAD_REQUEST); //fuelType is required
         }
 
         final String fuelTypeString = createVehicleRequest.getFuelType().toUpperCase();
         if (!FuelType.isValidFuelType(fuelTypeString)) {
-            return null; //fuelType is required
+            return new ResponseEntity<>("Invalid fuel type", HttpStatus.BAD_REQUEST); //fuelType is required
         }
 
         if (createVehicleRequest.getPrice() == null || createVehicleRequest.getPrice() < 0) {
-            return null; //price is required
+            return new ResponseEntity<>("Invalid price: cannot be empty", HttpStatus.BAD_REQUEST); //price is required
         }
 
         if (createVehicleRequest.getDiscount() == null || createVehicleRequest.getDiscount() < 0) {
-            return null; //discount is required
+            return new ResponseEntity<>("Invalid discount: cannot be empty", HttpStatus.BAD_REQUEST); //discount is required
         }
 
         if (createVehicleRequest.getUsed() == null) {
-            return null; //used is required
+            return new ResponseEntity<>("Invalid used: cannot be empty", HttpStatus.BAD_REQUEST); //used is required
         }
 
         if (createVehicleRequest.getVehicleStatus() == null) {
-            return null; //vehicleStatus is required
+            return new ResponseEntity<>("Invalid vehicle status: cannot be empty", HttpStatus.BAD_REQUEST); //vehicleStatus is required
         }
 
         final String vehicleStatusString = createVehicleRequest.getVehicleStatus().toUpperCase();
         if (!VehicleStatus.isValidVehicleStatus(vehicleStatusString)) {
-            return null; //vehicleStatus is required
+            return new ResponseEntity<>("Invalid vehicle status", HttpStatus.BAD_REQUEST); //vehicleStatus is required
         }
 
         if (createVehicleRequest.getVehicleType() == null) {
-            return null; //vehicleType is required
+            return new ResponseEntity<>("Invalid vehicle type: cannot be empty", HttpStatus.BAD_REQUEST); //vehicleType is required
         }
 
         final String vehicleTypeString = createVehicleRequest.getVehicleType().toUpperCase();
         if (!VehicleType.isValidVehicleType(vehicleTypeString)) {
-            return null; //vehicleType is required
+            return new ResponseEntity<>("Invalid vehicle type", HttpStatus.BAD_REQUEST); //vehicleType is required
         }
 
 
@@ -114,28 +116,29 @@ public class VehicleService {
         //make query to check if there's a match
         //if there's a match, return null
         VehicleEntity vehicleEntity = vehicleMapper.convertCreateVehicleRequestToEntity(createVehicleRequest);
-        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.saveAndFlush(vehicleEntity));
+        var vehicleResponse = vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.saveAndFlush(vehicleEntity));
+        return new ResponseEntity<>(vehicleResponse, HttpStatus.OK);
     }
 
-    public VehicleResponse getSingleVehicle(Long id) {
+    public ResponseEntity<?> getSingleVehicle(Long id) {
         Optional<VehicleEntity> vehicleFound = vehicleRepository.findById(id);
         if (vehicleFound.isEmpty()) {
-            return null;
+            return new ResponseEntity<>("Vechile with id" + id + " not found", HttpStatus.NOT_FOUND);
         }
 
-        return vehicleMapper.convertVehicleEntityToResponse(vehicleFound.get());
+        return new ResponseEntity<>(vehicleMapper.convertVehicleEntityToResponse(vehicleFound.get()), HttpStatus.OK);
     }
 
 
-    public VehicleResponse patchVehicle(UserEntity user, Long id, PatchVehicleRequest patchVehicleRequest) {
+    public ResponseEntity<?> patchVehicle(UserEntity user, Long id, PatchVehicleRequest patchVehicleRequest) {
         if (user.getRole() != Role.ADMIN) {
-            return null; //unhaoutrized
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(id);
 
         if (vehicleEntity.isEmpty()) {
-            return null;
+            return new ResponseEntity<>("Vehicle with id " + id + " not found", HttpStatus.NOT_FOUND);
         }
 
         if (patchVehicleRequest.getBrand() != null) {
@@ -202,39 +205,39 @@ public class VehicleService {
             }
         }
 
-        return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity.get()));
+        return new ResponseEntity<>(vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity.get())), HttpStatus.OK);
     }
 
     public Boolean deleteVehicle(UserEntity user, Long id) {
         if (user.getRole() != Role.ADMIN) {
-            return false; //unhaoutrized
+            throw new UnauthorizedException();
         }
 
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(id);
         if (vehicleEntity.isEmpty()) {
-            return false;
+            throw new NotFoundException("Vehicle with id " + id + " not found");
         }
 
         vehicleRepository.deleteById(id);
         return true;
     }
 
-    public VehicleResponse patchStatus(UserEntity user, Long id, String status) {
+    public ResponseEntity<?> patchStatus(UserEntity user, Long id, String status) {
         if (user.getRole() != Role.ADMIN) {
-            return null; //unhaoutrized
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(id);
-        if (vehicleEntity.isPresent()) {
-
-            if (VehicleStatus.isValidVehicleStatus(status)) {
-                vehicleEntity.get().setVehicleStatus(VehicleStatus.valueOf(status));
-                return vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity.get()));
-            }
+        if (vehicleEntity.isEmpty()) {
+            return new ResponseEntity<>("Vehicle with id " + id + " not found", HttpStatus.NOT_FOUND);
         }
-        return null;
-    }
 
+        if (VehicleStatus.isValidVehicleStatus(status)) {
+            vehicleEntity.get().setVehicleStatus(VehicleStatus.valueOf(status));
+        }
+
+        return new ResponseEntity<>(vehicleMapper.convertVehicleEntityToResponse(vehicleRepository.save(vehicleEntity.get())), HttpStatus.OK);
+    }
 
     public ResponseEntity<?> findByStatus(UserEntity user, String status) {
         if (user.getRole() != Role.ADMIN && user.getRole() != Role.SELLER) {
@@ -261,13 +264,13 @@ public class VehicleService {
             OffsetDateTime.parse(startDate);
 
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Invalid start date", HttpStatus.BAD_REQUEST);
         }
 
         try {
             OffsetDateTime.parse(endDate);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Invalid end date", HttpStatus.BAD_REQUEST);
         }
 
         OffsetDateTime start = OffsetDateTime.parse(startDate);
@@ -287,13 +290,13 @@ public class VehicleService {
             OffsetDateTime.parse(startDate);
 
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Invalid start date", HttpStatus.BAD_REQUEST);
         }
 
         try {
             OffsetDateTime.parse(endDate);
         } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Invalid end date", HttpStatus.BAD_REQUEST);
         }
 
         OffsetDateTime start = OffsetDateTime.parse(startDate);

@@ -1,5 +1,7 @@
 package com.develhope.spring.features.rentals;
 
+import com.develhope.spring.exception.NotFoundException;
+import com.develhope.spring.exception.UnauthorizedException;
 import com.develhope.spring.features.orders.PaymentStatus;
 import com.develhope.spring.features.rentals.dto.CreateRentalRequest;
 import com.develhope.spring.features.rentals.dto.PatchRentalRequest;
@@ -27,60 +29,60 @@ public class RentalService {
     private final UserRepository userRepository;
     private final VehicleRepository vehicleRepository;
 
-    public RentalResponse createRentalByVehicleId(UserEntity user, CreateRentalRequest rentalRequest) {
+    public ResponseEntity<?> createRentalByVehicleId(UserEntity user, CreateRentalRequest rentalRequest) {
         Optional<VehicleEntity> vehicleEntity = vehicleRepository.findById(rentalRequest.getVehicleId());
         if (vehicleEntity.isEmpty()) {
-            return null; //invalid vehicle id
+            return new ResponseEntity<>("Vehicle with id " + rentalRequest.getVehicleId() + " not found", HttpStatus.NOT_FOUND);
         }
 
         if (rentalRequest.getSellerId() == rentalRequest.getCustomerId()) {
-            return null;
+            return new ResponseEntity<>("Seller and Customer cannot be the same", HttpStatus.BAD_REQUEST);
         }
 
         if (user.getRole() == Role.SELLER) {
             if (rentalRequest.getSellerId() != user.getId()) {
-                return null;
+                return new ResponseEntity<>("Seller and User ID do not match.", HttpStatus.UNAUTHORIZED);
             }
         }
         final var customerSameUser = rentalRequest.getCustomerId().equals(user.getId());
 
         Optional<UserEntity> userRenter = customerSameUser ? Optional.of(user) : userRepository.findById(rentalRequest.getCustomerId());
         if (userRenter.isEmpty()) {
-            return null; //invalid renter
+            return new ResponseEntity<>("Customer with id " + rentalRequest.getCustomerId() + " not found", HttpStatus.NOT_FOUND);
         }
 
         if (userRenter.get().getRole() != Role.CUSTOMER) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         if (user.getRole() != Role.ADMIN && user.getRole() != Role.SELLER && userRenter.get().getId() != user.getId()) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         final var sellerSameUser = rentalRequest.getSellerId().equals(user.getId());
         Optional<UserEntity> userSeller = sellerSameUser ? Optional.of(user) : userRepository.findById(rentalRequest.getSellerId());
 
         if (userSeller.isEmpty()) {
-            return null; //invalid seller
+            return new ResponseEntity<>("Seller with id " + rentalRequest.getSellerId() + " not found", HttpStatus.NOT_FOUND);
         }
 
         if (userSeller.get().getRole() != Role.SELLER) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         if (user.getRole() != Role.ADMIN && user.getRole() != Role.CUSTOMER && userSeller.get().getId() != user.getId()) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         if (user.getRole() != Role.ADMIN && user.getRole() != Role.SELLER && userSeller.get().getId() == user.getId()) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         if (rentalRequest.getStartOfRental().isBefore(OffsetDateTime.now(ZoneOffset.UTC))) {
-            return null;
+            return new ResponseEntity<>("Start of rental cannot be in the past", HttpStatus.BAD_REQUEST);
         }
         if (rentalRequest.getEndOfRental().isBefore(rentalRequest.getStartOfRental())) {
-            return null;
+            return new ResponseEntity<>("End of rental cannot be before start of rental", HttpStatus.BAD_REQUEST);
         }
 
         RentalEntity rentalEntity = rentalMapper.convertCreateRentalRequestToEntity(rentalRequest);
@@ -94,61 +96,62 @@ public class RentalService {
         rentalEntity.setTotalCostRental(vehicleEntity.get().getDailyCostRental() * days.intValue());
         RentalEntity rentalEntitySaved = rentalRepository.saveAndFlush(rentalEntity);
 
-        return rentalMapper.convertRentalEntityToResponse(rentalEntitySaved);
+        var rentalResponse = rentalMapper.convertRentalEntityToResponse(rentalEntitySaved);
+        return new ResponseEntity<>(rentalResponse, HttpStatus.OK);
     }
 
-    public Boolean deleteRental(UserEntity user, Long id_do_delete) {
-        Optional<RentalEntity> rentalEntity = rentalRepository.findById(id_do_delete);
+    public Boolean deleteRental(UserEntity user, Long id_to_delete) {
+        Optional<RentalEntity> rentalEntity = rentalRepository.findById(id_to_delete);
         if (rentalEntity.isEmpty()) {
-            return false; //order of orderId not exists
+            throw new NotFoundException("Rental with id: " + id_to_delete + " not found");
         }
 
         UserEntity userRenter = rentalEntity.get().getRenter();
         if (userRenter == null) {
-            return false;
+            throw new NotFoundException("Renter in the rental with id: " + id_to_delete + " not found");
         }
 
         UserEntity userSeller = rentalEntity.get().getSeller();
         if (userSeller == null) {
-            return false;
+            throw new NotFoundException("Seller in the rental with id: " + id_to_delete + " not found");
         }
 
         if (user.getRole() != Role.ADMIN) {
             if (user.getRole() == Role.SELLER) {
                 if (user.getId() != userSeller.getId()) {
-                    return false;
+                    throw new UnauthorizedException();
                 }
             } else {
                 if (user.getId() != userRenter.getId()) {
-                    return false;
+                    throw new UnauthorizedException();
                 }
             }
         }
 
-        rentalRepository.deleteById(id_do_delete);
+        rentalRepository.deleteById(id_to_delete);
         return true;
     }
 
 
-    public RentalResponse patchRental(UserEntity user, Long rentalId, PatchRentalRequest rentalRequest) {
+    public ResponseEntity<?> patchRental(UserEntity user, Long rentalId, PatchRentalRequest rentalRequest) {
         if (user.getRole() == Role.CUSTOMER) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         Optional<RentalEntity> rentalEntity = rentalRepository.findById(rentalId);
         if (rentalEntity.isEmpty()) {
-            return null; //order of orderId not exists
+            return new ResponseEntity<>("Rental with id " + rentalId + " not found", HttpStatus.NOT_FOUND);
         }
 
 
         UserEntity userRenter = rentalEntity.get().getRenter();
         if (userRenter == null) {
-            return null;
+            return new ResponseEntity<>("Renter in the rental with id: " + rentalId + " not found", HttpStatus.NOT_FOUND);
         }
 
         UserEntity userSeller = rentalEntity.get().getSeller();
         if (userSeller == null) {
-            return null;
+            return new ResponseEntity<>("Seller in the rental with id: " + rentalId + " not found", HttpStatus.NOT_FOUND);
         }
 
         final var sellerSameUser = userSeller.getId().equals(user.getId());
@@ -156,7 +159,7 @@ public class RentalService {
         userSeller = sellerSameUser ? user : userSeller;
 
         if (user.getRole() != Role.ADMIN && user.getRole() == Role.SELLER && !sellerSameUser) {
-            return null;
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         if (rentalRequest.getStartOfRental() != null && rentalRequest.getEndOfRental() != null) {
@@ -190,8 +193,8 @@ public class RentalService {
                 rentalEntity.get().setPaymentStatus(PaymentStatus.valueOf(rentalRequest.getPaymentStatus()));
             }
         }
-        return rentalMapper.convertRentalEntityToResponse(rentalRepository.save(rentalEntity.get()));
-
+        var rentalResponse = rentalMapper.convertRentalEntityToResponse(rentalRepository.save(rentalEntity.get()));
+        return new ResponseEntity<>(rentalResponse, HttpStatus.OK);
     }
 
     public ResponseEntity<?> getRentalListByRenterId(UserEntity user, Long renterId) {

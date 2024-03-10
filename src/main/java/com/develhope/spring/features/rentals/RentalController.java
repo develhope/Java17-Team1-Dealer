@@ -2,7 +2,6 @@ package com.develhope.spring.features.rentals;
 
 import com.develhope.spring.features.rentals.dto.CreateRentalRequest;
 import com.develhope.spring.features.rentals.dto.PatchRentalRequest;
-import com.develhope.spring.features.rentals.dto.RentalResponse;
 import com.develhope.spring.features.users.UserEntity;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import lombok.RequiredArgsConstructor;
@@ -23,17 +22,13 @@ public class RentalController {
     @PutMapping(path = RENTAL_PATH + "/create")
     public ResponseEntity<?> createRentalByVehicleId(@AuthenticationPrincipal UserEntity user,
                                                      @RequestBody CreateRentalRequest rentalRequest) {
-        RentalResponse rentalResponse = rentalService.createRentalByVehicleId(user, rentalRequest);
-        if (rentalResponse == null) {
-            return new ResponseEntity<>(rentalResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(rentalResponse, HttpStatus.OK);
+        return rentalService.createRentalByVehicleId(user, rentalRequest);
     }
 
     @PatchMapping(path = RENTAL_PATH_ID)
-    public RentalResponse patchRental(@AuthenticationPrincipal UserEntity user,
-                                      @PathVariable Long rentalId,
-                                      @RequestBody PatchRentalRequest patchRentalRequest) {
+    public ResponseEntity<?> patchRental(@AuthenticationPrincipal UserEntity user,
+                                         @PathVariable Long rentalId,
+                                         @RequestBody PatchRentalRequest patchRentalRequest) {
         return rentalService.patchRental(user, rentalId, patchRentalRequest);
     }
 
@@ -47,9 +42,6 @@ public class RentalController {
     @DeleteMapping(path = RENTAL_PATH_ID)
     public ResponseEntity<?> deleteRental(@AuthenticationPrincipal UserEntity user,
                                           @PathVariable Long rentalId) {
-        if (rentalService.deleteRental(user, rentalId)) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
         return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

@@ -1,7 +1,6 @@
 package com.develhope.spring.features.orders;
 
 import com.develhope.spring.features.orders.dto.CreateOrderRequest;
-import com.develhope.spring.features.orders.dto.OrderResponse;
 import com.develhope.spring.features.orders.dto.PatchOrderRequest;
 import com.develhope.spring.features.orders.dto.TotalSalesPricePeriodRequest;
 import com.develhope.spring.features.users.Role;
@@ -25,36 +24,28 @@ public class OrderController {
     @PutMapping(path = ORDER_PATH + "/prepare")
     public ResponseEntity<?> prepareOrderByVehicleId(@AuthenticationPrincipal UserEntity user,
                                                      @RequestBody CreateOrderRequest orderRequest) {
-        OrderResponse orderResponse = orderService.prepareOrderByVehicleId(user, orderRequest);
-        if (orderResponse == null) {
-            return new ResponseEntity<>(orderResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(orderResponse, HttpStatus.OK);
+        return orderService.prepareOrderByVehicleId(user, orderRequest);
     }
 
     //this creates an order that is ready to be delivered
     @PutMapping(path = ORDER_PATH + "/create")
     public ResponseEntity<?> createOrderByVehicleId(@AuthenticationPrincipal UserEntity user,
                                                     @RequestBody CreateOrderRequest orderRequest) {
-        OrderResponse orderResponse = orderService.createOrderByVehicleId(user, orderRequest);
-        if (orderResponse == null) {
-            return new ResponseEntity<>(orderResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(orderResponse, HttpStatus.OK);
+        return orderService.createOrderByVehicleId(user, orderRequest);
     }
 
 
     @PatchMapping(path = ORDER_PATH_ID)
-    public OrderResponse patchOrder(@AuthenticationPrincipal UserEntity user,
-                                    @PathVariable Long orderId,
-                                    @RequestBody PatchOrderRequest patchOrderRequest) {
+    public ResponseEntity<?> patchOrder(@AuthenticationPrincipal UserEntity user,
+                                        @PathVariable Long orderId,
+                                        @RequestBody PatchOrderRequest patchOrderRequest) {
         return orderService.patchOrder(user, orderId, patchOrderRequest);
     }
 
     @PatchMapping(path = ORDER_PATH_ID + "/status")
-    public OrderResponse patchOrderStatus(@AuthenticationPrincipal UserEntity user,
-                                          @PathVariable Long orderId,
-                                          @RequestParam String status) {
+    public ResponseEntity<?> patchOrderStatus(@AuthenticationPrincipal UserEntity user,
+                                              @PathVariable Long orderId,
+                                              @RequestParam String status) {
         return orderService.patchOrderStatus(user, orderId, status);
     }
 
@@ -81,11 +72,7 @@ public class OrderController {
     @GetMapping(path = ORDER_PATH_ID + "/status")
     public ResponseEntity<?> getOrderStatus(@AuthenticationPrincipal UserEntity user,
                                             @PathVariable Long orderId) {
-        OrderStatus orderStatus = orderService.getOrderStatus(user, orderId);
-        if (orderStatus == null) {
-            return new ResponseEntity<>(orderStatus, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(orderStatus, HttpStatus.OK);
+        return orderService.getOrderStatus(user, orderId);
     }
 
     @DeleteMapping(path = ORDER_PATH_ID)

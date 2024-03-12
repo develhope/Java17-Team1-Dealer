@@ -5,14 +5,13 @@ import com.develhope.spring.exception.UnauthorizedException;
 import com.develhope.spring.features.orders.OrderRepository;
 import com.develhope.spring.features.users.Role;
 import com.develhope.spring.features.users.UserEntity;
-import com.develhope.spring.features.users.UserMapper;
-import com.develhope.spring.features.users.UserRepository;
 import com.develhope.spring.features.vehicle.PropertiesEnum.FuelType;
 import com.develhope.spring.features.vehicle.PropertiesEnum.ShiftType;
 import com.develhope.spring.features.vehicle.dto.CreateVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.PatchVehicleRequest;
 import com.develhope.spring.features.vehicle.dto.VehicleResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -27,8 +26,6 @@ import java.util.Optional;
 public class VehicleService {
     private final VehicleRepository vehicleRepository;
     private final VehicleMapper vehicleMapper;
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
     private final OrderRepository orderRepository;
 
 
@@ -257,6 +254,44 @@ public class VehicleService {
         return vehicleMapper.mapList(vehicleEntities, VehicleResponse.class);
     }
 
+
+    public List<VehicleEntity> findAllBy(
+            String model,
+            String brand,
+            Integer displacement,
+            String color,
+            Integer power,
+            String shiftType,
+            Integer yearOfMatriculation,
+            String fuelType,
+            Long price,
+            Long dailyCostRental,
+            Integer discount,
+            String accessories,
+            Boolean used,
+            String vehicleStatus,
+            String vehicleType) {
+
+        final Specification<VehicleEntity> specification = VehicleSpecification.filterVehicleEntity(
+                model,
+                brand,
+                displacement,
+                color,
+                power,
+                shiftType,
+                yearOfMatriculation,
+                fuelType,
+                price,
+                dailyCostRental,
+                discount,
+                accessories,
+                used,
+                vehicleStatus,
+                vehicleType
+        );
+        final List<VehicleEntity> vehicles = vehicleRepository.findAll(specification);
+        return vehicles;
+    }
 
     //ADMIN ROUTES
     public ResponseEntity<?> getMostSoldVehiclePeriod(String startDate, String endDate) {

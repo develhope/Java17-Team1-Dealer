@@ -25,17 +25,13 @@ public class VehicleController {
     @PostMapping(path = VEHICLE_PATH)
     public ResponseEntity<?> createVehicle(@AuthenticationPrincipal UserEntity user,
                                            @RequestBody CreateVehicleRequest createVehicleRequest) {
-        VehicleResponse vehicleResponse = vehicleService.createVehicle(user, createVehicleRequest);
-        if (vehicleResponse == null) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(vehicleResponse, HttpStatus.OK);
+        return vehicleService.createVehicle(user, createVehicleRequest);
     }
 
     @PatchMapping(path = VEHICLE_PATH_ID)
-    public VehicleResponse patchVehicle(@AuthenticationPrincipal UserEntity user,
-                                        @PathVariable Long vehicleId,
-                                        @RequestBody PatchVehicleRequest patchVehicleRequest) {
+    public ResponseEntity<?> patchVehicle(@AuthenticationPrincipal UserEntity user,
+                                          @PathVariable Long vehicleId,
+                                          @RequestBody PatchVehicleRequest patchVehicleRequest) {
         return vehicleService.patchVehicle(user, vehicleId, patchVehicleRequest);
     }
 
@@ -46,9 +42,9 @@ public class VehicleController {
     }
 
     @PatchMapping(path = VEHICLE_PATH_ID + "/status")
-    public VehicleResponse patchStatus(@AuthenticationPrincipal UserEntity user,
-                                       @PathVariable Long vehicleId,
-                                       @RequestParam String status) {
+    public ResponseEntity<?> patchStatus(@AuthenticationPrincipal UserEntity user,
+                                         @PathVariable Long vehicleId,
+                                         @RequestParam String status) {
         return vehicleService.patchStatus(user, vehicleId, status);
     }
 
@@ -61,11 +57,7 @@ public class VehicleController {
 
     @GetMapping(path = VEHICLE_PATH_ID)
     public ResponseEntity<?> getSingleVehicle(@PathVariable Long vehicleId) {
-        VehicleResponse vehicleResponse = vehicleService.getSingleVehicle(vehicleId);
-        if (vehicleResponse == null) {
-            return new ResponseEntity<>(vehicleResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        return new ResponseEntity<>(vehicleResponse, HttpStatus.OK);
+        return vehicleService.getSingleVehicle(vehicleId);
     }
 
     @GetMapping(path = VEHICLE_PATH + "/all")

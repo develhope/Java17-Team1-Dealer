@@ -1,6 +1,7 @@
 package com.develhope.spring.features.users;
 
 import com.develhope.spring.exception.NotFoundException;
+import com.develhope.spring.exception.UnauthorizedException;
 import com.develhope.spring.features.orders.OrderRepository;
 import com.develhope.spring.features.users.dto.CreateUserRequest;
 import com.develhope.spring.features.users.dto.PatchUserRequest;
@@ -30,69 +31,74 @@ public class UserServiceImpl implements UserService {
         return userMapper.convertUserEntityToResponse(userEntity);
     }
 
-    public UserResponse createUser(CreateUserRequest userRequest) {
+    public ResponseEntity<?> createUser(CreateUserRequest userRequest) {
         if (!StringUtils.hasText(userRequest.getName())) {
-            return null; //empty
+            return new ResponseEntity<>("Invalid name: cannot be empty", HttpStatus.BAD_REQUEST);
         }
 
         if (!StringUtils.hasText(userRequest.getEmail())) {
-            return null; //empty
+            return new ResponseEntity<>("Invalid email: cannot be empty", HttpStatus.BAD_REQUEST);
         }
 
         if (!StringUtils.hasText(userRequest.getPassword())) {
-            return null; //empty
+            return new ResponseEntity<>("Invalid password: cannot be empty", HttpStatus.BAD_REQUEST);
+        }
+
+        if (!StringUtils.hasText(userRequest.getTelephoneNumber())) {
+            return new ResponseEntity<>("Invalid phone number: cannot be empty", HttpStatus.BAD_REQUEST);
         }
 
         if (userRequest.getName().length() < 3) {
-            return null; //too short
+            return new ResponseEntity<>("Invalid name: too short (min 3 char)", HttpStatus.BAD_REQUEST);
         }
 
         if (userRequest.getName().length() > 20) {
-            return null; //too long
+            return new ResponseEntity<>("Invalid name: too long (max 20 chars)", HttpStatus.BAD_REQUEST);
         }
 
         if (userRequest.getEmail().length() < 5) {
-            return null; //too short
+            return new ResponseEntity<>("Invalid mail: too short (min 5 chars)", HttpStatus.BAD_REQUEST);
         }
 
         if (userRequest.getEmail().length() > 50) {
-            return null; //too long
+            return new ResponseEntity<>("Invalid mail: too long (max 50 chars)", HttpStatus.BAD_REQUEST);
         }
 
-        if (userRequest.getTelephoneNumber().length() < 5) {
-            return null; //too short
+        if (userRequest.getTelephoneNumber().length() < 3) {
+            return new ResponseEntity<>("Invalid phone number: too short (min 3 numbers)", HttpStatus.BAD_REQUEST);
         }
 
         if (userRequest.getTelephoneNumber().length() > 11) {
-            return null; //too long
+            return new ResponseEntity<>("Invalid phone number: too long (max 11 chars)", HttpStatus.BAD_REQUEST);
         }
 
         if (userRequest.getPassword().length() < 5) {
-            return null; //too short
+            return new ResponseEntity<>("Invalid password: too short (min 5 char)", HttpStatus.BAD_REQUEST);
         }
 
         if (userRequest.getPassword().length() > 20) {
-            return null; //too long
+            return new ResponseEntity<>("Invalid password: too long (max 20 chars)", HttpStatus.BAD_REQUEST);
         }
 
         if (userRepository.findByEmail(userRequest.getEmail()).isPresent()) {
-            return null; //email exists
+            return new ResponseEntity<>("mail already used", HttpStatus.BAD_REQUEST);
         }
 
         if (userRepository.findByTelephoneNumber(userRequest.getTelephoneNumber()).isPresent()) {
-            return null; //telephone exists
+            return new ResponseEntity<>("phone number already used", HttpStatus.BAD_REQUEST);
         }
 
         userRequest.setRole(userRequest.getRole().toUpperCase());
         if (Role.isValidUserRole(userRequest.getRole())) {
-            return null; //invalid user type
+            return new ResponseEntity<>("Invalid user role", HttpStatus.BAD_REQUEST);
         }
 
         String hash = BCrypt.hashpw(userRequest.getPassword(), BCrypt.gensalt(9));
         userRequest.setPassword(hash);
 
         UserEntity userEntity = userMapper.convertUserRequestToEntity(userRequest);
-        return userMapper.convertUserEntityToResponse(userRepository.saveAndFlush(userEntity));
+        var userResponse = userMapper.convertUserEntityToResponse(userRepository.saveAndFlush(userEntity));
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
     public List<UserResponse> getAllUsers() {
@@ -100,17 +106,16 @@ public class UserServiceImpl implements UserService {
         return userMapper.mapList(userEntities, UserResponse.class);
     }
 
-    public UserResponse patchUser(UserEntity user, Long user_id, PatchUserRequest patchUserRequest) {
+    public ResponseEntity<?> patchUser(UserEntity user, Long user_id, PatchUserRequest patchUserRequest) {
         final var sameUser = user_id.equals(user.getId());
         if (!sameUser && user.getRole() != Role.ADMIN) {
-            return null; //unauthorized
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         Optional<UserEntity> originalUser = !sameUser ? userRepository.findById(user_id) : Optional.of(user);
         if (originalUser.isEmpty()) {
-            return null;
+            return new ResponseEntity<>("Invalid user", HttpStatus.BAD_REQUEST);
         }
-
 
         if (StringUtils.hasText(patchUserRequest.getName())) {
             originalUser.get().setName(patchUserRequest.getName());
@@ -128,7 +133,8 @@ public class UserServiceImpl implements UserService {
             originalUser.get().setPassword(patchUserRequest.getPassword());
         }
 
-        return userMapper.convertUserEntityToResponse(userRepository.save(originalUser.get()));
+        var userResponse = userMapper.convertUserEntityToResponse(userRepository.save(originalUser.get()));
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
 
@@ -140,28 +146,27 @@ public class UserServiceImpl implements UserService {
         return generateUserResponseFromEntity(foundUser.get());
     }
 
-    //TODO: proper returns for proper errors;
-    public UserResponse updatePassword(UserEntity user, Long user_id, String password) { //should be already hashed, from middleware
+    public ResponseEntity<?> updatePassword(UserEntity user, Long user_id, String password) { //should be already hashed, from middleware
         final var sameUser = user_id == user.getId();
         if (!sameUser && user.getRole() != Role.ADMIN) {
-            return null; //unauthorized
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         Optional<UserEntity> originalUser = !sameUser ? userRepository.findById(user_id) : Optional.of(user);
         if (originalUser.isEmpty()) {
-            return null;
+            return new ResponseEntity<>("Invalid user", HttpStatus.BAD_REQUEST);
         }
 
         if (password.length() < 5) {
-            return null; //too short
+            return new ResponseEntity<>("Invalid password: too short (min 5 chars)", HttpStatus.BAD_REQUEST);
         }
 
         if (password.length() > 20) {
-            return null; //too long
+            return new ResponseEntity<>("Invalid password: too long (max 20 chars)", HttpStatus.BAD_REQUEST);
         }
 
         if (!StringUtils.hasText(password)) {
-            return null; //empty
+            return new ResponseEntity<>("Invalid password: cannot be empty", HttpStatus.BAD_REQUEST);
         }
 
         String hash = BCrypt.hashpw(password, BCrypt.gensalt(9));
@@ -169,91 +174,95 @@ public class UserServiceImpl implements UserService {
 
         originalUser.get().setPassword(hash);
         var savedUser = userRepository.save(originalUser.get());
-        return generateUserResponseFromEntity(savedUser);
+        UserResponse userResponse = generateUserResponseFromEntity(savedUser);
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
     }
 
-    public UserResponse updateUserName(UserEntity user, Long user_id, String userName) {
+    public ResponseEntity<?> updateUserName(UserEntity user, Long user_id, String userName) {
         final var sameUser = user_id == user.getId();
         if (!sameUser && user.getRole() != Role.ADMIN) {
-            return null; //unauthorized
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         Optional<UserEntity> originalUser = !sameUser ? userRepository.findById(user_id) : Optional.of(user);
         if (originalUser.isEmpty()) {
-            return null;
+            return new ResponseEntity<>("Invalid user", HttpStatus.BAD_REQUEST);
         }
 
         if (userName.length() < 3) {
-            return null; //too short
+            return new ResponseEntity<>("Invalid name: too short (min 3 chars)", HttpStatus.BAD_REQUEST);
         }
 
         if (userName.length() > 20) {
-            return null; //too long
+            return new ResponseEntity<>("Invalid name: too long (max 20 chars)", HttpStatus.BAD_REQUEST);
         }
 
         if (!StringUtils.hasText(userName)) {
-            return null; //empty
+            return new ResponseEntity<>("Invalid name: cannot be empty", HttpStatus.BAD_REQUEST);
         }
 
 
         originalUser.get().setName(userName);
         var savedUser = userRepository.save(originalUser.get());
-        return generateUserResponseFromEntity(savedUser);
+        var userResponse = generateUserResponseFromEntity(savedUser);
+        return new ResponseEntity<>(userResponse, HttpStatus.BAD_REQUEST);
 
     }
 
-    public UserResponse updateTelephoneNumber(UserEntity user, Long user_id, String telephoneNumber) { //phone checks? some lib maybe?
+    public ResponseEntity<?> updateTelephoneNumber(UserEntity user, Long user_id, String telephoneNumber) { //phone checks? some lib maybe?
         final var sameUser = user_id == user.getId();
         if (!sameUser && user.getRole() != Role.ADMIN) {
-            return null; //unauthorized
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         Optional<UserEntity> originalUser = !sameUser ? userRepository.findById(user_id) : Optional.of(user);
         if (originalUser.isEmpty()) {
-            return null;
+            return new ResponseEntity<>("Invalid user", HttpStatus.BAD_REQUEST);
         }
 
         if (!StringUtils.hasText(telephoneNumber)) {
-            return null; //empty
+            return new ResponseEntity<>("Invalid phone number: cannot be empty", HttpStatus.BAD_REQUEST);
         }
 
 
         originalUser.get().setTelephoneNumber(telephoneNumber);
         var savedUser = userRepository.save(originalUser.get());
-        return generateUserResponseFromEntity(savedUser);
+        var userResponse = generateUserResponseFromEntity(savedUser);
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
 
     }
 
-    public UserResponse updateEmail(UserEntity user, Long user_id, String email) { //TODO: mail checks
+    public ResponseEntity<?> updateEmail(UserEntity user, Long user_id, String email) {
         final var sameUser = user_id == user.getId();
         if (!sameUser && user.getRole() != Role.ADMIN) {
-            return null; //unauthorized
+            return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
         }
 
         Optional<UserEntity> originalUser = !sameUser ? userRepository.findById(user_id) : Optional.of(user);
         if (originalUser.isEmpty()) {
-            return null;
+            return new ResponseEntity<>("Invalid user", HttpStatus.BAD_REQUEST);
         }
 
         if (!StringUtils.hasText(email)) {
-            return null; //empty
+            return new ResponseEntity<>("Invalid mail: cannot be empty", HttpStatus.BAD_REQUEST);
         }
 
         originalUser.get().setEmail(email);
         var savedUser = userRepository.save(originalUser.get());
-        return generateUserResponseFromEntity(savedUser);
+        var userResponse = generateUserResponseFromEntity(savedUser);
+        return new ResponseEntity<>(userResponse, HttpStatus.OK);
 
     }
 
     public Boolean deleteSingleUser(UserEntity user, Long id_to_delete) {
         final var sameUser = user.getId().equals(id_to_delete);
         if (!sameUser && user.getRole() != Role.ADMIN) {
-            return null; //unauthorized
+            throw new UnauthorizedException();
         }
 
         Optional<UserEntity> originalUser = !sameUser ? userRepository.findById(id_to_delete) : Optional.of(user);
         if (originalUser.isEmpty()) {
-            throw new NotFoundException();
+            throw new NotFoundException("User not found");
         }
 
         userRepository.deleteById(id_to_delete);

@@ -20,6 +20,13 @@ spring:
   jackson:
     serialization:
       fail-on-empty-beans: false
+token:
+  signing:
+    #This key is used as base to generate tokens for authentication
+    key: 413F4428472B4B6250655368566D5970337336763979244226452948404D6351
+  config:
+    activate:
+      on-profile: prod
 spring-doc:
   swagger-ui:
     path: /api-test/index.html

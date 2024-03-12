@@ -65,6 +65,42 @@ public class VehicleController {
         return vehicleService.getAllVehicles();
     }
 
+    @GetMapping(path = VEHICLE_PATH + "/by")
+    public ResponseEntity<List<VehicleEntity>> findBy(
+            @RequestParam(required = false) String model,
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) Integer displacement,
+            @RequestParam(required = false) String color,
+            @RequestParam(required = false) Integer power,
+            @RequestParam(required = false) String shiftType,
+            @RequestParam(required = false) Integer yearOfMatriculation,
+            @RequestParam(required = false) String fuelType,
+            @RequestParam(required = false) Long price,
+            @RequestParam(required = false) Long dailyCostRental,
+            @RequestParam(required = false) Integer discount,
+            @RequestParam(required = false) String accessories,
+            @RequestParam(required = false) Boolean used,
+            @RequestParam(required = false) String vehicleStatus,
+            @RequestParam(required = false) String vehicleType) {
+        return ResponseEntity.ok(vehicleService.findAllBy(
+                model,
+                brand,
+                displacement,
+                color,
+                power,
+                shiftType,
+                yearOfMatriculation,
+                fuelType,
+                price,
+                dailyCostRental,
+                discount,
+                accessories,
+                used,
+                vehicleStatus,
+                vehicleType));
+    }
+
+
     //ADMIN ROUTES
     @GetMapping(path = VEHICLE_PATH + "/mostsold")
     public ResponseEntity<?> getMostSoldVehiclePeriod(@AuthenticationPrincipal UserEntity user,

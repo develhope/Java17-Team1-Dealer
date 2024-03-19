@@ -20,6 +20,9 @@ spring:
   jackson:
     serialization:
       fail-on-empty-beans: false
+springdoc:
+  swagger-ui:
+    disable-swagger-default-url: true
 token:
   signing:
     #This key is used as base to generate tokens for authentication
@@ -27,6 +30,3 @@ token:
   config:
     activate:
       on-profile: prod
-spring-doc:
-  swagger-ui:
-    path: /api-test/index.html
